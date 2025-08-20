@@ -150,7 +150,7 @@ export default function Login() {
               <span className="bg-white px-2 text-gray-500">Or continue with</span>
             </div>
           </div>
-          {/* <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => signIn('google')}
