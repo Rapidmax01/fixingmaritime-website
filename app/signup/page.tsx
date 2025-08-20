@@ -200,6 +200,7 @@ export default function SignUp() {
                   },
                 })}
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 className="block w-full rounded-md border-0 py-2 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                 placeholder="••••••••"
               />
@@ -228,6 +229,7 @@ export default function SignUp() {
                   validate: value => value === password || 'Passwords do not match',
                 })}
                 type={showConfirmPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 className="block w-full rounded-md border-0 py-2 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                 placeholder="••••••••"
               />
