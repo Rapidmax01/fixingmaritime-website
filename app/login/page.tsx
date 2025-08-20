@@ -140,7 +140,8 @@ export default function Login() {
           </div>
         </form>
 
-        <div className="mt-6">
+        {/* OAuth section temporarily disabled until configured */}
+        {/* <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -149,8 +150,7 @@ export default function Login() {
               <span className="bg-white px-2 text-gray-500">Or continue with</span>
             </div>
           </div>
-
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          {/* <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => signIn('google')}
@@ -191,7 +191,7 @@ export default function Login() {
               </svg>
               GitHub
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
