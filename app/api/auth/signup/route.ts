@@ -1,26 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client'
 
-// Temporarily disable database imports for deployment
-// import bcrypt from 'bcryptjs'
-// import { PrismaClient } from '@prisma/client'
-// const prisma = new PrismaClient()
+const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { firstName, lastName, email, password, company, phone } = body
 
-    // Temporary response for deployment - database not connected yet
-    return NextResponse.json(
-      {
-        message: 'Signup functionality will be available once database is connected. Please check back soon!',
-        status: 'coming_soon'
-      },
-      { status: 200 }
-    )
-
-    // Original code will be re-enabled once database is connected:
-    /*
+    // Check if database is connected
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json(
+        {
+          message: 'Database connection not configured. Please set up your database connection.',
+          status: 'configuration_needed'
+        },
+        { status: 503 }
+      )
+    }
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -57,7 +55,6 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     )
-    */
   } catch (error) {
     console.error('Signup error:', error)
     return NextResponse.json(

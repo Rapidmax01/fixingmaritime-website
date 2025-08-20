@@ -2,17 +2,14 @@ import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import GithubProvider from 'next-auth/providers/github'
+import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
 
-// Temporarily disable database imports for initial deployment
-// import bcrypt from 'bcryptjs'
-// import { PrismaClient } from '@prisma/client'
-// import { PrismaAdapter } from '@next-auth/prisma-adapter'
-
-// const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
 export const authOptions: NextAuthOptions = {
-  // Temporarily disable database adapter for initial deployment
-  // ...(prisma && { adapter: PrismaAdapter(prisma) }),
+  ...(prisma && { adapter: PrismaAdapter(prisma) }),
   providers: [
     // Only add OAuth providers if credentials are available
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
@@ -27,18 +24,41 @@ export const authOptions: NextAuthOptions = {
         clientSecret: process.env.GITHUB_SECRET,
       })
     ] : []),
-    // Temporarily disable credentials provider (requires database)
-    // CredentialsProvider({
-    //   name: 'credentials',
-    //   credentials: {
-    //     email: { label: 'Email', type: 'email' },
-    //     password: { label: 'Password', type: 'password' }
-    //   },
-    //   async authorize(credentials) {
-    //     // Disabled for initial deployment
-    //     return null
-    //   }
-    // })
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password || !prisma) {
+          return null
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        })
+
+        if (!user || !user.password) {
+          return null
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        )
+
+        if (!isPasswordValid) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        }
+      }
+    })
   ],
   session: {
     strategy: 'jwt'
