@@ -15,7 +15,7 @@ export function verifyAdminToken(token: string): AdminUser | null {
       process.env.NEXTAUTH_SECRET || 'fallback-secret'
     ) as any
 
-    if (decoded.role !== 'admin') {
+    if (decoded.role !== 'admin' && decoded.role !== 'super_admin') {
       return null
     }
 
@@ -28,6 +28,14 @@ export function verifyAdminToken(token: string): AdminUser | null {
   } catch (error) {
     return null
   }
+}
+
+export function isSuperAdmin(user: AdminUser | null): boolean {
+  return user?.role === 'super_admin'
+}
+
+export function canManageAdmins(user: AdminUser | null): boolean {
+  return isSuperAdmin(user)
 }
 
 export function getAdminFromRequest(request: NextRequest): AdminUser | null {

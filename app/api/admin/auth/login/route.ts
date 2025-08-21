@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if user has admin role
-    if (user.role !== 'admin') {
+    // Check if user has admin or super_admin role
+    if (user.role !== 'admin' && user.role !== 'super_admin') {
       return NextResponse.json(
         { message: 'Access denied. Admin privileges required.' },
         { status: 403 }

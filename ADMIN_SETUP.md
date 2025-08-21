@@ -2,6 +2,12 @@
 
 This guide will help you set up admin access for the Fixing Maritime platform.
 
+## User Roles
+
+- **Customer**: Regular users who can place orders and track shipments
+- **Admin**: Can manage users, orders, services, and view analytics
+- **Super Admin**: Can do everything admins can PLUS create/remove other admins
+
 ## Prerequisites
 
 1. Create a regular user account at https://www.fixingmaritime.com/signup
@@ -21,7 +27,9 @@ This guide will help you set up admin access for the Fixing Maritime platform.
 3. **Update Your User**
    - Find your user by email
    - Click on the row
-   - Change `role` from `customer` to `admin`
+   - Change `role` from `customer` to:
+     - `admin` for regular admin access
+     - `super_admin` for super admin access
    - Click "Save"
 
 4. **Access Admin Portal**
@@ -32,9 +40,18 @@ This guide will help you set up admin access for the Fixing Maritime platform.
 
 1. **Open SQL Editor in Supabase**
 2. **Run this query** (replace with your email):
+   
+   For Admin:
    ```sql
    UPDATE app_users 
    SET role = 'admin' 
+   WHERE email = 'your-email@fixingmaritime.com';
+   ```
+   
+   For Super Admin:
+   ```sql
+   UPDATE app_users 
+   SET role = 'super_admin' 
    WHERE email = 'your-email@fixingmaritime.com';
    ```
 
@@ -46,8 +63,11 @@ If you're running locally:
 # First, set your database URL
 export DATABASE_URL="your-supabase-connection-string"
 
-# Then run the script
+# For regular admin
 node scripts/make-admin.js your-email@fixingmaritime.com
+
+# For super admin
+node scripts/make-admin.js your-email@fixingmaritime.com super_admin
 ```
 
 ## Method 4: API Endpoint (First Admin Only)
