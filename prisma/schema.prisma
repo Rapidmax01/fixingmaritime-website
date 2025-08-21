@@ -115,3 +115,54 @@ model OrderTracking {
   @@index([orderId])
   @@map("order_tracking")
 }
+
+model ContentSection {
+  id        String   @id @default(uuid())
+  type      String   // "hero", "about", "services", "contact", "footer"
+  name      String
+  title     String
+  content   String   @db.Text
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([type])
+  @@map("content_sections")
+}
+
+model SeoSettings {
+  id            String   @id @default(uuid())
+  title         String
+  description   String   @db.Text
+  keywords      String   @db.Text
+  ogTitle       String
+  ogDescription String   @db.Text
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("seo_settings")
+}
+
+enum MediaFileType {
+  image
+  document
+  video
+  audio
+}
+
+model MediaFile {
+  id          String        @id @default(uuid())
+  name        String
+  type        MediaFileType
+  url         String
+  size        BigInt
+  mimeType    String?
+  width       Int?
+  height      Int?
+  alt         String?
+  uploadedAt  DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@map("media_files")
+}

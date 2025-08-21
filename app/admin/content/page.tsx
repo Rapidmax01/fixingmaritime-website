@@ -215,6 +215,57 @@ export default function AdminContent() {
     checkAdminAuth()
   }, [])
 
+  useEffect(() => {
+    if (admin) {
+      loadContentData()
+    }
+  }, [admin])
+
+  const loadContentData = async () => {
+    try {
+      // Load content sections
+      const sectionsResponse = await fetch('/api/admin/content/sections')
+      if (sectionsResponse.ok) {
+        const { sections } = await sectionsResponse.json()
+        if (sections && sections.length > 0) {
+          const formattedSections = sections.map((section: any) => ({
+            id: section.id,
+            name: section.name,
+            title: section.title,
+            content: section.content,
+            type: section.type
+          }))
+          setContentSections(formattedSections)
+        }
+      }
+
+      // Load SEO settings
+      const seoResponse = await fetch('/api/admin/content/seo')
+      if (seoResponse.ok) {
+        const { seoSettings: settings } = await seoResponse.json()
+        if (settings) {
+          setSeoSettings(settings)
+        }
+      }
+
+      // Load media files
+      const mediaResponse = await fetch('/api/admin/content/media')
+      if (mediaResponse.ok) {
+        const { mediaFiles: files } = await mediaResponse.json()
+        if (files) {
+          const formattedFiles = files.map((file: any) => ({
+            ...file,
+            size: parseInt(file.size),
+            uploadedAt: file.uploadedAt || new Date().toISOString()
+          }))
+          setMediaFiles(formattedFiles)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load content data:', error)
+    }
+  }
+
   const checkAdminAuth = async () => {
     try {
       const response = await fetch('/api/admin/auth/me')
@@ -283,18 +334,34 @@ export default function AdminContent() {
   const saveSection = async (sectionId: string) => {
     setIsSaving(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setContentSections(sections =>
-        sections.map(section =>
-          section.id === sectionId
-            ? { ...section, isEditing: false }
-            : section
+      const section = contentSections.find(s => s.id === sectionId)
+      if (!section) return
+
+      const response = await fetch('/api/admin/content/sections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: section.id,
+          type: section.type,
+          name: section.name,
+          title: section.title,
+          content: section.content
+        })
+      })
+
+      if (response.ok) {
+        setContentSections(sections =>
+          sections.map(s =>
+            s.id === sectionId
+              ? { ...s, isEditing: false }
+              : s
+          )
         )
-      )
-      
-      toast.success('Content updated successfully')
+        toast.success('Content updated successfully')
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to update content')
+      }
     } catch (error) {
       toast.error('Failed to update content')
     } finally {
@@ -305,9 +372,18 @@ export default function AdminContent() {
   const saveSEOSettings = async () => {
     setIsSaving(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success('SEO settings updated successfully')
+      const response = await fetch('/api/admin/content/seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(seoSettings)
+      })
+
+      if (response.ok) {
+        toast.success('SEO settings updated successfully')
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to update SEO settings')
+      }
     } catch (error) {
       toast.error('Failed to update SEO settings')
     } finally {
@@ -351,22 +427,43 @@ export default function AdminContent() {
 
     setIsUploading(true)
     try {
-      // Simulate file upload
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      const newFiles: MediaFile[] = Array.from(files).map((file, index) => ({
-        id: `upload-${Date.now()}-${index}`,
-        name: file.name,
-        type: file.type.startsWith('image/') ? 'image' : 
-              file.type.startsWith('video/') ? 'video' :
-              file.type.startsWith('audio/') ? 'audio' : 'document',
-        url: URL.createObjectURL(file),
-        size: file.size,
-        uploadedAt: new Date().toISOString(),
-        dimensions: file.type.startsWith('image/') ? { width: 1200, height: 800 } : undefined
-      }))
+      const uploadPromises = Array.from(files).map(async (file) => {
+        // Create temporary URL for preview
+        const tempUrl = URL.createObjectURL(file)
+        
+        // In a real implementation, you'd upload to a cloud storage service
+        // For now, we'll simulate this with the temp URL
+        const mediaData = {
+          name: file.name,
+          type: file.type.startsWith('image/') ? 'image' : 
+                file.type.startsWith('video/') ? 'video' :
+                file.type.startsWith('audio/') ? 'audio' : 'document',
+          url: tempUrl, // In production, this would be the uploaded file URL
+          size: file.size,
+          mimeType: file.type,
+          width: file.type.startsWith('image/') ? 1200 : undefined,
+          height: file.type.startsWith('image/') ? 800 : undefined
+        }
 
-      setMediaFiles(prev => [...newFiles, ...prev])
+        const response = await fetch('/api/admin/content/media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mediaData)
+        })
+
+        if (response.ok) {
+          const { mediaFile } = await response.json()
+          return {
+            ...mediaFile,
+            size: parseInt(mediaFile.size)
+          }
+        } else {
+          throw new Error('Upload failed')
+        }
+      })
+
+      const uploadedFiles = await Promise.all(uploadPromises)
+      setMediaFiles(prev => [...uploadedFiles, ...prev])
       toast.success(`${files.length} file(s) uploaded successfully`)
     } catch (error) {
       toast.error('Failed to upload files')
@@ -380,13 +477,46 @@ export default function AdminContent() {
     if (!confirm('Are you sure you want to delete this file?')) return
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setMediaFiles(prev => prev.filter(file => file.id !== fileId))
-      setSelectedFiles(prev => prev.filter(id => id !== fileId))
-      toast.success('File deleted successfully')
+      const response = await fetch(`/api/admin/content/media/${fileId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        setMediaFiles(prev => prev.filter(file => file.id !== fileId))
+        setSelectedFiles(prev => prev.filter(id => id !== fileId))
+        if (selectedFile?.id === fileId) {
+          setSelectedFile(null)
+        }
+        toast.success('File deleted successfully')
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to delete file')
+      }
     } catch (error) {
       toast.error('Failed to delete file')
+    }
+  }
+
+  const deleteMultipleFiles = async (fileIds: string[]) => {
+    if (!confirm(`Are you sure you want to delete ${fileIds.length} files?`)) return
+    
+    try {
+      const response = await fetch('/api/admin/content/media', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileIds })
+      })
+
+      if (response.ok) {
+        setMediaFiles(prev => prev.filter(file => !fileIds.includes(file.id)))
+        setSelectedFiles([])
+        toast.success(`${fileIds.length} file(s) deleted successfully`)
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to delete files')
+      }
+    } catch (error) {
+      toast.error('Failed to delete files')
     }
   }
 
@@ -401,6 +531,25 @@ export default function AdminContent() {
   const copyFileUrl = (url: string) => {
     navigator.clipboard.writeText(url)
     toast.success('File URL copied to clipboard')
+  }
+
+  const updateFileAlt = async (fileId: string, alt: string) => {
+    try {
+      const response = await fetch(`/api/admin/content/media/${fileId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alt })
+      })
+
+      if (response.ok) {
+        setMediaFiles(prev => prev.map(file => 
+          file.id === fileId ? { ...file, alt } : file
+        ))
+        // Don't show toast for alt text updates to avoid spam
+      }
+    } catch (error) {
+      // Silently fail for alt text updates
+    }
   }
 
   const filteredMediaFiles = mediaFiles.filter(file => {
@@ -714,10 +863,7 @@ export default function AdminContent() {
                   
                   {selectedFiles.length > 0 && (
                     <button
-                      onClick={() => {
-                        selectedFiles.forEach(deleteFile)
-                        setSelectedFiles([])
-                      }}
+                      onClick={() => deleteMultipleFiles(selectedFiles)}
                       className="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
@@ -1077,12 +1223,9 @@ export default function AdminContent() {
                             type="text"
                             value={selectedFile.alt || ''}
                             onChange={(e) => {
-                              setSelectedFile({ ...selectedFile, alt: e.target.value })
-                              setMediaFiles(prev => prev.map(file => 
-                                file.id === selectedFile.id 
-                                  ? { ...file, alt: e.target.value }
-                                  : file
-                              ))
+                              const newAlt = e.target.value
+                              setSelectedFile({ ...selectedFile, alt: newAlt })
+                              updateFileAlt(selectedFile.id, newAlt)
                             }}
                             placeholder="Enter alt text for accessibility..."
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
