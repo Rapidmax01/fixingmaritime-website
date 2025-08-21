@@ -1,7 +1,20 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-// Initialize Resend with API key
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+// Create reusable transporter object using Gmail SMTP
+const createTransporter = () => {
+  // Check if Gmail credentials are configured
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    return null
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER, // info@fixingmaritime.com
+      pass: process.env.GMAIL_APP_PASSWORD // App-specific password
+    }
+  })
+}
 
 interface EmailData {
   to: string
@@ -11,8 +24,10 @@ interface EmailData {
 }
 
 export async function sendEmail(data: EmailData): Promise<boolean> {
-  // If no API key, log to console (demo mode)
-  if (!resend) {
+  const transporter = createTransporter()
+  
+  // If no transporter (credentials not configured), log to console (demo mode)
+  if (!transporter) {
     console.log('📧 Email Demo Mode - Would send:')
     console.log('From: info@fixingmaritime.com')
     console.log('To:', data.to)
@@ -22,16 +37,16 @@ export async function sendEmail(data: EmailData): Promise<boolean> {
   }
   
   try {
-    // Send email using Resend
-    const result = await resend.emails.send({
-      from: 'Fixing Maritime <info@fixingmaritime.com>',
+    // Send email using Gmail SMTP
+    const result = await transporter.sendMail({
+      from: '"Fixing Maritime" <info@fixingmaritime.com>',
       to: data.to,
       subject: data.subject,
       html: data.html,
       text: data.text,
     })
     
-    console.log('✅ Email sent successfully:', result)
+    console.log('✅ Email sent successfully via Gmail:', result.messageId)
     return true
   } catch (error) {
     console.error('❌ Failed to send email:', error)
