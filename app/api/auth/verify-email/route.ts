@@ -39,9 +39,34 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Database mode - for now just return success
-    // In production, you would find and update the user with verification token
-    console.log('Database mode: Would verify token:', token)
+    // Database mode - find and update the user with verification token
+    const user = await prisma.user.findFirst({
+      where: { 
+        emailVerifyToken: token,
+        emailVerifyExpires: {
+          gte: new Date() // Token must not be expired
+        }
+      }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Invalid or expired verification token' },
+        { status: 400 }
+      )
+    }
+
+    // Update user to mark email as verified
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerifyToken: null,
+        emailVerifyExpires: null
+      }
+    })
+
+    console.log('Email verified for user:', user.email)
 
     return NextResponse.json(
       { 
@@ -97,9 +122,34 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Database mode - for now just return success
-    // In production, you would find and update the user with verification token
-    console.log('Database mode: Would verify token:', token)
+    // Database mode - find and update the user with verification token
+    const user = await prisma.user.findFirst({
+      where: { 
+        emailVerifyToken: token,
+        emailVerifyExpires: {
+          gte: new Date() // Token must not be expired
+        }
+      }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Invalid or expired verification token' },
+        { status: 400 }
+      )
+    }
+
+    // Update user to mark email as verified
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerifyToken: null,
+        emailVerifyExpires: null
+      }
+    })
+
+    console.log('Email verified for user:', user.email)
 
     return NextResponse.json(
       { 
