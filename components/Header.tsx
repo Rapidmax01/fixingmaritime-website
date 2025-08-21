@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, ShoppingCart, User, Anchor } from 'lucide-react'
+import { Menu, X, ShoppingCart, User, Anchor, Settings } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const navigation = [
@@ -18,6 +18,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
+  
+  // Check if user is admin (in demo mode, allow access if logged in)
+  const isAdmin = session?.user?.email?.includes('admin') || session?.user?.email === 'admin@fixingmaritime.com' || true // For demo, allow all logged-in users
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -59,6 +62,15 @@ export default function Header() {
                 <User className="h-5 w-5 mr-1" />
                 Dashboard
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center text-sm font-semibold leading-6 text-gray-900 hover:text-primary-600"
+                >
+                  <Settings className="h-5 w-5 mr-1" />
+                  Admin
+                </Link>
+              )}
               <Link
                 href="/cart"
                 className="flex items-center text-sm font-semibold leading-6 text-gray-900 hover:text-primary-600"
@@ -134,6 +146,15 @@ export default function Header() {
                     >
                       Dashboard
                     </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Admin
+                      </Link>
+                    )}
                     <Link
                       href="/cart"
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
