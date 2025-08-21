@@ -52,8 +52,16 @@ export default function SignUp() {
       })
 
       if (response.ok) {
-        toast.success('Account created successfully!')
-        router.push('/login')
+        const result = await response.json()
+        
+        if (result.requiresEmailVerification) {
+          toast.success('Account created! Please check your email to verify your account.')
+          // Redirect to a verification pending page or show instructions
+          router.push('/login?message=verification-sent')
+        } else {
+          toast.success('Account created successfully!')
+          router.push('/login')
+        }
       } else {
         const error = await response.json()
         toast.error(error.message || 'Failed to create account')

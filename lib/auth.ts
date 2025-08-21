@@ -36,6 +36,11 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Check if email is verified (disabled for demo)
+        // if (!(user as any).emailVerified) {
+        //   throw new Error('Please verify your email before logging in')
+        // }
+
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password

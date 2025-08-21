@@ -1,22 +1,53 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
-import { Anchor, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Anchor, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
 
 type FormData = {
   email: string
   password: string
 }
 
-export default function Login() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showResendEmail, setShowResendEmail] = useState('')
+  
+  const message = searchParams.get('message')
+  
+  useEffect(() => {
+    if (message === 'verification-sent') {
+      toast.success('Verification email sent! Please check your inbox.')
+    }
+  }, [message])
+
+  const resendVerification = async (email: string) => {
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success('Verification email sent! Please check your inbox.')
+        setShowResendEmail('')
+      } else {
+        toast.error(data.message || 'Failed to send verification email')
+      }
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.')
+    }
+  }
   
   const {
     register,
@@ -27,6 +58,23 @@ export default function Login() {
   const onSubmit = async (data: FormData) => {
     try {
       setIsLoading(true)
+
+      // First check if the user exists and is verified
+      const checkResponse = await fetch('/api/auth/check-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email }),
+      })
+
+      if (checkResponse.ok) {
+        const checkData = await checkResponse.json()
+        if (!checkData.emailVerified) {
+          toast.error('Please verify your email address before logging in.')
+          setShowResendEmail(data.email)
+          return
+        }
+      }
+
       const result = await signIn('credentials', {
         redirect: false,
         email: data.email,
@@ -64,6 +112,26 @@ export default function Login() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        {message === 'verification-sent' && (
+          <div className="mb-6 rounded-md bg-green-50 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <CheckCircle className="h-5 w-5 text-green-400" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">
+                  Verification Email Sent
+                </h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <p>
+                    We've sent a verification email to your inbox. Please check your email and click the verification link before logging in.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
@@ -129,6 +197,33 @@ export default function Login() {
             )}
           </div>
 
+          {showResendEmail && (
+            <div className="mb-4 rounded-md bg-yellow-50 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Email Verification Required
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>Please verify your email address before logging in.</p>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => resendVerification(showResendEmail)}
+                      className="rounded-md bg-yellow-50 px-2 py-1.5 text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 focus:ring-offset-yellow-50"
+                    >
+                      Resend verification email
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
@@ -179,5 +274,13 @@ export default function Login() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }
