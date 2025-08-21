@@ -368,14 +368,6 @@ export default function AdminDashboard() {
                   )
                 })}
               </div>
-              <div className="p-4 border-t border-gray-200">
-                <Link 
-                  href="/admin/activity"
-                  className="text-sm font-medium text-red-600 hover:text-red-700"
-                >
-                  View all activity →
-                </Link>
-              </div>
             </div>
           </div>
         </div>
