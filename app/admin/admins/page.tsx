@@ -187,9 +187,9 @@ export default function AdminManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {currentAdmin && <AdminHeader admin={currentAdmin} onLogout={handleLogout} />}
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <div className="flex-grow mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
