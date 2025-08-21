@@ -23,6 +23,7 @@ import {
   Crown
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import AdminHeader from '@/components/AdminHeader'
 
 interface AdminUser {
   id: string
@@ -246,42 +247,22 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <AdminHeader admin={admin} onLogout={handleLogout} />
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
-        {/* Header */}
+        {/* Welcome Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center">
-                <Shield className="h-8 w-8 text-red-600 mr-3" />
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                  <p className="mt-1 text-gray-600">
-                    Welcome back, {admin.name || admin.email}
-                  </p>
-                </div>
-              </div>
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+              <p className="mt-1 text-gray-600">
+                Welcome back, {admin.name || admin.email}
+              </p>
             </div>
             <div className="flex items-center space-x-4">
-              {admin.role === 'super_admin' && (
-                <Link
-                  href="/admin/admins"
-                  className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200"
-                >
-                  <Crown className="h-4 w-4 mr-1" />
-                  Manage Admins
-                </Link>
-              )}
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
                 System Online
               </span>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
-              >
-                <LogOut className="h-4 w-4 mr-1" />
-                Logout
-              </button>
             </div>
           </div>
         </div>

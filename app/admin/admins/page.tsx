@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import AdminHeader from '@/components/AdminHeader'
 
 interface User {
   id: string
@@ -78,6 +79,23 @@ export default function AdminManagement() {
       toast.error('Failed to fetch users')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        toast.success('Logged out successfully')
+        router.push('/admin/login')
+      } else {
+        toast.error('Failed to logout')
+      }
+    } catch (error) {
+      toast.error('Something went wrong')
     }
   }
 
@@ -170,6 +188,7 @@ export default function AdminManagement() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {currentAdmin && <AdminHeader admin={currentAdmin} onLogout={handleLogout} />}
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -182,12 +201,6 @@ export default function AdminManagement() {
                   Manage admin privileges for users
                 </p>
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                <Crown className="h-3 w-3 mr-1" />
-                Super Admin
-              </span>
             </div>
           </div>
         </div>
