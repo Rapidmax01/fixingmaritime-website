@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     const emailVerifyToken = crypto.randomBytes(32).toString('hex')
     const emailVerifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
-    // Create user
+    // Create user with email verification fields
     const user = await prisma.user.create({
       data: {
         email,
@@ -90,6 +90,9 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         company,
         phone,
+        emailVerifyToken,
+        emailVerifyExpires,
+        emailVerified: false,
       },
     })
 
@@ -124,11 +127,35 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error:', error)
+    
+    // Provide more specific error messages in development
+    if (error?.code === 'P2002') {
+      return NextResponse.json(
+        { message: 'User with this email already exists' },
+        { status: 400 }
+      )
+    }
+    
+    if (error?.code === 'P1001') {
+      return NextResponse.json(
+        { message: 'Database connection failed. Please try again later.' },
+        { status: 503 }
+      )
+    }
+    
+    // Log the full error for debugging
+    console.error('Full error details:', {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta,
+      stack: error?.stack
+    })
+    
     return NextResponse.json(
-      { message: 'Service temporarily unavailable' },
-      { status: 503 }
+      { message: 'Unable to create account. Please try again.' },
+      { status: 500 }
     )
   }
 }
