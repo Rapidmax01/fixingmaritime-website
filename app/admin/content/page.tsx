@@ -15,7 +15,19 @@ import {
   Settings,
   Upload,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Search,
+  Filter,
+  Grid3X3,
+  List,
+  Download,
+  Copy,
+  ExternalLink,
+  Calendar,
+  FileImage,
+  File,
+  Video,
+  Music
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import AdminHeader from '@/components/AdminHeader'
@@ -42,6 +54,20 @@ interface SEOSettings {
   keywords: string
   ogTitle: string
   ogDescription: string
+}
+
+interface MediaFile {
+  id: string
+  name: string
+  type: 'image' | 'document' | 'video' | 'audio'
+  url: string
+  size: number
+  uploadedAt: string
+  dimensions?: {
+    width: number
+    height: number
+  }
+  alt?: string
 }
 
 const mockContentSections: ContentSection[] = [
@@ -90,6 +116,83 @@ const mockSEOSettings: SEOSettings = {
   ogDescription: 'Your trusted partner for comprehensive maritime solutions'
 }
 
+const mockMediaFiles: MediaFile[] = [
+  {
+    id: '1',
+    name: 'hero-ship-background.jpg',
+    type: 'image',
+    url: '/images/hero-bg.jpg',
+    size: 2456789,
+    uploadedAt: '2024-01-15T10:30:00Z',
+    dimensions: { width: 1920, height: 1080 },
+    alt: 'Maritime cargo ship at sunset'
+  },
+  {
+    id: '2',
+    name: 'truck-services.jpg',
+    type: 'image',
+    url: '/images/truck-bg.jpg',
+    size: 1876543,
+    uploadedAt: '2024-01-14T14:20:00Z',
+    dimensions: { width: 1600, height: 900 },
+    alt: 'Truck loading cargo at port'
+  },
+  {
+    id: '3',
+    name: 'warehouse-facility.jpg',
+    type: 'image',
+    url: '/images/warehouse-bg.jpg',
+    size: 3245678,
+    uploadedAt: '2024-01-13T09:15:00Z',
+    dimensions: { width: 2048, height: 1365 },
+    alt: 'Modern warehouse facility'
+  },
+  {
+    id: '4',
+    name: 'company-brochure.pdf',
+    type: 'document',
+    url: '/documents/brochure.pdf',
+    size: 4567890,
+    uploadedAt: '2024-01-12T16:45:00Z'
+  },
+  {
+    id: '5',
+    name: 'port-operations.mp4',
+    type: 'video',
+    url: '/videos/port-ops.mp4',
+    size: 15678901,
+    uploadedAt: '2024-01-11T11:30:00Z'
+  },
+  {
+    id: '6',
+    name: 'team-photo.jpg',
+    type: 'image',
+    url: '/images/team.jpg',
+    size: 1234567,
+    uploadedAt: '2024-01-10T13:20:00Z',
+    dimensions: { width: 1280, height: 854 },
+    alt: 'Fixing Maritime team photo'
+  },
+  {
+    id: '7',
+    name: 'service-overview.pdf',
+    type: 'document',
+    url: '/documents/services.pdf',
+    size: 2345678,
+    uploadedAt: '2024-01-09T08:15:00Z'
+  },
+  {
+    id: '8',
+    name: 'container-yard.jpg',
+    type: 'image',
+    url: '/images/container-yard.jpg',
+    size: 2987654,
+    uploadedAt: '2024-01-08T15:40:00Z',
+    dimensions: { width: 1920, height: 1280 },
+    alt: 'Container storage yard'
+  }
+]
+
 export default function AdminContent() {
   const router = useRouter()
   const [admin, setAdmin] = useState<AdminUser | null>(null)
@@ -98,6 +201,15 @@ export default function AdminContent() {
   const [contentSections, setContentSections] = useState<ContentSection[]>(mockContentSections)
   const [seoSettings, setSeoSettings] = useState<SEOSettings>(mockSEOSettings)
   const [isSaving, setIsSaving] = useState(false)
+  
+  // Media library state
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>(mockMediaFiles)
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<'all' | 'image' | 'document' | 'video' | 'audio'>('all')
+  const [isUploading, setIsUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null)
 
   useEffect(() => {
     checkAdminAuth()
@@ -213,6 +325,89 @@ export default function AdminContent() {
       default: return '📄'
     }
   }
+
+  // Media library functions
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const getFileIcon = (type: string) => {
+    switch (type) {
+      case 'image': return FileImage
+      case 'document': return File
+      case 'video': return Video
+      case 'audio': return Music
+      default: return File
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+
+    setIsUploading(true)
+    try {
+      // Simulate file upload
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const newFiles: MediaFile[] = Array.from(files).map((file, index) => ({
+        id: `upload-${Date.now()}-${index}`,
+        name: file.name,
+        type: file.type.startsWith('image/') ? 'image' : 
+              file.type.startsWith('video/') ? 'video' :
+              file.type.startsWith('audio/') ? 'audio' : 'document',
+        url: URL.createObjectURL(file),
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        dimensions: file.type.startsWith('image/') ? { width: 1200, height: 800 } : undefined
+      }))
+
+      setMediaFiles(prev => [...newFiles, ...prev])
+      toast.success(`${files.length} file(s) uploaded successfully`)
+    } catch (error) {
+      toast.error('Failed to upload files')
+    } finally {
+      setIsUploading(false)
+      event.target.value = ''
+    }
+  }
+
+  const deleteFile = async (fileId: string) => {
+    if (!confirm('Are you sure you want to delete this file?')) return
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setMediaFiles(prev => prev.filter(file => file.id !== fileId))
+      setSelectedFiles(prev => prev.filter(id => id !== fileId))
+      toast.success('File deleted successfully')
+    } catch (error) {
+      toast.error('Failed to delete file')
+    }
+  }
+
+  const toggleFileSelection = (fileId: string) => {
+    setSelectedFiles(prev => 
+      prev.includes(fileId) 
+        ? prev.filter(id => id !== fileId)
+        : [...prev, fileId]
+    )
+  }
+
+  const copyFileUrl = (url: string) => {
+    navigator.clipboard.writeText(url)
+    toast.success('File URL copied to clipboard')
+  }
+
+  const filteredMediaFiles = mediaFiles.filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFilter = filterType === 'all' || file.type === filterType
+    return matchesSearch && matchesFilter
+  })
 
   if (isLoading || !admin) {
     return (
@@ -492,46 +687,428 @@ export default function AdminContent() {
 
         {/* Media Tab */}
         {activeTab === 'media' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+          <div className="space-y-6">
+            {/* Media Library Header */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">Media Library</h3>
                   <p className="text-sm text-gray-500">
-                    Manage images and files for your website
+                    {filteredMediaFiles.length} of {mediaFiles.length} files
                   </p>
                 </div>
-                <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Media
-                </button>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <label className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 cursor-pointer">
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isUploading ? 'Uploading...' : 'Upload Files'}
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </label>
+                  
+                  {selectedFiles.length > 0 && (
+                    <button
+                      onClick={() => {
+                        selectedFiles.forEach(deleteFile)
+                        setSelectedFiles([])
+                      }}
+                      className="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Selected ({selectedFiles.length})
+                    </button>
+                  )}
+                </div>
               </div>
+            </div>
 
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-                <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 mb-2">Media Library Coming Soon</h4>
-                <p className="text-gray-600 mb-4">
-                  Upload and manage images, documents, and other media files for your website.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <Image className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                    <h5 className="font-medium text-gray-900 text-sm">Images</h5>
-                    <p className="text-xs text-gray-600">JPG, PNG, GIF, WebP</p>
+            {/* Filters and Search */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search files..."
+                      className="pl-10 pr-4 py-2 w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    />
                   </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <FileText className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                    <h5 className="font-medium text-gray-900 text-sm">Documents</h5>
-                    <p className="text-xs text-gray-600">PDF, DOC, XLS</p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <Settings className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                    <h5 className="font-medium text-gray-900 text-sm">Optimization</h5>
-                    <p className="text-xs text-gray-600">Auto-resize & compress</p>
+                </div>
+                
+                <div className="flex gap-2">
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value as any)}
+                    className="rounded-lg border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  >
+                    <option value="all">All Files</option>
+                    <option value="image">Images</option>
+                    <option value="document">Documents</option>
+                    <option value="video">Videos</option>
+                    <option value="audio">Audio</option>
+                  </select>
+                  
+                  <div className="flex border border-gray-300 rounded-lg">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 ${viewMode === 'grid' ? 'bg-red-50 text-red-600' : 'text-gray-400'}`}
+                    >
+                      <Grid3X3 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 border-l ${viewMode === 'list' ? 'bg-red-50 text-red-600' : 'text-gray-400'}`}
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Media Grid/List */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              {filteredMediaFiles.length === 0 ? (
+                <div className="text-center py-12">
+                  <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    {searchTerm || filterType !== 'all' ? 'No files found' : 'No files yet'}
+                  </h4>
+                  <p className="text-gray-600 mb-6">
+                    {searchTerm || filterType !== 'all' 
+                      ? 'Try adjusting your search or filter criteria.'
+                      : 'Upload your first file to get started.'
+                    }
+                  </p>
+                </div>
+              ) : viewMode === 'grid' ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {filteredMediaFiles.map((file, index) => {
+                    const FileIcon = getFileIcon(file.type)
+                    const isSelected = selectedFiles.includes(file.id)
+                    
+                    return (
+                      <motion.div
+                        key={file.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.05 }}
+                        className={`relative group cursor-pointer rounded-lg border-2 transition-all ${
+                          isSelected 
+                            ? 'border-red-500 bg-red-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => toggleFileSelection(file.id)}
+                      >
+                        <div className="aspect-square p-3">
+                          {file.type === 'image' ? (
+                            <div className="w-full h-full bg-gray-100 rounded overflow-hidden">
+                              <img
+                                src={file.url}
+                                alt={file.alt || file.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement
+                                  target.style.display = 'none'
+                                  target.nextElementSibling?.classList.remove('hidden')
+                                }}
+                              />
+                              <div className="hidden w-full h-full flex items-center justify-center">
+                                <FileIcon className="h-8 w-8 text-gray-400" />
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded">
+                              <FileIcon className="h-8 w-8 text-gray-400" />
+                            </div>
+                          )}
+                          
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  copyFileUrl(file.url)
+                                }}
+                                className="p-1 bg-white rounded shadow-sm hover:bg-gray-50"
+                                title="Copy URL"
+                              >
+                                <Copy className="h-3 w-3 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSelectedFile(file)
+                                }}
+                                className="p-1 bg-white rounded shadow-sm hover:bg-gray-50"
+                                title="View Details"
+                              >
+                                <Eye className="h-3 w-3 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  deleteFile(file.id)
+                                }}
+                                className="p-1 bg-white rounded shadow-sm hover:bg-red-50 text-red-600"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {isSelected && (
+                            <div className="absolute top-2 left-2">
+                              <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs">✓</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="p-2 border-t">
+                          <p className="text-xs font-medium text-gray-900 truncate" title={file.name}>
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredMediaFiles.map((file, index) => {
+                    const FileIcon = getFileIcon(file.type)
+                    const isSelected = selectedFiles.includes(file.id)
+                    
+                    return (
+                      <motion.div
+                        key={file.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.02 }}
+                        className={`flex items-center p-3 rounded-lg border transition-all ${
+                          isSelected 
+                            ? 'border-red-500 bg-red-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleFileSelection(file.id)}
+                          className="h-4 w-4 text-red-600 rounded focus:ring-red-500"
+                        />
+                        
+                        <div className="ml-3 flex items-center min-w-0 flex-1">
+                          {file.type === 'image' ? (
+                            <img
+                              src={file.url}
+                              alt={file.alt || file.name}
+                              className="h-10 w-10 rounded object-cover mr-3"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement
+                                target.style.display = 'none'
+                                target.nextElementSibling?.classList.remove('hidden')
+                              }}
+                            />
+                          ) : null}
+                          <div className={`${file.type !== 'image' ? 'flex items-center justify-center h-10 w-10 bg-gray-100 rounded mr-3' : 'hidden'}`}>
+                            <FileIcon className="h-5 w-5 text-gray-400" />
+                          </div>
+                          
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {file.name}
+                            </p>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <span>{formatFileSize(file.size)}</span>
+                              {file.dimensions && (
+                                <span className="ml-2">{file.dimensions.width}x{file.dimensions.height}</span>
+                              )}
+                              <span className="ml-2">{new Date(file.uploadedAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => copyFileUrl(file.url)}
+                            className="p-1 text-gray-400 hover:text-gray-600"
+                            title="Copy URL"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => window.open(file.url, '_blank')}
+                            className="p-1 text-gray-400 hover:text-gray-600"
+                            title="Open"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setSelectedFile(file)}
+                            className="p-1 text-gray-400 hover:text-gray-600"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteFile(file.id)}
+                            className="p-1 text-red-400 hover:text-red-600"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* File Details Modal */}
+            {selectedFile && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-medium text-gray-900">File Details</h3>
+                      <button
+                        onClick={() => setSelectedFile(null)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-6 w-6" />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {selectedFile.type === 'image' && (
+                        <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                          <img
+                            src={selectedFile.url}
+                            alt={selectedFile.alt || selectedFile.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            File Name
+                          </label>
+                          <p className="text-sm text-gray-900">{selectedFile.name}</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            File Size
+                          </label>
+                          <p className="text-sm text-gray-900">{formatFileSize(selectedFile.size)}</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            File Type
+                          </label>
+                          <p className="text-sm text-gray-900 capitalize">{selectedFile.type}</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Upload Date
+                          </label>
+                          <p className="text-sm text-gray-900">
+                            {new Date(selectedFile.uploadedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        {selectedFile.dimensions && (
+                          <>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Dimensions
+                              </label>
+                              <p className="text-sm text-gray-900">
+                                {selectedFile.dimensions.width} x {selectedFile.dimensions.height}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          File URL
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={selectedFile.url}
+                            readOnly
+                            className="flex-1 text-sm bg-gray-50 border border-gray-300 rounded px-3 py-2"
+                          />
+                          <button
+                            onClick={() => copyFileUrl(selectedFile.url)}
+                            className="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Copy
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {selectedFile.type === 'image' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Alt Text
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedFile.alt || ''}
+                            onChange={(e) => {
+                              setSelectedFile({ ...selectedFile, alt: e.target.value })
+                              setMediaFiles(prev => prev.map(file => 
+                                file.id === selectedFile.id 
+                                  ? { ...file, alt: e.target.value }
+                                  : file
+                              ))
+                            }}
+                            placeholder="Enter alt text for accessibility..."
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+                      <button
+                        onClick={() => setSelectedFile(null)}
+                        className="px-4 py-2 text-sm border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                      >
+                        Close
+                      </button>
+                      <button
+                        onClick={() => deleteFile(selectedFile.id)}
+                        className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        Delete File
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
