@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { isEmailVerified } from '@/lib/temp-email-store'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -15,9 +16,12 @@ export async function POST(req: NextRequest) {
     }
 
     if (!prisma) {
+      // Use temporary store for demo mode
+      const verified = isEmailVerified(email)
+      
       return NextResponse.json(
         { 
-          emailVerified: true,
+          emailVerified: verified,
           userExists: true 
         },
         { status: 200 }

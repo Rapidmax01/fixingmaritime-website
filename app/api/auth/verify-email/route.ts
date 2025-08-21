@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { getVerificationToken, markEmailAsVerified, deleteVerificationToken } from '@/lib/temp-email-store'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -15,17 +16,32 @@ export async function POST(req: NextRequest) {
     }
 
     if (!prisma) {
+      // Use temporary store for demo mode
+      const verification = getVerificationToken(token)
+      
+      if (!verification) {
+        return NextResponse.json(
+          { message: 'Invalid or expired verification token' },
+          { status: 400 }
+        )
+      }
+      
+      // Mark email as verified
+      markEmailAsVerified(verification.email)
+      deleteVerificationToken(token)
+      
       return NextResponse.json(
         { 
-          message: 'Email verified successfully! (Demo mode)',
+          message: 'Email verified successfully! You can now log in. (Demo mode)',
           verified: true 
         },
         { status: 200 }
       )
     }
 
-    // For demo purposes, just return success
-    console.log('Demo mode: Would verify token:', token)
+    // Database mode - for now just return success
+    // In production, you would find and update the user with verification token
+    console.log('Database mode: Would verify token:', token)
 
     return NextResponse.json(
       { 
@@ -58,17 +74,32 @@ export async function GET(req: NextRequest) {
     }
 
     if (!prisma) {
+      // Use temporary store for demo mode
+      const verification = getVerificationToken(token)
+      
+      if (!verification) {
+        return NextResponse.json(
+          { message: 'Invalid or expired verification token' },
+          { status: 400 }
+        )
+      }
+      
+      // Mark email as verified
+      markEmailAsVerified(verification.email)
+      deleteVerificationToken(token)
+      
       return NextResponse.json(
         { 
-          message: 'Email verified successfully! (Demo mode)',
+          message: 'Email verified successfully! You can now log in. (Demo mode)',
           verified: true 
         },
         { status: 200 }
       )
     }
 
-    // For demo purposes, just return success
-    console.log('Demo mode: Would verify token via GET:', token)
+    // Database mode - for now just return success
+    // In production, you would find and update the user with verification token
+    console.log('Database mode: Would verify token:', token)
 
     return NextResponse.json(
       { 

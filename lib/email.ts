@@ -1,5 +1,7 @@
-// Email utility functions
-// In a production app, you would use a service like SendGrid, Mailgun, or AWS SES
+import { Resend } from 'resend'
+
+// Initialize Resend with API key
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 interface EmailData {
   to: string
@@ -9,21 +11,33 @@ interface EmailData {
 }
 
 export async function sendEmail(data: EmailData): Promise<boolean> {
-  // For now, we'll just log the email content
-  // In production, you would integrate with your email service
+  // If no API key, log to console (demo mode)
+  if (!resend) {
+    console.log('📧 Email Demo Mode - Would send:')
+    console.log('From: info@fixingmaritime.com')
+    console.log('To:', data.to)
+    console.log('Subject:', data.subject)
+    console.log('Preview:', data.text.substring(0, 100) + '...')
+    return true
+  }
   
-  console.log('📧 Email would be sent:')
-  console.log('To:', data.to)
-  console.log('Subject:', data.subject)
-  console.log('HTML:', data.html)
-  console.log('Text:', data.text)
-  
-  // Simulate email sending delay
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  // Return true to simulate successful sending
-  // In production, this would return the actual result from your email service
-  return true
+  try {
+    // Send email using Resend
+    const result = await resend.emails.send({
+      from: 'Fixing Maritime <info@fixingmaritime.com>',
+      to: data.to,
+      subject: data.subject,
+      html: data.html,
+      text: data.text,
+    })
+    
+    console.log('✅ Email sent successfully:', result)
+    return true
+  } catch (error) {
+    console.error('❌ Failed to send email:', error)
+    // Don't throw error - allow signup to continue
+    return false
+  }
 }
 
 export function generateVerificationEmail(name: string, verificationUrl: string) {
