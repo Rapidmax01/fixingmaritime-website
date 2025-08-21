@@ -1,9 +1,9 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 import { 
   Users, 
   Package, 
@@ -17,9 +17,18 @@ import {
   Warehouse,
   AlertCircle,
   CheckCircle,
-  Clock
+  Clock,
+  LogOut,
+  Shield
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+
+interface AdminUser {
+  id: string
+  email: string
+  name?: string
+  role: string
+}
 
 // Mock admin data
 const adminStats = [
@@ -162,46 +171,72 @@ const getStatusColor = (status: string) => {
 }
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession()
   const router = useRouter()
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [admin, setAdmin] = useState<AdminUser | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-    
-    // Check if user is admin (in demo mode, allow access if logged in)
-    if (session?.user) {
-      // In production, you would check user role from database
-      // For demo: admin@fixingmaritime.com or any user ending with @admin.com
-      const isAdminUser = session.user.email?.includes('admin') || 
-                         session.user.email === 'admin@fixingmaritime.com'
-      setIsAdmin(true) // For demo, allow all logged-in users
-    }
-  }, [status, session, router])
+    checkAdminAuth()
+  }, [])
 
-  if (status === 'loading') {
+  const checkAdminAuth = async () => {
+    try {
+      const response = await fetch('/api/admin/auth/me')
+      if (response.ok) {
+        const data = await response.json()
+        setAdmin(data.user)
+      } else {
+        router.push('/admin/login')
+        return
+      }
+    } catch (error) {
+      router.push('/admin/login')
+      return
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        toast.success('Logged out successfully')
+        router.push('/admin/login')
+      } else {
+        toast.error('Failed to logout')
+      }
+    } catch (error) {
+      toast.error('Something went wrong')
+    }
+  }
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin dashboard...</p>
+        </div>
       </div>
     )
   }
 
-  if (!session || !isAdmin) {
+  if (!admin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+          <Shield className="mx-auto h-12 w-12 text-red-500 mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
           <Link 
-            href="/dashboard"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+            href="/admin/login"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
           >
-            Go to User Dashboard
+            Go to Admin Login
           </Link>
         </div>
       </div>
@@ -215,16 +250,28 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="mt-2 text-gray-600">
-                Manage your maritime logistics platform
-              </p>
+              <div className="flex items-center">
+                <Shield className="h-8 w-8 text-red-600 mr-3" />
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                  <p className="mt-1 text-gray-600">
+                    Welcome back, {admin.name || admin.email}
+                  </p>
+                </div>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
                 System Online
               </span>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -333,7 +380,7 @@ export default function AdminDashboard() {
               <div className="p-4 border-t border-gray-200">
                 <Link 
                   href="/admin/activity"
-                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                  className="text-sm font-medium text-red-600 hover:text-red-700"
                 >
                   View all activity →
                 </Link>
