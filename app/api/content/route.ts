@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+// Create a new instance for each request to avoid connection issues
+function createPrismaClient() {
+  if (!process.env.DATABASE_URL) {
+    return null
+  }
+  return new PrismaClient({
+    log: ['error', 'warn'],
+  })
+}
 
 export async function GET(request: NextRequest) {
+  let prisma = null
+  
   try {
     console.log('Content API called, DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    
+    prisma = createPrismaClient()
     
     if (!prisma) {
       console.log('Prisma not available, returning default content')
@@ -90,6 +102,11 @@ export async function GET(request: NextRequest) {
 
     } catch (dbError: any) {
       console.error('Database error in public content API:', dbError)
+      console.error('Error details:', {
+        message: dbError.message,
+        code: dbError.code,
+        meta: dbError.meta
+      })
       // Return default content if database query fails
       return NextResponse.json({
         sections: {
@@ -127,8 +144,17 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Public content API error:', error)
     return NextResponse.json(
-      { message: 'Failed to fetch content' },
+      { message: 'Failed to fetch content', error: error.message },
       { status: 500 }
     )
+  } finally {
+    // Always disconnect Prisma
+    if (prisma) {
+      try {
+        await prisma.$disconnect()
+      } catch (disconnectError) {
+        console.error('Error disconnecting Prisma:', disconnectError)
+      }
+    }
   }
 }
