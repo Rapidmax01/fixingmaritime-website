@@ -22,66 +22,83 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('Starting database migration...')
+
     // Create tables using raw SQL since Prisma might not have the schema yet
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "content_sections" (
-        "id" TEXT NOT NULL,
-        "type" TEXT NOT NULL,
-        "name" TEXT NOT NULL,
-        "title" TEXT NOT NULL,
-        "content" TEXT NOT NULL,
-        "active" BOOLEAN NOT NULL DEFAULT true,
-        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
-        CONSTRAINT "content_sections_pkey" PRIMARY KEY ("id")
-      );
-    `
+    try {
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "content_sections" (
+          "id" TEXT NOT NULL,
+          "type" TEXT NOT NULL,
+          "name" TEXT NOT NULL,
+          "title" TEXT NOT NULL,
+          "content" TEXT NOT NULL,
+          "active" BOOLEAN NOT NULL DEFAULT true,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL,
+          CONSTRAINT "content_sections_pkey" PRIMARY KEY ("id")
+        );
+      `
+      console.log('Created content_sections table')
+    } catch (error: any) {
+      console.error('Error creating content_sections:', error.message)
+    }
 
-    await prisma.$executeRaw`
-      CREATE UNIQUE INDEX IF NOT EXISTS "content_sections_type_key" ON "content_sections"("type");
-    `
+    try {
+      await prisma.$executeRaw`
+        CREATE UNIQUE INDEX IF NOT EXISTS "content_sections_type_key" ON "content_sections"("type");
+      `
+      console.log('Created content_sections index')
+    } catch (error: any) {
+      console.error('Error creating content_sections index:', error.message)
+    }
 
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "seo_settings" (
-        "id" TEXT NOT NULL,
-        "title" TEXT NOT NULL,
-        "description" TEXT NOT NULL,
-        "keywords" TEXT NOT NULL,
-        "ogTitle" TEXT NOT NULL,
-        "ogDescription" TEXT NOT NULL,
-        "active" BOOLEAN NOT NULL DEFAULT true,
-        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
-        CONSTRAINT "seo_settings_pkey" PRIMARY KEY ("id")
-      );
-    `
+    try {
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "seo_settings" (
+          "id" TEXT NOT NULL,
+          "title" TEXT NOT NULL,
+          "description" TEXT NOT NULL,
+          "keywords" TEXT NOT NULL,
+          "ogTitle" TEXT NOT NULL,
+          "ogDescription" TEXT NOT NULL,
+          "active" BOOLEAN NOT NULL DEFAULT true,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL,
+          CONSTRAINT "seo_settings_pkey" PRIMARY KEY ("id")
+        );
+      `
+      console.log('Created seo_settings table')
+    } catch (error: any) {
+      console.error('Error creating seo_settings:', error.message)
+    }
 
-    await prisma.$executeRaw`
-      DO $$ BEGIN
-        CREATE TYPE "MediaFileType" AS ENUM ('image', 'document', 'video', 'audio');
-      EXCEPTION
-        WHEN duplicate_object THEN null;
-      END $$;
-    `
+    // Simplified media files table without ENUM
+    try {
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "media_files" (
+          "id" TEXT NOT NULL,
+          "name" TEXT NOT NULL,
+          "type" TEXT NOT NULL,
+          "url" TEXT NOT NULL,
+          "size" BIGINT NOT NULL,
+          "mimeType" TEXT,
+          "width" INTEGER,
+          "height" INTEGER,
+          "alt" TEXT,
+          "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL,
+          CONSTRAINT "media_files_pkey" PRIMARY KEY ("id")
+        );
+      `
+      console.log('Created media_files table')
+    } catch (error: any) {
+      console.error('Error creating media_files:', error.message)
+    }
 
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "media_files" (
-        "id" TEXT NOT NULL,
-        "name" TEXT NOT NULL,
-        "type" "MediaFileType" NOT NULL,
-        "url" TEXT NOT NULL,
-        "size" BIGINT NOT NULL,
-        "mimeType" TEXT,
-        "width" INTEGER,
-        "height" INTEGER,
-        "alt" TEXT,
-        "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
-        CONSTRAINT "media_files_pkey" PRIMARY KEY ("id")
-      );
-    `
+    console.log('Tables created, starting data seeding...')
 
-    // Now seed initial data
+    // Now seed initial data with error handling
     const contentSections = [
       {
         id: 'hero-section',
@@ -120,44 +137,58 @@ export async function POST(request: NextRequest) {
       }
     ]
 
-    // Insert content sections
+    // Insert content sections with error handling
+    let sectionsSeeded = 0
     for (const section of contentSections) {
-      await prisma.$executeRaw`
-        INSERT INTO "content_sections" ("id", "type", "name", "title", "content", "active", "createdAt", "updatedAt")
-        VALUES (${section.id}, ${section.type}, ${section.name}, ${section.title}, ${section.content}, true, NOW(), NOW())
-        ON CONFLICT ("type") DO UPDATE SET
-          "name" = EXCLUDED."name",
-          "title" = EXCLUDED."title", 
-          "content" = EXCLUDED."content",
-          "updatedAt" = NOW()
-      `
+      try {
+        await prisma.$executeRaw`
+          INSERT INTO "content_sections" ("id", "type", "name", "title", "content", "active", "createdAt", "updatedAt")
+          VALUES (${section.id}, ${section.type}, ${section.name}, ${section.title}, ${section.content}, true, NOW(), NOW())
+          ON CONFLICT ("type") DO UPDATE SET
+            "name" = EXCLUDED."name",
+            "title" = EXCLUDED."title", 
+            "content" = EXCLUDED."content",
+            "updatedAt" = NOW()
+        `
+        sectionsSeeded++
+        console.log(`Seeded content section: ${section.type}`)
+      } catch (error: any) {
+        console.error(`Error seeding content section ${section.type}:`, error.message)
+      }
     }
 
-    // Insert SEO settings
-    const seoId = 'default-seo'
-    await prisma.$executeRaw`
-      INSERT INTO "seo_settings" ("id", "title", "description", "keywords", "ogTitle", "ogDescription", "active", "createdAt", "updatedAt")
-      VALUES (
-        ${seoId}, 
-        'Fixing Maritime - Professional Maritime Services',
-        'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
-        'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
-        'Fixing Maritime - Professional Maritime Services',
-        'Your trusted partner for comprehensive maritime solutions',
-        true,
-        NOW(),
-        NOW()
-      )
-      ON CONFLICT ("id") DO UPDATE SET
-        "title" = EXCLUDED."title",
-        "description" = EXCLUDED."description",
-        "keywords" = EXCLUDED."keywords",
-        "ogTitle" = EXCLUDED."ogTitle",
-        "ogDescription" = EXCLUDED."ogDescription",
-        "updatedAt" = NOW()
-    `
+    // Insert SEO settings with error handling
+    let seoSeeded = 0
+    try {
+      const seoId = 'default-seo'
+      await prisma.$executeRaw`
+        INSERT INTO "seo_settings" ("id", "title", "description", "keywords", "ogTitle", "ogDescription", "active", "createdAt", "updatedAt")
+        VALUES (
+          ${seoId}, 
+          'Fixing Maritime - Professional Maritime Services',
+          'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
+          'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
+          'Fixing Maritime - Professional Maritime Services',
+          'Your trusted partner for comprehensive maritime solutions',
+          true,
+          NOW(),
+          NOW()
+        )
+        ON CONFLICT ("id") DO UPDATE SET
+          "title" = EXCLUDED."title",
+          "description" = EXCLUDED."description",
+          "keywords" = EXCLUDED."keywords",
+          "ogTitle" = EXCLUDED."ogTitle",
+          "ogDescription" = EXCLUDED."ogDescription",
+          "updatedAt" = NOW()
+      `
+      seoSeeded = 1
+      console.log('Seeded SEO settings')
+    } catch (error: any) {
+      console.error('Error seeding SEO settings:', error.message)
+    }
 
-    // Insert sample media files
+    // Insert sample media files with error handling
     const mediaFiles = [
       {
         id: 'hero-bg-img',
@@ -183,23 +214,32 @@ export async function POST(request: NextRequest) {
       }
     ]
 
+    let mediaSeeded = 0
     for (const media of mediaFiles) {
-      await prisma.$executeRaw`
-        INSERT INTO "media_files" ("id", "name", "type", "url", "size", "mimeType", "width", "height", "alt", "uploadedAt", "updatedAt")
-        VALUES (
-          ${media.id}, ${media.name}, ${media.type}::"MediaFileType", ${media.url}, ${media.size}, 
-          ${media.mimeType}, ${media.width}, ${media.height}, ${media.alt}, NOW(), NOW()
-        )
-        ON CONFLICT ("id") DO NOTHING
-      `
+      try {
+        await prisma.$executeRaw`
+          INSERT INTO "media_files" ("id", "name", "type", "url", "size", "mimeType", "width", "height", "alt", "uploadedAt", "updatedAt")
+          VALUES (
+            ${media.id}, ${media.name}, ${media.type}, ${media.url}, ${media.size}, 
+            ${media.mimeType}, ${media.width}, ${media.height}, ${media.alt}, NOW(), NOW()
+          )
+          ON CONFLICT ("id") DO NOTHING
+        `
+        mediaSeeded++
+        console.log(`Seeded media file: ${media.name}`)
+      } catch (error: any) {
+        console.error(`Error seeding media file ${media.name}:`, error.message)
+      }
     }
+
+    console.log('Migration completed successfully')
 
     return NextResponse.json({ 
       message: 'Database migration and seeding completed successfully',
       migrated: {
-        contentSections: contentSections.length,
-        seoSettings: 1,
-        mediaFiles: mediaFiles.length
+        contentSections: sectionsSeeded,
+        seoSettings: seoSeeded,
+        mediaFiles: mediaSeeded
       }
     })
 

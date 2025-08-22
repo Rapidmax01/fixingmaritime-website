@@ -144,25 +144,18 @@ model SeoSettings {
   @@map("seo_settings")
 }
 
-enum MediaFileType {
-  image
-  document
-  video
-  audio
-}
-
 model MediaFile {
-  id          String        @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
-  type        MediaFileType
+  type        String   // "image", "document", "video", "audio"
   url         String
   size        BigInt
   mimeType    String?
   width       Int?
   height      Int?
   alt         String?
-  uploadedAt  DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  uploadedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   @@map("media_files")
 }
