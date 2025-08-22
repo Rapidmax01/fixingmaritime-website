@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
+import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+function createSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    return null
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey)
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,13 +26,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Try to authenticate with database if available
-    if (prisma) {
+    const supabase = createSupabaseClient()
+    
+    if (supabase) {
       try {
-        const user = await prisma.user.findUnique({
-          where: { email }
-        })
+        const { data: user, error } = await supabase
+          .from('app_users')
+          .select('*')
+          .eq('email', email)
+          .single()
 
-        if (user && user.password) {
+        if (!error && user && user.password) {
           // Check if user has admin or super_admin role
           if (user.role !== 'admin' && user.role !== 'super_admin') {
             return NextResponse.json(
