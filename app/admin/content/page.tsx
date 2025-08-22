@@ -45,7 +45,7 @@ interface ContentSection {
   name: string
   title: string
   content: string
-  type: 'hero' | 'about' | 'services' | 'contact' | 'footer'
+  type: 'hero' | 'about' | 'services' | 'contact' | 'footer' | 'story' | 'mission' | 'values' | 'leadership'
   isEditing?: boolean
 }
 
