@@ -50,7 +50,16 @@ const team = [
 ]
 
 export default function About() {
-  const { content, loading } = useContent()
+  const { content, loading, error, refreshContent } = useContent()
+  
+  // Debug logging
+  console.log('About page - loading:', loading, 'content:', content?.sections?.about, 'error:', error)
+  
+  // Add refresh button for testing
+  const handleRefresh = () => {
+    console.log('Manual refresh triggered')
+    refreshContent()
+  }
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -135,6 +144,17 @@ export default function About() {
                 content?.sections?.about?.content || 'For over 25 years, we\'ve been the trusted partner for businesses worldwide, providing comprehensive maritime logistics solutions that keep global trade moving.'
               )}
             </motion.p>
+            
+            {/* Debug refresh button - remove after testing */}
+            <motion.button
+              onClick={handleRefresh}
+              className="mt-4 px-4 py-2 bg-white/20 text-white rounded hover:bg-white/30 transition-colors"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              🔄 Refresh Content (Debug)
+            </motion.button>
 
             {/* Quick Stats */}
             <motion.div
