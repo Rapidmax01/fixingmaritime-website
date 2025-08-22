@@ -5,7 +5,10 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('Content API called, DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    
     if (!prisma) {
+      console.log('Prisma not available, returning default content')
       // Return default content if database not available
       return NextResponse.json({
         sections: {
@@ -41,15 +44,19 @@ export async function GET(request: NextRequest) {
     }
 
     try {
+      console.log('Attempting to fetch content from database...')
+      
       // Fetch content sections
       const sections = await prisma.contentSection.findMany({
         where: { active: true }
       })
+      console.log('Found sections:', sections.length, sections.map(s => ({ type: s.type, title: s.title })))
 
       // Fetch SEO settings
       const seoSettings = await prisma.seoSettings.findFirst({
         where: { active: true }
       })
+      console.log('Found SEO settings:', !!seoSettings)
 
       // Transform sections into easier format
       const sectionsMap: any = {}
@@ -62,7 +69,8 @@ export async function GET(request: NextRequest) {
         }
       })
 
-      return NextResponse.json({
+      console.log('Returning database content with sections:', Object.keys(sectionsMap))
+      const response = NextResponse.json({
         sections: sectionsMap,
         seo: seoSettings || {
           title: 'Fixing Maritime - Professional Maritime Services',
@@ -72,6 +80,13 @@ export async function GET(request: NextRequest) {
           ogDescription: 'Your trusted partner for comprehensive maritime solutions'
         }
       })
+      
+      // Add cache control headers
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
 
     } catch (dbError: any) {
       console.error('Database error in public content API:', dbError)
