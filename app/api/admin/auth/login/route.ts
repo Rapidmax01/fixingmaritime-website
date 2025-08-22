@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     // Neither real credentials nor demo credentials worked
     return NextResponse.json(
       { 
-        message: prisma 
+        message: supabase 
           ? 'Invalid credentials' 
           : 'Database unavailable. Use demo credentials: admin@fixingmaritime.com / admin123' 
       },
