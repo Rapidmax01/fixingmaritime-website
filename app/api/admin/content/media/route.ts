@@ -62,17 +62,19 @@ export async function GET(request: NextRequest) {
     // Convert BigInt to string for JSON serialization
     const serializedFiles = mediaFiles.map(file => ({
       ...file,
-      size: file.size.toString()
+      size: file.size ? file.size.toString() : '0'
     }))
 
     return NextResponse.json({ mediaFiles: serializedFiles })
 
   } catch (error: any) {
     console.error('Fetch media files error:', error)
-    return NextResponse.json(
-      { message: 'Failed to fetch media files' },
-      { status: 500 }
-    )
+    // Return empty array as fallback to prevent breaking the admin panel
+    return NextResponse.json({ 
+      mediaFiles: [],
+      error: 'Failed to fetch media files',
+      message: 'Media management is available but encountered an error'
+    })
   }
 }
 
