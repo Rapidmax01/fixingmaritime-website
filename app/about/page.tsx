@@ -204,16 +204,15 @@ export default function About() {
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900">Our Story</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+                  {loading ? 'Our Story' : (content?.sections?.story?.title || 'Our Story')}
+                </h2>
                 <p className="mt-6 text-lg leading-8 text-gray-600">
-                  Founded in 1999 by Raphael Ugochukwu U., Fixing Maritime began as a small 
-                  documentation service for local shipping companies. With a vision to simplify 
-                  maritime logistics, we've grown into a comprehensive solution provider.
-                </p>
-                <p className="mt-6 text-lg leading-8 text-gray-600">
-                  Today, we leverage cutting-edge technology while maintaining the personal touch 
-                  that has made us a trusted partner for businesses of all sizes. From startups 
-                  to Fortune 500 companies, we adapt our services to meet your unique needs.
+                  {loading ? (
+                    'Founded in 1999 by Raphael Ugochukwu U., Fixing Maritime began as a small documentation service for local shipping companies. With a vision to simplify maritime logistics, we\'ve grown into a comprehensive solution provider.'
+                  ) : (
+                    content?.sections?.story?.content || 'Founded in 1999 by Raphael Ugochukwu U., Fixing Maritime began as a small documentation service for local shipping companies. With a vision to simplify maritime logistics, we\'ve grown into a comprehensive solution provider.'
+                  )}
                 </p>
               </motion.div>
             </div>
@@ -229,8 +228,11 @@ export default function About() {
                   <Ship className="h-24 w-24 text-primary-600 mx-auto mb-6" />
                   <blockquote className="text-center">
                     <p className="text-lg font-medium text-gray-900">
-                      "Our mission is to be the bridge between your cargo and its destination, 
-                      ensuring every shipment arrives safely, on time, and within budget."
+                      "{loading ? (
+                        'Our mission is to be the bridge between your cargo and its destination, ensuring every shipment arrives safely, on time, and within budget.'
+                      ) : (
+                        content?.sections?.mission?.content || 'Our mission is to be the bridge between your cargo and its destination, ensuring every shipment arrives safely, on time, and within budget.'
+                      )}"
                     </p>
                     <footer className="mt-4">
                       <p className="text-sm font-semibold text-primary-600">Raphael Ugochukwu U.</p>
@@ -249,10 +251,14 @@ export default function About() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Our Values
+              {loading ? 'Our Values' : (content?.sections?.values?.title || 'Our Values')}
             </h2>
             <p className="mt-4 text-lg leading-8 text-gray-600">
-              These core principles guide everything we do
+              {loading ? (
+                'These core principles guide everything we do'
+              ) : (
+                content?.sections?.values?.content || 'These core principles guide everything we do'
+              )}
             </p>
           </div>
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
@@ -286,10 +292,14 @@ export default function About() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Leadership Team
+              {loading ? 'Leadership Team' : (content?.sections?.leadership?.title || 'Leadership Team')}
             </h2>
             <p className="mt-4 text-lg leading-8 text-gray-600">
-              Meet the experts behind Fixing Maritime
+              {loading ? (
+                'Meet the experts behind Fixing Maritime'
+              ) : (
+                content?.sections?.leadership?.content || 'Meet the experts behind Fixing Maritime'
+              )}
             </p>
           </div>
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">

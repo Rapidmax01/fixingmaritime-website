@@ -24,6 +24,10 @@ interface ContentData {
     services?: ContentSection
     contact?: ContentSection
     footer?: ContentSection
+    story?: ContentSection
+    mission?: ContentSection
+    values?: ContentSection
+    leadership?: ContentSection
   }
   seo: SEOSettings
 }
@@ -92,6 +96,22 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
           footer: {
             title: 'Fixing Maritime',
             content: 'Your comprehensive maritime solutions partner trusted worldwide.'
+          },
+          story: {
+            title: 'Our Story',
+            content: 'Founded in 1999, Fixing Maritime has grown from a small documentation service to a comprehensive maritime solutions provider.'
+          },
+          mission: {
+            title: 'Our Mission',
+            content: 'Our mission is to be the bridge between your cargo and its destination, ensuring every shipment arrives safely, on time, and within budget.'
+          },
+          values: {
+            title: 'Our Values',
+            content: 'Excellence, Customer-Centric service, Global Reach, and Reliability guide everything we do.'
+          },
+          leadership: {
+            title: 'Leadership Team',
+            content: 'Meet the experts behind Fixing Maritime who bring decades of experience to maritime logistics.'
           }
         },
         seo: {

@@ -134,6 +134,34 @@ export async function POST(request: NextRequest) {
         name: 'Footer Content',
         title: 'Fixing Maritime',
         content: 'Your comprehensive maritime solutions partner. Trusted by businesses worldwide for reliable and efficient maritime services.'
+      },
+      {
+        id: 'story-section',
+        type: 'story',
+        name: 'Our Story',
+        title: 'Our Story',
+        content: 'Founded in 1999 by Raphael Ugochukwu U., Fixing Maritime began as a small documentation service for local shipping companies. With a vision to simplify maritime logistics, we\'ve grown into a comprehensive solution provider. Today, we leverage cutting-edge technology while maintaining the personal touch that has made us a trusted partner for businesses of all sizes.'
+      },
+      {
+        id: 'mission-section',
+        type: 'mission',
+        name: 'Mission Statement',
+        title: 'Our Mission',
+        content: 'Our mission is to be the bridge between your cargo and its destination, ensuring every shipment arrives safely, on time, and within budget.'
+      },
+      {
+        id: 'values-section',
+        type: 'values',
+        name: 'Our Values',
+        title: 'Our Values',
+        content: 'These core principles guide everything we do: Excellence - We strive for excellence in every aspect of our service delivery. Customer-Centric - Our clients are at the heart of everything we do. Global Reach - With partners worldwide, we provide seamless solutions. Reliability - Count on us for timely, dependable service.'
+      },
+      {
+        id: 'leadership-section',
+        type: 'leadership',
+        name: 'Leadership Team',
+        title: 'Leadership Team',
+        content: 'Meet the experts behind Fixing Maritime who bring decades of experience and innovative thinking to maritime logistics solutions.'
       }
     ]
 
