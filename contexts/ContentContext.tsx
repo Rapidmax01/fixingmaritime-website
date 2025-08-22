@@ -59,8 +59,7 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
       setLoading(true)
       setError(null)
       
-      // Add cache busting parameter
-      const response = await fetch(`/api/content?t=${Date.now()}`)
+      const response = await fetch('/api/content')
       if (!response.ok) {
         throw new Error('Failed to fetch content')
       }

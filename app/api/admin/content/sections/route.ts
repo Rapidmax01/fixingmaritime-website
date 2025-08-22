@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
-function createSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null
-  }
-  
-  return createClient(supabaseUrl, serviceRoleKey)
-}
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
 // GET - Fetch all content sections
 export async function GET(request: NextRequest) {
@@ -25,9 +16,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createSupabaseClient()
-    
-    if (!supabase) {
+    if (!prisma) {
       return NextResponse.json(
         { message: 'Database not configured' },
         { status: 503 }
@@ -35,23 +24,25 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const { data: sections, error } = await supabase
-        .from('content_sections')
-        .select('*')
-        .eq('active', true)
-        .order('type', { ascending: true })
-      
-      if (error) {
-        throw error
-      }
-      
+      const sections = await prisma.contentSection.findMany({
+        where: { active: true },
+        orderBy: { type: 'asc' }
+      })
       return NextResponse.json({ sections })
     } catch (dbError: any) {
+      // If table doesn't exist, return empty array with migration flag
+      if (dbError.code === 'P2021' || dbError.message?.includes('does not exist') || dbError.message?.includes('relation')) {
+        return NextResponse.json({ 
+          sections: [], 
+          needsMigration: true,
+          message: 'Database tables not found. Please run migration first.' 
+        })
+      }
+      // For other errors, still return empty array but log the error
       console.error('Database error in content sections:', dbError)
       return NextResponse.json({ 
         sections: [], 
-        needsMigration: true,
-        message: 'Database tables not found. Please run migration first.' 
+        error: 'Database error occurred'
       })
     }
 
@@ -76,9 +67,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createSupabaseClient()
-    
-    if (!supabase) {
+    if (!prisma) {
       return NextResponse.json(
         { message: 'Database not configured' },
         { status: 503 }
@@ -98,36 +87,32 @@ export async function POST(request: NextRequest) {
     let section
     if (id) {
       // Update existing section
-      const { data, error } = await supabase
-        .from('content_sections')
-        .update({
+      section = await prisma.contentSection.update({
+        where: { id },
+        data: {
           name,
           title,
           content,
-          updatedAt: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single()
-      
-      if (error) throw error
-      section = data
+          updatedAt: new Date()
+        }
+      })
     } else {
-      // Upsert by type
-      const { data, error } = await supabase
-        .from('content_sections')
-        .upsert({
+      // Create new section or upsert by type
+      section = await prisma.contentSection.upsert({
+        where: { type },
+        update: {
+          name,
+          title,
+          content,
+          updatedAt: new Date()
+        },
+        create: {
           type,
           name,
           title,
-          content,
-          active: true
-        })
-        .select()
-        .single()
-      
-      if (error) throw error
-      section = data
+          content
+        }
+      })
     }
 
     return NextResponse.json({ 

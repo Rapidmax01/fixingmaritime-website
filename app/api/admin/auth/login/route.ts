@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 
-function createSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null
-  }
-  
-  return createClient(supabaseUrl, serviceRoleKey)
-}
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,23 +17,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Try to authenticate with database if available
-    const supabase = createSupabaseClient()
-    
-    if (supabase) {
+    if (prisma) {
       try {
-        console.log('Attempting to login with email:', email)
-        
-        const { data: user, error } = await supabase
-          .from('app_users')
-          .select('*')
-          .eq('email', email)
-          .single()
+        const user = await prisma.user.findUnique({
+          where: { email }
+        })
 
-        console.log('Database query result:', { user: user?.email, error: error?.message })
-
-        if (!error && user && user.password) {
+        if (user && user.password) {
           // Check if user has admin or super_admin role
-          console.log('User role:', user.role)
           if (user.role !== 'admin' && user.role !== 'super_admin') {
             return NextResponse.json(
               { message: 'Access denied. Admin privileges required.' },
@@ -51,7 +33,6 @@ export async function POST(req: NextRequest) {
           }
 
           // Check if email is verified
-          console.log('Email verified:', user.emailVerified)
           if (!user.emailVerified) {
             return NextResponse.json(
               { message: 'Please verify your email address first' },
@@ -61,7 +42,6 @@ export async function POST(req: NextRequest) {
 
           // Verify password
           const isPasswordValid = await bcrypt.compare(password, user.password)
-          console.log('Password valid:', isPasswordValid)
 
           if (isPasswordValid) {
             // Generate JWT token for admin session
@@ -149,7 +129,7 @@ export async function POST(req: NextRequest) {
     // Neither real credentials nor demo credentials worked
     return NextResponse.json(
       { 
-        message: supabase 
+        message: prisma 
           ? 'Invalid credentials' 
           : 'Database unavailable. Use demo credentials: admin@fixingmaritime.com / admin123' 
       },
