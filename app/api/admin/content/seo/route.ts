@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { createClient } from '@supabase/supabase-js'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+function createSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    return null
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey)
+}
 
 // GET - Fetch current SEO settings
 export async function GET(request: NextRequest) {
@@ -16,7 +25,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (!prisma) {
+    const supabase = createSupabaseClient()
+    
+    if (!supabase) {
       return NextResponse.json(
         { message: 'Database not configured' },
         { status: 503 }
@@ -25,24 +36,31 @@ export async function GET(request: NextRequest) {
 
     let seoSettings = null
     try {
-      seoSettings = await prisma.seoSettings.findFirst({
-        where: { active: true },
-        orderBy: { createdAt: 'desc' }
-      })
+      const { data, error } = await supabase
+        .from('seo_settings')
+        .select('*')
+        .eq('active', true)
+        .order('createdAt', { ascending: false })
+        .limit(1)
+        .single()
+      
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        throw error
+      }
+      
+      seoSettings = data
     } catch (dbError: any) {
       // If table doesn't exist, return defaults
-      if (dbError.code === 'P2021' || dbError.message.includes('does not exist')) {
-        const defaultSettings = {
-          title: 'Fixing Maritime - Professional Maritime Services',
-          description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
-          keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
-          ogTitle: 'Fixing Maritime - Professional Maritime Services',
-          ogDescription: 'Your trusted partner for comprehensive maritime solutions',
-          needsMigration: true
-        }
-        return NextResponse.json({ seoSettings: defaultSettings })
+      console.error('SEO settings fetch error:', dbError)
+      const defaultSettings = {
+        title: 'Fixing Maritime - Professional Maritime Services',
+        description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
+        keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
+        ogTitle: 'Fixing Maritime - Professional Maritime Services',
+        ogDescription: 'Your trusted partner for comprehensive maritime solutions',
+        needsMigration: true
       }
-      throw dbError
+      return NextResponse.json({ seoSettings: defaultSettings })
     }
 
     // If no settings exist, return defaults
@@ -80,7 +98,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!prisma) {
+    const supabase = createSupabaseClient()
+    
+    if (!supabase) {
       return NextResponse.json(
         { message: 'Database not configured' },
         { status: 503 }
@@ -98,21 +118,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Deactivate current settings
-    await prisma.seoSettings.updateMany({
-      where: { active: true },
-      data: { active: false }
-    })
+    await supabase
+      .from('seo_settings')
+      .update({ active: false })
+      .eq('active', true)
 
     // Create new settings
-    const seoSettings = await prisma.seoSettings.create({
-      data: {
+    const { data: seoSettings, error } = await supabase
+      .from('seo_settings')
+      .insert({
         title,
         description,
         keywords: keywords || '',
         ogTitle: ogTitle || title,
-        ogDescription: ogDescription || description
-      }
-    })
+        ogDescription: ogDescription || description,
+        active: true
+      })
+      .select()
+      .single()
+    
+    if (error) {
+      throw error
+    }
 
     return NextResponse.json({ 
       message: 'SEO settings saved successfully',
