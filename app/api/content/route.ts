@@ -1,160 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { createClient } from '@supabase/supabase-js'
 
-// Create a new instance for each request to avoid connection issues
-function createPrismaClient() {
-  if (!process.env.DATABASE_URL) {
-    return null
+export async function GET(request: NextRequest) {
+  try {
+    console.log('Content API called (Supabase version)')
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !serviceRoleKey) {
+      console.log('Supabase not configured, returning default content')
+      return getDefaultContent()
+    }
+
+    // Create admin client to bypass RLS
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    
+    console.log('Fetching content sections from Supabase...')
+    
+    // Fetch content sections
+    const { data: sections, error: sectionsError } = await supabase
+      .from('content_sections')
+      .select('*')
+      .eq('active', true)
+    
+    if (sectionsError) {
+      console.error('Error fetching sections:', sectionsError)
+      return getDefaultContent()
+    }
+    
+    console.log('Found sections:', sections?.length, sections?.map(s => ({ type: s.type, title: s.title })))
+
+    // Fetch SEO settings
+    const { data: seoData, error: seoError } = await supabase
+      .from('seo_settings')
+      .select('*')
+      .eq('active', true)
+      .single()
+    
+    if (seoError) {
+      console.log('No SEO settings found:', seoError.message)
+    }
+
+    // Transform sections into easier format
+    const sectionsMap: any = {}
+    sections?.forEach(section => {
+      sectionsMap[section.type] = {
+        id: section.id,
+        title: section.title,
+        content: section.content,
+        name: section.name
+      }
+    })
+
+    console.log('Returning Supabase content with sections:', Object.keys(sectionsMap))
+    
+    const response = NextResponse.json({
+      sections: sectionsMap,
+      seo: seoData || getDefaultSEO(),
+      source: 'supabase'
+    })
+    
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
+
+  } catch (error: any) {
+    console.error('Supabase content API error:', error)
+    return getDefaultContent()
   }
-  return new PrismaClient({
-    log: ['error', 'warn'],
+}
+
+function getDefaultContent() {
+  return NextResponse.json({
+    sections: {
+      hero: {
+        title: 'Your Gateway to Global Maritime Solutions',
+        content: 'Professional maritime services with real-time tracking and comprehensive logistics support.'
+      },
+      about: {
+        title: 'Leading Maritime Service Provider',
+        content: 'With years of experience in the maritime industry, we provide comprehensive solutions for all your maritime needs.'
+      },
+      services: {
+        title: 'Comprehensive Maritime Services',
+        content: 'We offer a complete suite of maritime services designed to streamline your logistics operations.'
+      },
+      contact: {
+        title: 'Get in Touch',
+        content: 'Ready to streamline your maritime operations? Contact our expert team today.'
+      },
+      footer: {
+        title: 'Fixing Maritime',
+        content: 'Your comprehensive maritime solutions partner trusted worldwide.'
+      }
+    },
+    seo: getDefaultSEO(),
+    source: 'default'
   })
 }
 
-export async function GET(request: NextRequest) {
-  let prisma = null
-  
-  try {
-    console.log('Content API called, DATABASE_URL exists:', !!process.env.DATABASE_URL)
-    
-    prisma = createPrismaClient()
-    
-    if (!prisma) {
-      console.log('Prisma not available, returning default content')
-      // Return default content if database not available
-      return NextResponse.json({
-        sections: {
-          hero: {
-            title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Professional maritime services with real-time tracking and comprehensive logistics support.'
-          },
-          about: {
-            title: 'Leading Maritime Service Provider',
-            content: 'With years of experience in the maritime industry, we provide comprehensive solutions for all your maritime needs.'
-          },
-          services: {
-            title: 'Comprehensive Maritime Services',
-            content: 'We offer a complete suite of maritime services designed to streamline your logistics operations.'
-          },
-          contact: {
-            title: 'Get in Touch',
-            content: 'Ready to streamline your maritime operations? Contact our expert team today.'
-          },
-          footer: {
-            title: 'Fixing Maritime',
-            content: 'Your comprehensive maritime solutions partner trusted worldwide.'
-          }
-        },
-        seo: {
-          title: 'Fixing Maritime - Professional Maritime Services',
-          description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
-          keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
-          ogTitle: 'Fixing Maritime - Professional Maritime Services',
-          ogDescription: 'Your trusted partner for comprehensive maritime solutions'
-        }
-      })
-    }
-
-    try {
-      console.log('Attempting to fetch content from database...')
-      
-      // Fetch content sections
-      const sections = await prisma.contentSection.findMany({
-        where: { active: true }
-      })
-      console.log('Found sections:', sections.length, sections.map(s => ({ type: s.type, title: s.title })))
-
-      // Fetch SEO settings
-      const seoSettings = await prisma.seoSettings.findFirst({
-        where: { active: true }
-      })
-      console.log('Found SEO settings:', !!seoSettings)
-
-      // Transform sections into easier format
-      const sectionsMap: any = {}
-      sections.forEach(section => {
-        sectionsMap[section.type] = {
-          id: section.id,
-          title: section.title,
-          content: section.content,
-          name: section.name
-        }
-      })
-
-      console.log('Returning database content with sections:', Object.keys(sectionsMap))
-      const response = NextResponse.json({
-        sections: sectionsMap,
-        seo: seoSettings || {
-          title: 'Fixing Maritime - Professional Maritime Services',
-          description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
-          keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
-          ogTitle: 'Fixing Maritime - Professional Maritime Services',
-          ogDescription: 'Your trusted partner for comprehensive maritime solutions'
-        }
-      })
-      
-      // Add cache control headers
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
-      response.headers.set('Pragma', 'no-cache')
-      response.headers.set('Expires', '0')
-      
-      return response
-
-    } catch (dbError: any) {
-      console.error('Database error in public content API:', dbError)
-      console.error('Error details:', {
-        message: dbError.message,
-        code: dbError.code,
-        meta: dbError.meta
-      })
-      // Return default content if database query fails
-      return NextResponse.json({
-        sections: {
-          hero: {
-            title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Professional maritime services with real-time tracking and comprehensive logistics support.'
-          },
-          about: {
-            title: 'Leading Maritime Service Provider',
-            content: 'With years of experience in the maritime industry, we provide comprehensive solutions for all your maritime needs.'
-          },
-          services: {
-            title: 'Comprehensive Maritime Services',
-            content: 'We offer a complete suite of maritime services designed to streamline your logistics operations.'
-          },
-          contact: {
-            title: 'Get in Touch',
-            content: 'Ready to streamline your maritime operations? Contact our expert team today.'
-          },
-          footer: {
-            title: 'Fixing Maritime',
-            content: 'Your comprehensive maritime solutions partner trusted worldwide.'
-          }
-        },
-        seo: {
-          title: 'Fixing Maritime - Professional Maritime Services',
-          description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
-          keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
-          ogTitle: 'Fixing Maritime - Professional Maritime Services',
-          ogDescription: 'Your trusted partner for comprehensive maritime solutions'
-        }
-      })
-    }
-
-  } catch (error: any) {
-    console.error('Public content API error:', error)
-    return NextResponse.json(
-      { message: 'Failed to fetch content', error: error.message },
-      { status: 500 }
-    )
-  } finally {
-    // Always disconnect Prisma
-    if (prisma) {
-      try {
-        await prisma.$disconnect()
-      } catch (disconnectError) {
-        console.error('Error disconnecting Prisma:', disconnectError)
-      }
-    }
+function getDefaultSEO() {
+  return {
+    title: 'Fixing Maritime - Professional Maritime Services',
+    description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
+    keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
+    ogTitle: 'Fixing Maritime - Professional Maritime Services',
+    ogDescription: 'Your trusted partner for comprehensive maritime solutions'
   }
 }
