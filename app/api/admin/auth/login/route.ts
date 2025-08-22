@@ -16,6 +16,36 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // In development mode, prefer demo login if using demo credentials
+    if (process.env.NODE_ENV === 'development' && email === 'admin@fixingmaritime.com' && password === 'admin123') {
+      const demoUser = {
+        id: 'demo-admin',
+        email: 'admin@fixingmaritime.com',
+        name: 'Demo Admin',
+        role: 'super_admin'
+      }
+
+      const token = jwt.sign(
+        demoUser,
+        process.env.NEXTAUTH_SECRET || 'fallback-secret',
+        { expiresIn: '8h' }
+      )
+
+      const response = NextResponse.json(
+        { message: 'Login successful (Demo Mode)', user: demoUser },
+        { status: 200 }
+      )
+
+      response.cookies.set('admin-token', token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 8 * 60 * 60,
+      })
+
+      return response
+    }
+
     // Try to authenticate with database if available
     if (prisma) {
       try {
