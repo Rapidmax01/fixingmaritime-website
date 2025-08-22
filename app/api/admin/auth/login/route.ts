@@ -16,17 +16,94 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Demo mode for when database is not available
     if (!prisma) {
-      return NextResponse.json(
-        { message: 'Database not configured' },
-        { status: 503 }
-      )
+      // Check for demo admin credentials
+      if (email === 'admin@fixingmaritime.com' && password === 'admin123') {
+        const demoUser = {
+          id: 'demo-admin',
+          email: 'admin@fixingmaritime.com',
+          name: 'Demo Admin',
+          role: 'super_admin'
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+          demoUser,
+          process.env.NEXTAUTH_SECRET || 'fallback-secret',
+          { expiresIn: '8h' }
+        )
+
+        const response = NextResponse.json(
+          {
+            message: 'Login successful (Demo Mode)',
+            user: demoUser
+          },
+          { status: 200 }
+        )
+
+        response.cookies.set('admin-token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 8 * 60 * 60,
+        })
+
+        return response
+      } else {
+        return NextResponse.json(
+          { message: 'Invalid credentials. In demo mode, use admin@fixingmaritime.com / admin123' },
+          { status: 401 }
+        )
+      }
     }
 
     // Find user and check if they are an admin
-    const user = await prisma.user.findUnique({
-      where: { email }
-    })
+    let user
+    try {
+      user = await prisma.user.findUnique({
+        where: { email }
+      })
+    } catch (dbError: any) {
+      console.error('Database query error:', dbError)
+      // Fall back to demo mode if database fails
+      if (email === 'admin@fixingmaritime.com' && password === 'admin123') {
+        const demoUser = {
+          id: 'demo-admin',
+          email: 'admin@fixingmaritime.com',
+          name: 'Demo Admin',
+          role: 'super_admin'
+        }
+
+        const token = jwt.sign(
+          demoUser,
+          process.env.NEXTAUTH_SECRET || 'fallback-secret',
+          { expiresIn: '8h' }
+        )
+
+        const response = NextResponse.json(
+          {
+            message: 'Login successful (Demo Mode - Database temporarily unavailable)',
+            user: demoUser
+          },
+          { status: 200 }
+        )
+
+        response.cookies.set('admin-token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 8 * 60 * 60,
+        })
+
+        return response
+      }
+      
+      return NextResponse.json(
+        { message: 'Database connection error. In demo mode, use admin@fixingmaritime.com / admin123' },
+        { status: 503 }
+      )
+    }
 
     if (!user || !user.password) {
       return NextResponse.json(
