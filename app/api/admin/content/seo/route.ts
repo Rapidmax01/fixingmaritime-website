@@ -23,10 +23,27 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const seoSettings = await prisma.seoSettings.findFirst({
-      where: { active: true },
-      orderBy: { createdAt: 'desc' }
-    })
+    let seoSettings = null
+    try {
+      seoSettings = await prisma.seoSettings.findFirst({
+        where: { active: true },
+        orderBy: { createdAt: 'desc' }
+      })
+    } catch (dbError: any) {
+      // If table doesn't exist, return defaults
+      if (dbError.code === 'P2021' || dbError.message.includes('does not exist')) {
+        const defaultSettings = {
+          title: 'Fixing Maritime - Professional Maritime Services',
+          description: 'Complete maritime solutions including documentation, truck services, tug boat with barge, procurement, freight forwarding, warehousing, and custom clearing.',
+          keywords: 'maritime services, freight forwarding, custom clearing, tug boat, barge, warehousing, procurement, export goods',
+          ogTitle: 'Fixing Maritime - Professional Maritime Services',
+          ogDescription: 'Your trusted partner for comprehensive maritime solutions',
+          needsMigration: true
+        }
+        return NextResponse.json({ seoSettings: defaultSettings })
+      }
+      throw dbError
+    }
 
     // If no settings exist, return defaults
     if (!seoSettings) {

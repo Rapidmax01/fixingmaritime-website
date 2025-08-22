@@ -27,7 +27,8 @@ import {
   FileImage,
   File,
   Video,
-  Music
+  Music,
+  AlertCircle
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import AdminHeader from '@/components/AdminHeader'
@@ -210,6 +211,8 @@ export default function AdminContent() {
   const [filterType, setFilterType] = useState<'all' | 'image' | 'document' | 'video' | 'audio'>('all')
   const [isUploading, setIsUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null)
+  const [needsMigration, setNeedsMigration] = useState(false)
+  const [isMigrating, setIsMigrating] = useState(false)
 
   useEffect(() => {
     checkAdminAuth()
@@ -223,11 +226,15 @@ export default function AdminContent() {
 
   const loadContentData = async () => {
     try {
+      let migrationNeeded = false
+
       // Load content sections
       const sectionsResponse = await fetch('/api/admin/content/sections')
       if (sectionsResponse.ok) {
-        const { sections } = await sectionsResponse.json()
-        if (sections && sections.length > 0) {
+        const { sections, needsMigration } = await sectionsResponse.json()
+        if (needsMigration) {
+          migrationNeeded = true
+        } else if (sections && sections.length > 0) {
           const formattedSections = sections.map((section: any) => ({
             id: section.id,
             name: section.name,
@@ -245,14 +252,19 @@ export default function AdminContent() {
         const { seoSettings: settings } = await seoResponse.json()
         if (settings) {
           setSeoSettings(settings)
+          if (settings.needsMigration) {
+            migrationNeeded = true
+          }
         }
       }
 
       // Load media files
       const mediaResponse = await fetch('/api/admin/content/media')
       if (mediaResponse.ok) {
-        const { mediaFiles: files } = await mediaResponse.json()
-        if (files) {
+        const { mediaFiles: files, needsMigration } = await mediaResponse.json()
+        if (needsMigration) {
+          migrationNeeded = true
+        } else if (files) {
           const formattedFiles = files.map((file: any) => ({
             ...file,
             size: parseInt(file.size),
@@ -261,8 +273,34 @@ export default function AdminContent() {
           setMediaFiles(formattedFiles)
         }
       }
+
+      setNeedsMigration(migrationNeeded)
     } catch (error) {
       console.error('Failed to load content data:', error)
+      setNeedsMigration(true)
+    }
+  }
+
+  const runMigration = async () => {
+    setIsMigrating(true)
+    try {
+      const response = await fetch('/api/admin/content/migrate', {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        toast.success('Database migration completed successfully!')
+        setNeedsMigration(false)
+        // Reload data after migration
+        await loadContentData()
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Migration failed')
+      }
+    } catch (error) {
+      toast.error('Failed to run migration')
+    } finally {
+      setIsMigrating(false)
     }
   }
 
@@ -570,6 +608,47 @@ export default function AdminContent() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <AdminHeader admin={admin} onLogout={handleLogout} />
       <div className="flex-grow mx-auto max-w-7xl px-6 py-8 lg:px-8">
+        {/* Migration Banner */}
+        {needsMigration && (
+          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-sm font-medium text-yellow-800">
+                  Database Setup Required
+                </h3>
+                <div className="mt-2 text-sm text-yellow-700">
+                  <p>
+                    The content management system needs to set up database tables. 
+                    Click the button below to initialize the database with default content.
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={runMigration}
+                    disabled={isMigrating}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 disabled:opacity-50"
+                  >
+                    {isMigrating ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Setting up database...
+                      </>
+                    ) : (
+                      <>
+                        <Settings className="h-4 w-4 mr-2" />
+                        Initialize Database
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -580,9 +659,13 @@ export default function AdminContent() {
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                Live Site
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                needsMigration ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+              }`}>
+                <span className={`w-2 h-2 rounded-full mr-2 ${
+                  needsMigration ? 'bg-yellow-400' : 'bg-green-400'
+                }`}></span>
+                {needsMigration ? 'Setup Required' : 'Live Site'}
               </span>
             </div>
           </div>

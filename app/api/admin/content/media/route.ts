@@ -40,10 +40,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const mediaFiles = await prisma.mediaFile.findMany({
-      where: whereClause,
-      orderBy: { uploadedAt: 'desc' }
-    })
+    let mediaFiles = []
+    try {
+      mediaFiles = await prisma.mediaFile.findMany({
+        where: whereClause,
+        orderBy: { uploadedAt: 'desc' }
+      })
+    } catch (dbError: any) {
+      // If table doesn't exist, return empty array
+      if (dbError.code === 'P2021' || dbError.message.includes('does not exist')) {
+        return NextResponse.json({ 
+          mediaFiles: [], 
+          needsMigration: true,
+          message: 'Database tables not found. Please run migration first.' 
+        })
+      }
+      throw dbError
+    }
 
     // Convert BigInt to string for JSON serialization
     const serializedFiles = mediaFiles.map(file => ({

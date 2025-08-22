@@ -23,10 +23,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const sections = await prisma.contentSection.findMany({
-      where: { active: true },
-      orderBy: { type: 'asc' }
-    })
+    let sections = []
+    try {
+      sections = await prisma.contentSection.findMany({
+        where: { active: true },
+        orderBy: { type: 'asc' }
+      })
+    } catch (dbError: any) {
+      // If table doesn't exist, return empty array
+      if (dbError.code === 'P2021' || dbError.message.includes('does not exist')) {
+        return NextResponse.json({ 
+          sections: [], 
+          needsMigration: true,
+          message: 'Database tables not found. Please run migration first.' 
+        })
+      }
+      throw dbError
+    }
 
     return NextResponse.json({ sections })
 
