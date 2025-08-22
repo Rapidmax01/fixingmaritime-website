@@ -643,7 +643,7 @@ export default function AdminServices() {
                       </div>
                       <div className="ml-4">
                         <h3 className="text-lg font-medium text-gray-900">{service.name}</h3>
-                        <p className="text-sm text-gray-500">{service.category}</p>
+                        <p className="text-sm text-gray-500">{service.priceUnit?.replace('_', ' ')}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
