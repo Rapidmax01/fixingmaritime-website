@@ -47,8 +47,9 @@ export async function GET(request: NextRequest) {
         orderBy: { uploadedAt: 'desc' }
       })
     } catch (dbError: any) {
+      console.error('Media files database error:', dbError)
       // If table doesn't exist, return empty array
-      if (dbError.code === 'P2021' || dbError.message.includes('does not exist')) {
+      if (dbError.code === 'P2021' || dbError.message?.includes('does not exist') || dbError.message?.includes('relation')) {
         return NextResponse.json({ 
           mediaFiles: [], 
           needsMigration: true,
