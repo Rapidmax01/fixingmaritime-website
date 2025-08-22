@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Search, FileText, Truck, Ship, Package, Globe, Warehouse, FileCheck, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useContent } from '@/contexts/ContentContext'
 
 const services = [
   {
@@ -130,6 +131,7 @@ const services = [
 export default function Services() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const { content, loading } = useContent()
 
   const filteredServices = services.filter(service => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,10 +146,14 @@ export default function Services() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Our Maritime Services
+              {loading ? 'Our Maritime Services' : (content?.sections?.services?.title || 'Our Maritime Services')}
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-100">
-              Comprehensive solutions for all your maritime logistics needs
+              {loading ? (
+                'Comprehensive solutions for all your maritime logistics needs'
+              ) : (
+                content?.sections?.services?.content || 'Comprehensive solutions for all your maritime logistics needs'
+              )}
             </p>
           </div>
 

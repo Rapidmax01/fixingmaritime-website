@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Ship, Truck, Package, FileText, Globe, Anchor } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useContent } from '@/contexts/ContentContext'
 
 export default function Hero() {
   const [hoveredService, setHoveredService] = useState<string | null>(null)
   const [currentBackground, setCurrentBackground] = useState(0)
+  const { content, loading } = useContent()
 
   const services = [
     { icon: FileText, name: 'Documentation', color: 'text-blue-400', link: '/services/documentation' },
@@ -139,12 +141,18 @@ export default function Hero() {
               transition={{ duration: 0.6 }}
             >
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                Your Gateway to{' '}
-                <span className="text-primary-400">Global Maritime</span> Solutions
+                {loading ? (
+                  'Your Gateway to Global Maritime Solutions'
+                ) : (
+                  content?.sections?.hero?.title || 'Your Gateway to Global Maritime Solutions'
+                )}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-300">
-                From documentation to delivery, we provide comprehensive maritime services that keep your business moving. 
-                Track shipments in real-time, manage orders efficiently, and access world-class logistics support.
+                {loading ? (
+                  'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
+                ) : (
+                  content?.sections?.hero?.content || 'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
+                )}
               </p>
               <div className="mt-10 flex items-center gap-x-6">
                 <Link

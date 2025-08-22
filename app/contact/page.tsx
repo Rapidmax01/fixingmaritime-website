@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { Mail, Phone, MapPin, Clock, Send, MessageSquare } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useContent } from '@/contexts/ContentContext'
 
 type ContactFormData = {
   name: string
@@ -29,6 +30,7 @@ const services = [
 
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { content, loading } = useContent()
   
   const {
     register,
@@ -82,9 +84,15 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-2xl font-bold text-gray-900">Get in Touch</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {loading ? 'Get in Touch' : (content?.sections?.contact?.title || 'Get in Touch')}
+              </h2>
               <p className="mt-4 text-lg text-gray-600">
-                Ready to streamline your maritime logistics? Our team of experts is here to help you find the perfect solution for your needs.
+                {loading ? (
+                  'Ready to streamline your maritime logistics? Our team of experts is here to help you find the perfect solution for your needs.'
+                ) : (
+                  content?.sections?.contact?.content || 'Ready to streamline your maritime logistics? Our team of experts is here to help you find the perfect solution for your needs.'
+                )}
               </p>
 
               <div className="mt-8 space-y-6">

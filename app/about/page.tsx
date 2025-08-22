@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Award, Users, Globe, Clock, Ship, Anchor } from 'lucide-react'
+import { useContent } from '@/contexts/ContentContext'
 
 const stats = [
   { name: 'Years of Experience', value: '25+' },
@@ -49,6 +50,7 @@ const team = [
 ]
 
 export default function About() {
+  const { content, loading } = useContent()
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -119,7 +121,7 @@ export default function About() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-4xl font-bold tracking-tight text-white sm:text-6xl"
             >
-              About Fixing Maritime
+              {loading ? 'About Fixing Maritime' : (content?.sections?.about?.title || 'About Fixing Maritime')}
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -127,8 +129,11 @@ export default function About() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="mt-6 text-lg leading-8 text-gray-100"
             >
-              For over 25 years, we've been the trusted partner for businesses worldwide, 
-              providing comprehensive maritime logistics solutions that keep global trade moving.
+              {loading ? (
+                'For over 25 years, we\'ve been the trusted partner for businesses worldwide, providing comprehensive maritime logistics solutions that keep global trade moving.'
+              ) : (
+                content?.sections?.about?.content || 'For over 25 years, we\'ve been the trusted partner for businesses worldwide, providing comprehensive maritime logistics solutions that keep global trade moving.'
+              )}
             </motion.p>
 
             {/* Quick Stats */}

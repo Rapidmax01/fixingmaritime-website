@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { Anchor, Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
+import { useContent } from '@/contexts/ContentContext'
 
 const navigation = {
   services: [
@@ -27,6 +30,7 @@ const navigation = {
 }
 
 export default function Footer() {
+  const { content, loading } = useContent()
   return (
     <footer className="bg-navy-900" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
@@ -37,10 +41,16 @@ export default function Footer() {
           <div className="space-y-8">
             <div className="flex items-center">
               <Anchor className="h-8 w-8 text-primary-400" />
-              <span className="ml-2 text-xl font-bold text-white">Fixing Maritime</span>
+              <span className="ml-2 text-xl font-bold text-white">
+                {loading ? 'Fixing Maritime' : (content?.sections?.footer?.title || 'Fixing Maritime')}
+              </span>
             </div>
             <p className="text-sm leading-6 text-gray-300">
-              Your trusted partner for comprehensive maritime solutions. From documentation to freight forwarding, we handle it all.
+              {loading ? (
+                'Your trusted partner for comprehensive maritime solutions. From documentation to freight forwarding, we handle it all.'
+              ) : (
+                content?.sections?.footer?.content || 'Your trusted partner for comprehensive maritime solutions. From documentation to freight forwarding, we handle it all.'
+              )}
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-gray-300">
