@@ -16,10 +16,23 @@ model User {
   name             String?
   password         String
   company          String?
-  phone            String?
-  address          String?
+  phone            String?  // Legacy field - kept for backward compatibility
+  
+  // Enhanced profile fields
+  primaryPhone     String?
+  cellPhone        String?
+  homePhone        String?
+  workPhone        String?
+  
+  // Address fields
+  address          String?  // Legacy field - kept for backward compatibility
+  homeAddress      String?
+  officeAddress    String?
   city             String?
+  state            String?
   country          String?
+  postalCode       String?
+  
   emailVerified    Boolean  @default(false)
   emailVerifyToken String?
   emailVerifyExpires DateTime?
