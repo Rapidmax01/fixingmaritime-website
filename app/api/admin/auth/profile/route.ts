@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         }
       })
     } catch (enhancedError) {
-      console.log('Enhanced fields not available, falling back to basic fields:', enhancedError.message)
+      console.log('Enhanced fields not available, falling back to basic fields:', enhancedError instanceof Error ? enhancedError.message : enhancedError)
       
       // Fallback to basic fields only
       user = await prisma.user.findUnique({
@@ -196,7 +196,7 @@ export async function PUT(request: NextRequest) {
         }
       })
     } catch (enhancedUpdateError) {
-      console.log('Enhanced update failed, trying basic fields only:', enhancedUpdateError.message)
+      console.log('Enhanced update failed, trying basic fields only:', enhancedUpdateError instanceof Error ? enhancedUpdateError.message : enhancedUpdateError)
       
       // Filter out enhanced fields and try again
       const basicUpdateData = {
