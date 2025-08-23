@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings } from 'lucide-react'
+import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface AdminUser {
@@ -78,7 +78,10 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
         </div>
         
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <div className="flex items-center text-sm text-white">
+          <Link
+            href="/admin/profile"
+            className="flex items-center text-sm text-white hover:text-red-200 transition-colors"
+          >
             <div className="flex items-center">
               {admin.role === 'super_admin' ? (
                 <Crown className="h-4 w-4 text-yellow-200 mr-1" />
@@ -89,8 +92,9 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
               <span className="ml-2 text-xs text-red-200">
                 ({admin.role.replace('_', ' ')})
               </span>
+              <User className="h-4 w-4 ml-2" />
             </div>
-          </div>
+          </Link>
           
           <button
             onClick={onLogout}
@@ -165,6 +169,15 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
                     {admin.role.replace('_', ' ').toUpperCase()}
                   </span>
                 </div>
+
+                <Link
+                  href="/admin/profile"
+                  className="-mx-3 flex items-center rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-red-500 w-full text-left mb-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  Profile Settings
+                </Link>
                 
                 <button
                   onClick={() => {
