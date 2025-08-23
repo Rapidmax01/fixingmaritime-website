@@ -2,8 +2,8 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle, Phone, Mail, MessageSquare, ShoppingCart } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { ArrowLeft, CheckCircle, Phone, Mail, MessageSquare, ShoppingCart, X, User, UserPlus } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-hot-toast'
@@ -207,6 +207,7 @@ export default function ServiceDetail() {
   const { data: session } = useSession()
   const [selectedPlan, setSelectedPlan] = useState<string>('professional')
   const [quantity, setQuantity] = useState(1)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const serviceId = params.id as string
   const service = servicesData[serviceId as keyof typeof servicesData]
@@ -226,12 +227,40 @@ export default function ServiceDetail() {
 
   const handleAddToCart = () => {
     if (!session) {
-      router.push('/login')
+      setShowAuthModal(true)
       return
     }
 
     // Add to cart logic here
     toast.success('Service added to cart!')
+    // TODO: Implement actual cart functionality
+  }
+
+  const handleGuestCheckout = () => {
+    // Store the selected service in sessionStorage for guest checkout
+    const orderData = {
+      serviceId,
+      serviceName: service.name,
+      plan: selectedPlan,
+      quantity,
+      price: service.pricing[selectedPlan as keyof typeof service.pricing].price
+    }
+    sessionStorage.setItem('guestOrder', JSON.stringify(orderData))
+    setShowAuthModal(false)
+    router.push('/checkout?guest=true')
+  }
+
+  const handleLogin = () => {
+    // Store the current selection before redirecting
+    const orderData = {
+      serviceId,
+      serviceName: service.name,
+      plan: selectedPlan,
+      quantity,
+      returnUrl: `/services/${serviceId}`
+    }
+    sessionStorage.setItem('pendingOrder', JSON.stringify(orderData))
+    router.push('/login')
   }
 
   return (
@@ -390,6 +419,102 @@ export default function ServiceDetail() {
           </div>
         </div>
       </div>
+
+      {/* Authentication Modal */}
+      <AnimatePresence>
+        {showAuthModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAuthModal(false)}
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            />
+            
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 50 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 relative">
+                <button
+                  onClick={() => setShowAuthModal(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900">Ready to Order?</h2>
+                  <p className="mt-2 text-gray-600">
+                    Choose how you'd like to continue with your order
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  {/* Login Option */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleLogin}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all duration-200"
+                  >
+                    <User className="mr-3 h-5 w-5" />
+                    Sign In to Your Account
+                  </motion.button>
+                  
+                  {/* Guest Option */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleGuestCheckout}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-white text-gray-700 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+                  >
+                    <UserPlus className="mr-3 h-5 w-5" />
+                    Continue as Guest
+                  </motion.button>
+                </div>
+                
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-500">
+                    Don't have an account?{' '}
+                    <Link
+                      href="/signup"
+                      className="text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                      Sign up for free
+                    </Link>
+                  </p>
+                </div>
+                
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    <h4 className="font-semibold mb-2">Benefits of creating an account:</h4>
+                    <ul className="space-y-1 text-left">
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        Track your orders in real-time
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        Save your preferences for faster checkout
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        Access order history and invoices
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

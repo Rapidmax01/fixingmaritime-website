@@ -158,7 +158,7 @@ export default function Hero() {
               </p>
               <div className="mt-10 flex items-center gap-x-6">
                 <Link
-                  href={session ? "/dashboard" : "/signup"}
+                  href={session ? "/dashboard" : "/services"}
                   className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
                 >
                   {session ? "Go to Dashboard" : "Get Started"}
