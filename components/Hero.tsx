@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { ArrowRight, Ship, Truck, Package, FileText, Globe, Anchor } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useContent } from '@/contexts/ContentContext'
@@ -10,6 +11,7 @@ export default function Hero() {
   const [hoveredService, setHoveredService] = useState<string | null>(null)
   const [currentBackground, setCurrentBackground] = useState(0)
   const { content, loading } = useContent()
+  const { data: session } = useSession()
 
   const services = [
     { icon: FileText, name: 'Documentation', color: 'text-blue-400', link: '/services/documentation' },
@@ -156,10 +158,10 @@ export default function Hero() {
               </p>
               <div className="mt-10 flex items-center gap-x-6">
                 <Link
-                  href="/signup"
+                  href={session ? "/dashboard" : "/signup"}
                   className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
                 >
-                  Get Started
+                  {session ? "Go to Dashboard" : "Get Started"}
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
                 </Link>
                 <Link
