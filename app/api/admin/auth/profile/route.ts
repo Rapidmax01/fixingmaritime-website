@@ -210,7 +210,7 @@ export async function PUT(request: NextRequest) {
       
       // Remove undefined values
       Object.keys(basicUpdateData).forEach(key => 
-        basicUpdateData[key] === undefined && delete basicUpdateData[key]
+        (basicUpdateData as any)[key] === undefined && delete (basicUpdateData as any)[key]
       )
       
       updatedUser = await prisma.user.update({
