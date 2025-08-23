@@ -23,7 +23,7 @@ model User {
   emailVerified    Boolean  @default(false)
   emailVerifyToken String?
   emailVerifyExpires DateTime?
-  role             String   @default("customer") // "customer", "admin", or "super_admin"
+  role             String   @default("customer") // "customer", "sub_admin", "admin", or "super_admin"
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   
