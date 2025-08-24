@@ -99,16 +99,9 @@ const specializationOptions = [
   'Port to Port'
 ]
 
-const statesAndCities = {
-  'California': ['Los Angeles', 'San Francisco', 'San Diego', 'Oakland', 'Long Beach'],
-  'Texas': ['Houston', 'Dallas', 'Austin', 'San Antonio', 'Fort Worth'],
-  'Florida': ['Miami', 'Tampa', 'Orlando', 'Jacksonville', 'Fort Lauderdale'],
-  'New York': ['New York City', 'Buffalo', 'Albany', 'Rochester', 'Syracuse'],
-  'Illinois': ['Chicago', 'Aurora', 'Rockford', 'Joliet', 'Peoria']
-}
 
 export default function RegisterTruck() {
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   
@@ -182,45 +175,49 @@ export default function RegisterTruck() {
     }
   }
 
-  const validateStep = (step: number) => {
-    switch (step) {
+  const validatePage = (page: number) => {
+    switch (page) {
       case 1:
-        return formData.ownerName && formData.email && formData.mobilePhone && formData.homeAddress
+        // Personal info, business details, next of kin
+        return formData.ownerName && formData.email && formData.mobilePhone && formData.homeAddress &&
+               formData.companyName && formData.officeGarageAddress && formData.businessType && 
+               formData.yearsInBusiness && formData.positionInCompany && 
+               (!formData.areYouOwner ? formData.connectionToTrucks : true) &&
+               formData.nextOfKinName && formData.nextOfKinAddress && formData.nextOfKinPhone && 
+               formData.nextOfKinRelationship
       case 2:
-        return formData.companyName && formData.officeGarageAddress && formData.businessType && formData.yearsInBusiness && formData.positionInCompany && (!formData.areYouOwner ? formData.connectionToTrucks : true)
+        // Truck details, insurance, documents
+        return formData.truckMake && formData.truckModel && formData.truckYear && formData.plateNumber && 
+               formData.truckType && formData.insuranceProvider && formData.insuranceExpiry && 
+               formData.licenseExpiry && formData.nationalIdCard && formData.utilityBill && 
+               formData.vehicleLicense && formData.proofOfOwnership && formData.hackneyPermit && 
+               formData.roadWorthiness
       case 3:
-        return formData.nextOfKinName && formData.nextOfKinAddress && formData.nextOfKinPhone && formData.nextOfKinRelationship
-      case 4:
+        // Bank details
         return formData.bankName && formData.accountNumber && formData.accountName
-      case 5:
-        return formData.truckMake && formData.truckModel && formData.truckYear && formData.plateNumber && formData.truckType
-      case 6:
-        return formData.insuranceProvider && formData.insuranceExpiry && formData.licenseExpiry
-      case 7:
-        return formData.nationalIdCard && formData.utilityBill && formData.vehicleLicense && formData.proofOfOwnership && formData.hackneyPermit && formData.roadWorthiness
-      case 8:
-        return formData.serviceAreas.length > 0 && formData.experience
-      case 9:
-        return formData.agreedToTerms && formData.agreedToPrivacy
+      case 4:
+        // Services, agreement
+        return formData.serviceAreas.length > 0 && formData.experience && formData.agreedToTerms && 
+               formData.agreedToPrivacy
       default:
         return true
     }
   }
 
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 10))
+  const nextPage = () => {
+    if (validatePage(currentPage)) {
+      setCurrentPage(prev => Math.min(prev + 1, 5))
     } else {
       toast.error('Please fill in all required fields')
     }
   }
 
-  const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1))
+  const prevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1))
   }
 
   const handleSubmit = async () => {
-    if (!validateStep(9)) {
+    if (!validatePage(4)) {
       toast.error('Please fill in all required fields and agree to terms')
       return
     }
@@ -236,7 +233,7 @@ export default function RegisterTruck() {
 
       if (response.ok) {
         setSubmitSuccess(true)
-        setCurrentStep(10)
+        setCurrentPage(5)
         toast.success('Registration submitted successfully!')
       } else {
         const data = await response.json()
@@ -250,20 +247,15 @@ export default function RegisterTruck() {
     }
   }
 
-  const steps = [
-    { number: 1, title: 'Personal Info', description: 'Basic contact information' },
-    { number: 2, title: 'Business Details', description: 'Company information' },
-    { number: 3, title: 'Next of Kin', description: 'Emergency contact' },
-    { number: 4, title: 'Bank Details', description: 'Payment information' },
-    { number: 5, title: 'Truck Details', description: 'Vehicle specifications' },
-    { number: 6, title: 'Insurance', description: 'Insurance and licenses' },
-    { number: 7, title: 'Documents', description: 'Required uploads' },
-    { number: 8, title: 'Services', description: 'Service areas' },
-    { number: 9, title: 'Agreement', description: 'Terms and conditions' },
-    { number: 10, title: 'Complete', description: 'Registration confirmation' }
+  const pages = [
+    { number: 1, title: 'Personal & Business Info', description: 'Contact details, company info, next of kin' },
+    { number: 2, title: 'Truck & Documents', description: 'Vehicle details, insurance, required documents' },
+    { number: 3, title: 'Bank Details', description: 'Payment information' },
+    { number: 4, title: 'Services & Agreement', description: 'Service areas, terms & conditions' },
+    { number: 5, title: 'Complete', description: 'Registration confirmation' }
   ]
 
-  if (submitSuccess && currentStep === 10) {
+  if (submitSuccess && currentPage === 5) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <motion.div
@@ -473,231 +465,642 @@ export default function RegisterTruck() {
                   />
                 </div>
               </div>
-            </motion.div>
-          )}
-
-          {/* Step 2: Business Information */}
-          {currentStep === 2 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Business Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.companyName}
-                    onChange={(e) => updateFormData('companyName', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Your company/business name"
-                  />
+              {/* Business Information Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Business Details</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Company Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.companyName}
+                      onChange={(e) => updateFormData('companyName', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Your company/business name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Office/Garage Address *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.officeGarageAddress}
+                      onChange={(e) => updateFormData('officeGarageAddress', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Business/garage address"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Business Type *
+                    </label>
+                    <select
+                      value={formData.businessType}
+                      onChange={(e) => updateFormData('businessType', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    >
+                      <option value="individual">Individual/Sole Proprietor</option>
+                      <option value="company">Company/Corporation</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Years in Business *
+                    </label>
+                    <select
+                      value={formData.yearsInBusiness}
+                      onChange={(e) => updateFormData('yearsInBusiness', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    >
+                      <option value="">Select years</option>
+                      <option value="less-than-1">Less than 1 year</option>
+                      <option value="1-3">1-3 years</option>
+                      <option value="3-5">3-5 years</option>
+                      <option value="5-10">5-10 years</option>
+                      <option value="10+">10+ years</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      What is your position in the company? *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.positionInCompany}
+                      onChange={(e) => updateFormData('positionInCompany', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Owner, Manager, Driver, etc."
+                    />
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Office/Garage Address *
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Are you the owner of the trucks? *
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.officeGarageAddress}
-                    onChange={(e) => updateFormData('officeGarageAddress', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Business/garage address"
-                  />
+                  <div className="space-y-2">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="areYouOwner"
+                        checked={formData.areYouOwner === true}
+                        onChange={() => updateFormData('areYouOwner', true)}
+                        className="mr-2 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-gray-700">Yes, I am the owner</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="areYouOwner"
+                        checked={formData.areYouOwner === false}
+                        onChange={() => updateFormData('areYouOwner', false)}
+                        className="mr-2 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-gray-700">No, I am not the owner</span>
+                    </label>
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Business Type *
-                  </label>
-                  <select
-                    value={formData.businessType}
-                    onChange={(e) => updateFormData('businessType', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  >
-                    <option value="individual">Individual/Sole Proprietor</option>
-                    <option value="company">Company/Corporation</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Years in Business *
-                  </label>
-                  <select
-                    value={formData.yearsInBusiness}
-                    onChange={(e) => updateFormData('yearsInBusiness', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  >
-                    <option value="">Select years</option>
-                    <option value="less-than-1">Less than 1 year</option>
-                    <option value="1-3">1-3 years</option>
-                    <option value="3-5">3-5 years</option>
-                    <option value="5-10">5-10 years</option>
-                    <option value="10+">10+ years</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    What is your position in the company? *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.positionInCompany}
-                    onChange={(e) => updateFormData('positionInCompany', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Owner, Manager, Driver, etc."
-                  />
-                </div>
+                {!formData.areYouOwner && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      What is your connection to the trucks? *
+                    </label>
+                    <input
+                      type="text"
+                      required={!formData.areYouOwner}
+                      value={formData.connectionToTrucks}
+                      onChange={(e) => updateFormData('connectionToTrucks', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Relationship to truck owner or business"
+                    />
+                  </div>
+                )}
               </div>
               
+              {/* Next of Kin Information Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Are you the owner of the trucks? *
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="areYouOwner"
-                      checked={formData.areYouOwner === true}
-                      onChange={() => updateFormData('areYouOwner', true)}
-                      className="mr-2 text-primary-600 focus:ring-primary-500"
-                    />
-                    <span className="text-gray-700">Yes, I am the owner</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="areYouOwner"
-                      checked={formData.areYouOwner === false}
-                      onChange={() => updateFormData('areYouOwner', false)}
-                      className="mr-2 text-primary-600 focus:ring-primary-500"
-                    />
-                    <span className="text-gray-700">No, I am not the owner</span>
-                  </label>
-                </div>
-              </div>
-              
-              {!formData.areYouOwner && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    What is your connection to the trucks? *
-                  </label>
-                  <input
-                    type="text"
-                    required={!formData.areYouOwner}
-                    value={formData.connectionToTrucks}
-                    onChange={(e) => updateFormData('connectionToTrucks', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Relationship to truck owner or business"
-                  />
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Step 3: Next of Kin Information */}
-          {currentStep === 3 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Next of Kin Information</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Next of Kin Name *
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      required
-                      value={formData.nextOfKinName}
-                      onChange={(e) => updateFormData('nextOfKinName', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="Full name of next of kin"
-                    />
-                  </div>
-                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Next of Kin Information</h3>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Next of Kin Phone Number *
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      required
-                      value={formData.nextOfKinPhone}
-                      onChange={(e) => updateFormData('nextOfKinPhone', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="+234 xxx xxx xxxx"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Next of Kin Name *
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="text"
+                        required
+                        value={formData.nextOfKinName}
+                        onChange={(e) => updateFormData('nextOfKinName', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="Full name of next of kin"
+                      />
+                    </div>
                   </div>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Next of Kin Address *
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      required
-                      value={formData.nextOfKinAddress}
-                      onChange={(e) => updateFormData('nextOfKinAddress', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="Complete address of next of kin"
-                    />
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Next of Kin Phone Number *
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        required
+                        value={formData.nextOfKinPhone}
+                        onChange={(e) => updateFormData('nextOfKinPhone', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="+234 xxx xxx xxxx"
+                      />
+                    </div>
                   </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Relationship with Next of Kin *
-                  </label>
-                  <select
-                    value={formData.nextOfKinRelationship}
-                    onChange={(e) => updateFormData('nextOfKinRelationship', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  >
-                    <option value="">Select relationship</option>
-                    <option value="spouse">Spouse</option>
-                    <option value="parent">Parent</option>
-                    <option value="child">Child</option>
-                    <option value="sibling">Sibling</option>
-                    <option value="friend">Friend</option>
-                    <option value="other">Other</option>
-                  </select>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Next of Kin Address *
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="text"
+                        required
+                        value={formData.nextOfKinAddress}
+                        onChange={(e) => updateFormData('nextOfKinAddress', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="Complete address of next of kin"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Relationship with Next of Kin *
+                    </label>
+                    <select
+                      value={formData.nextOfKinRelationship}
+                      onChange={(e) => updateFormData('nextOfKinRelationship', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    >
+                      <option value="">Select relationship</option>
+                      <option value="spouse">Spouse</option>
+                      <option value="parent">Parent</option>
+                      <option value="child">Child</option>
+                      <option value="sibling">Sibling</option>
+                      <option value="friend">Friend</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* Step 4: Bank Account Details */}
-          {currentStep === 4 && (
+          {/* Page 2: Truck & Documents */}
+          {currentPage === 2 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Bank Account Details</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Truck Details & Documentation</h2>
+              
+              {/* Truck Information Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Vehicle Information</h3>
+              
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Truck Make *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.truckMake}
+                      onChange={(e) => updateFormData('truckMake', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="e.g., Volvo, Mercedes, MAN, Scania"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Truck Model *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.truckModel}
+                      onChange={(e) => updateFormData('truckModel', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Model name/number"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Year *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={formData.truckYear}
+                      onChange={(e) => updateFormData('truckYear', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="2020"
+                      min="1990"
+                      max="2025"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      License Plate Number *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.plateNumber}
+                      onChange={(e) => updateFormData('plateNumber', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Vehicle registration number"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      VIN Number
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.vinNumber}
+                      onChange={(e) => updateFormData('vinNumber', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Vehicle identification number"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Truck Type *
+                    </label>
+                    <select
+                      value={formData.truckType}
+                      onChange={(e) => updateFormData('truckType', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    >
+                      <option value="">Select truck type</option>
+                      {truckTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Load Capacity
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.capacity}
+                      onChange={(e) => updateFormData('capacity', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="e.g., 30 tons, 40 tons"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Specializations (Optional)
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {specializationOptions.map(spec => (
+                      <label key={spec} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={formData.specializations.includes(spec)}
+                          onChange={() => handleSpecializationToggle(spec)}
+                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">{spec}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Insurance & Licensing Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Insurance & Licensing</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Insurance Provider *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.insuranceProvider}
+                      onChange={(e) => updateFormData('insuranceProvider', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Insurance company name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Insurance Expiry Date *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.insuranceExpiry}
+                      onChange={(e) => updateFormData('insuranceExpiry', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Driving License Expiry *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.licenseExpiry}
+                      onChange={(e) => updateFormData('licenseExpiry', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Document Uploads Section */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Required Documents</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      1. National Identification Card *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.nationalIdCard}
+                      onChange={(e) => updateFormData('nationalIdCard', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Confirm you have your national ID ready for upload"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      2. Utility Bill (Electricity/Water/Gas) *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.utilityBill}
+                      onChange={(e) => updateFormData('utilityBill', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Confirm you have recent utility bill"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      3. Vehicle License *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.vehicleLicense}
+                      onChange={(e) => updateFormData('vehicleLicense', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Vehicle registration document"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      4. Proof of Ownership *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.proofOfOwnership}
+                      onChange={(e) => updateFormData('proofOfOwnership', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Vehicle ownership certificate"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      5. Hackney Permit *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.hackneyPermit}
+                      onChange={(e) => updateFormData('hackneyPermit', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Commercial vehicle permit"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      6. Road Worthiness Certificate *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.roadWorthiness}
+                      onChange={(e) => updateFormData('roadWorthiness', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Vehicle roadworthiness certificate"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+                  <h4 className="font-medium text-yellow-900 mb-2">Document Upload Information</h4>
+                  <p className="text-sm text-yellow-800">
+                    After your application is approved, you will receive instructions for uploading these documents securely.
+                    Please ensure all documents are current and clearly readable.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Page 3: Bank Details */}
+          {currentPage === 3 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Bank Account Details</h2>
+              
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Primary Service Areas *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.serviceAreas.join(', ')}
+                      onChange={(e) => updateFormData('serviceAreas', e.target.value.split(',').map(s => s.trim()))}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="e.g., Lagos, Abuja, Port Harcourt, Kano (separate with commas)"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.willingToRelocate}
+                        onChange={(e) => updateFormData('willingToRelocate', e.target.checked)}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        Willing to relocate for long-term contracts
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Years of Trucking Experience *
+                    </label>
+                    <select
+                      value={formData.experience}
+                      onChange={(e) => updateFormData('experience', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    >
+                      <option value="">Select experience level</option>
+                      <option value="less-than-1">Less than 1 year</option>
+                      <option value="1-3">1-3 years</option>
+                      <option value="3-5">3-5 years</option>
+                      <option value="5-10">5-10 years</option>
+                      <option value="10+">10+ years</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Additional Notes
+                    </label>
+                    <textarea
+                      value={formData.additionalNotes}
+                      onChange={(e) => updateFormData('additionalNotes', e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      rows={4}
+                      placeholder="Any additional information about your services, special equipment, etc."
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Terms & Agreement Section */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Terms & Conditions</h3>
+                
+                <div className="p-6 bg-gray-50 rounded-lg border mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-4">Partnership Agreement</h4>
+                  <div className="text-sm text-gray-700 space-y-3">
+                    <p>
+                      By registering with Fixing Maritime Logistics, you agree to the following terms:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>Five percent (5%) of the total amount paid for each loading of your truck from any of our loading points will be collected by Fixing Maritime Logistics.</li>
+                      <li>You will never contact any of our associates without the permission of Fixing Maritime Logistics, as doing so causes confusion in the workspace.</li>
+                      <li>Fixing Maritime Logistics will never contact your driver without your permission.</li>
+                      <li>Payment will be disbursed immediately or within 24 hours.</li>
+                      <li>Fixing Maritime Logistics will not partake or be held responsible if your truck breaks down on the road or in case of an accident.</li>
+                      <li>This agreement is binding to the law of the Federal Republic of Nigeria.</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="flex items-start">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={formData.agreedToTerms}
+                        onChange={(e) => updateFormData('agreedToTerms', e.target.checked)}
+                        className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        I have read and agree to the terms and conditions of Fixing Maritime Logistics *
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div className="p-6 bg-blue-50 rounded-lg border">
+                    <h4 className="font-semibold text-blue-900 mb-4">Privacy Policy</h4>
+                    <p className="text-sm text-blue-800">
+                      We do not share your details with third parties, except in cases where we find you wanting. 
+                      Your personal and business information is protected and will only be used for business purposes 
+                      related to your partnership with Fixing Maritime Logistics.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-start">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={formData.agreedToPrivacy}
+                        onChange={(e) => updateFormData('agreedToPrivacy', e.target.checked)}
+                        className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        I acknowledge and agree to the privacy policy *
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Page 4: Services & Agreement */}
+          {currentPage === 4 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Areas & Agreement</h2>
+              
+              {/* Service Areas Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Service Areas & Experience</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -765,497 +1168,24 @@ export default function RegisterTruck() {
             </motion.div>
           )}
 
-          {/* Step 5: Truck Details */}
-          {currentStep === 5 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Truck Information</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Truck Make *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.truckMake}
-                    onChange={(e) => updateFormData('truckMake', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="e.g., Volvo, Mercedes, MAN, Scania"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Truck Model *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.truckModel}
-                    onChange={(e) => updateFormData('truckModel', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Model name/number"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Year *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.truckYear}
-                    onChange={(e) => updateFormData('truckYear', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="2020"
-                    min="1990"
-                    max="2025"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    License Plate Number *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.plateNumber}
-                    onChange={(e) => updateFormData('plateNumber', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Vehicle registration number"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    VIN Number
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.vinNumber}
-                    onChange={(e) => updateFormData('vinNumber', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Vehicle identification number"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Truck Type *
-                  </label>
-                  <select
-                    value={formData.truckType}
-                    onChange={(e) => updateFormData('truckType', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  >
-                    <option value="">Select truck type</option>
-                    {truckTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Load Capacity
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.capacity}
-                    onChange={(e) => updateFormData('capacity', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="e.g., 30 tons, 40 tons"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Specializations (Optional)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {specializationOptions.map(spec => (
-                    <label key={spec} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.specializations.includes(spec)}
-                        onChange={() => handleSpecializationToggle(spec)}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{spec}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Years of Trucking Experience *
-                </label>
-                <select
-                  value={formData.experience}
-                  onChange={(e) => updateFormData('experience', e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                >
-                  <option value="">Select experience level</option>
-                  <option value="less-than-1">Less than 1 year</option>
-                  <option value="1-3">1-3 years</option>
-                  <option value="3-5">3-5 years</option>
-                  <option value="5-10">5-10 years</option>
-                  <option value="10+">10+ years</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Notes
-                </label>
-                <textarea
-                  value={formData.additionalNotes}
-                  onChange={(e) => updateFormData('additionalNotes', e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  rows={4}
-                  placeholder="Any additional information, special equipment, certifications, etc."
-                />
-              </div>
-            </motion.div>
-          )}
 
-          {/* Step 6: Insurance & Licensing */}
-          {currentStep === 6 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Insurance & Licensing</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Insurance Provider *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.insuranceProvider}
-                    onChange={(e) => updateFormData('insuranceProvider', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Insurance company name"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Insurance Expiry Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.insuranceExpiry}
-                    onChange={(e) => updateFormData('insuranceExpiry', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Driving License Expiry *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.licenseExpiry}
-                    onChange={(e) => updateFormData('licenseExpiry', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
 
-          {/* Step 7: Document Uploads */}
-          {currentStep === 7 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Required Documents</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    1. National Identification Card *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nationalIdCard}
-                    onChange={(e) => updateFormData('nationalIdCard', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Confirm you have your national ID ready for upload"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    2. Utility Bill (Electricity/Water/Gas) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.utilityBill}
-                    onChange={(e) => updateFormData('utilityBill', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Confirm you have recent utility bill"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    3. Vehicle License *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.vehicleLicense}
-                    onChange={(e) => updateFormData('vehicleLicense', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Vehicle registration document"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    4. Proof of Ownership *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.proofOfOwnership}
-                    onChange={(e) => updateFormData('proofOfOwnership', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Vehicle ownership certificate"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    5. Hackney Permit *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.hackneyPermit}
-                    onChange={(e) => updateFormData('hackneyPermit', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Commercial vehicle permit"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    6. Road Worthiness Certificate *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.roadWorthiness}
-                    onChange={(e) => updateFormData('roadWorthiness', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Vehicle roadworthiness certificate"
-                  />
-                </div>
-              </div>
-              
-              <div className="p-4 bg-yellow-50 rounded-lg">
-                <h3 className="font-medium text-yellow-900 mb-2">Document Upload Information</h3>
-                <p className="text-sm text-yellow-800">
-                  After your application is approved, you will receive instructions for uploading these documents securely.
-                  Please ensure all documents are current and clearly readable.
-                </p>
-              </div>
-            </motion.div>
-          )}
 
-          {/* Step 8: Service Areas & Experience */}
-          {currentStep === 8 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Service Areas & Experience</h2>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Primary Service Areas *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.serviceAreas.join(', ')}
-                  onChange={(e) => updateFormData('serviceAreas', e.target.value.split(',').map(s => s.trim()))}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  placeholder="e.g., Lagos, Abuja, Port Harcourt, Kano (separate with commas)"
-                />
-              </div>
-              
-              <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.willingToRelocate}
-                    onChange={(e) => updateFormData('willingToRelocate', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">
-                    Willing to relocate for long-term contracts
-                  </span>
-                </label>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Years of Trucking Experience *
-                </label>
-                <select
-                  value={formData.experience}
-                  onChange={(e) => updateFormData('experience', e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                >
-                  <option value="">Select experience level</option>
-                  <option value="less-than-1">Less than 1 year</option>
-                  <option value="1-3">1-3 years</option>
-                  <option value="3-5">3-5 years</option>
-                  <option value="5-10">5-10 years</option>
-                  <option value="10+">10+ years</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Specializations (Optional)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {specializationOptions.map(spec => (
-                    <label key={spec} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.specializations.includes(spec)}
-                        onChange={() => handleSpecializationToggle(spec)}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{spec}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Notes
-                </label>
-                <textarea
-                  value={formData.additionalNotes}
-                  onChange={(e) => updateFormData('additionalNotes', e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  rows={4}
-                  placeholder="Any additional information about your services, special equipment, etc."
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 9: Terms & Agreement */}
-          {currentStep === 9 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Terms & Conditions</h2>
-              
-              <div className="p-6 bg-gray-50 rounded-lg border">
-                <h3 className="font-semibold text-gray-900 mb-4">Partnership Agreement</h3>
-                <div className="text-sm text-gray-700 space-y-3">
-                  <p>
-                    By registering with Fixing Maritime Logistics, you agree to the following terms:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Five percent (5%) of the total amount paid for each loading of your truck from any of our loading points will be collected by Fixing Maritime Logistics.</li>
-                    <li>You will never contact any of our associates without the permission of Fixing Maritime Logistics, as doing so causes confusion in the workspace.</li>
-                    <li>Fixing Maritime Logistics will never contact your driver without your permission.</li>
-                    <li>Payment will be disbursed immediately or within 24 hours.</li>
-                    <li>Fixing Maritime Logistics will not partake or be held responsible if your truck breaks down on the road or in case of an accident.</li>
-                    <li>This agreement is binding to the law of the Federal Republic of Nigeria.</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div>
-                <label className="flex items-start">
-                  <input
-                    type="checkbox"
-                    required
-                    checked={formData.agreedToTerms}
-                    onChange={(e) => updateFormData('agreedToTerms', e.target.checked)}
-                    className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">
-                    I have read and agree to the terms and conditions of Fixing Maritime Logistics *
-                  </span>
-                </label>
-              </div>
-              
-              <div className="p-6 bg-blue-50 rounded-lg border">
-                <h3 className="font-semibold text-blue-900 mb-4">Privacy Policy</h3>
-                <p className="text-sm text-blue-800">
-                  We do not share your details with third parties, except in cases where we find you wanting. 
-                  Your personal and business information is protected and will only be used for business purposes 
-                  related to your partnership with Fixing Maritime Logistics.
-                </p>
-              </div>
-              
-              <div>
-                <label className="flex items-start">
-                  <input
-                    type="checkbox"
-                    required
-                    checked={formData.agreedToPrivacy}
-                    onChange={(e) => updateFormData('agreedToPrivacy', e.target.checked)}
-                    className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">
-                    I acknowledge and agree to the privacy policy *
-                  </span>
-                </label>
-              </div>
-            </motion.div>
-          )}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between pt-8 border-t">
             <button
-              onClick={prevStep}
-              disabled={currentStep === 1}
+              onClick={prevPage}
+              disabled={currentPage === 1}
               className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Previous
             </button>
             
-            {currentStep < 9 ? (
+            {currentPage < 4 ? (
               <button
-                onClick={nextStep}
+                onClick={nextPage}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
               >
                 Next
