@@ -145,8 +145,19 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
 
+    let whereClause
+    if (email) {
+      whereClause = { email }
+    } else if (registrationId) {
+      whereClause = { id: registrationId }
+    } else {
+      return NextResponse.json({ 
+        error: 'Email or registration ID required' 
+      }, { status: 400 })
+    }
+
     const registration = await prisma.truckRegistration.findFirst({
-      where: email ? { email } : { id: registrationId },
+      where: whereClause,
       select: {
         id: true,
         ownerName: true,
