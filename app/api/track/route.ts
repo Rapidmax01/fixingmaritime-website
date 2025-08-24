@@ -27,27 +27,33 @@ export async function GET(request: Request) {
     }
 
     // Try to find in orders first
-    const order = await prisma.order.findFirst({
-      where: {
-        OR: [
-          { trackingNumber: trackingNumber },
-          { orderNumber: trackingNumber }
-        ]
-      },
-      include: {
-        user: {
-          select: { name: true, email: true }
+    let order = null
+    try {
+      order = await prisma.order.findFirst({
+        where: {
+          OR: [
+            { trackingNumber: trackingNumber },
+            { orderNumber: trackingNumber }
+          ]
         },
-        orderItems: {
-          include: {
-            service: true
+        include: {
+          user: {
+            select: { name: true, email: true }
+          },
+          orderItems: {
+            include: {
+              service: true
+            }
+          },
+          tracking: {
+            orderBy: { createdAt: 'asc' }
           }
-        },
-        tracking: {
-          orderBy: { createdAt: 'asc' }
         }
-      }
-    })
+      })
+    } catch (dbError) {
+      console.error('Error querying orders:', dbError)
+      // Continue to try other sources
+    }
 
     if (order) {
       return NextResponse.json({
@@ -75,14 +81,20 @@ export async function GET(request: Request) {
     }
 
     // Try to find in truck requests
-    const truckRequest = await prisma.truckRequest.findFirst({
-      where: {
-        OR: [
-          { trackingNumber: trackingNumber },
-          { id: trackingNumber }
-        ]
-      }
-    })
+    let truckRequest = null
+    try {
+      truckRequest = await prisma.truckRequest.findFirst({
+        where: {
+          OR: [
+            { trackingNumber: trackingNumber },
+            { id: trackingNumber }
+          ]
+        }
+      })
+    } catch (dbError) {
+      console.error('Error querying truck requests:', dbError)
+      // Continue to try other sources
+    }
 
     if (truckRequest) {
       return NextResponse.json({

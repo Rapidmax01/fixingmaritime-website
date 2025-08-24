@@ -139,14 +139,31 @@ function TrackOrderContent() {
   const [error, setError] = useState('')
 
   const handleSearch = async () => {
+    if (!trackingNumber.trim()) {
+      setError('Please enter a tracking number')
+      return
+    }
+
     setIsSearching(true)
     setError('')
 
     try {
-      const response = await fetch(`/api/track?tracking=${encodeURIComponent(trackingNumber)}`)
-      const result = await response.json()
+      const response = await fetch(`/api/track?tracking=${encodeURIComponent(trackingNumber.trim())}`)
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Tracking number not found. Please check and try again.')
+        } else if (response.status === 500) {
+          setError('Service temporarily unavailable. Please try again later.')
+        } else {
+          setError('Unable to fetch tracking information. Please try again.')
+        }
+        setTrackingData(null)
+        return
+      }
 
-      if (response.ok && result.success) {
+      const result = await response.json()
+      if (result.success) {
         setTrackingData(result.data)
       } else {
         setError(result.error || 'Tracking number not found. Please check and try again.')
@@ -154,7 +171,7 @@ function TrackOrderContent() {
       }
     } catch (error) {
       console.error('Error fetching tracking data:', error)
-      setError('Unable to fetch tracking information. Please try again.')
+      setError('Unable to connect to tracking service. Please check your connection and try again.')
       setTrackingData(null)
     } finally {
       setIsSearching(false)
@@ -183,6 +200,11 @@ function TrackOrderContent() {
                   type="text"
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch()
+                    }
+                  }}
                   placeholder="Enter tracking number (e.g., TRK-DOC-001)"
                   className="block w-full rounded-md border-0 py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600"
                 />
