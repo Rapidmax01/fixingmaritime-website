@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
         
         // Service Areas & Preferences
         serviceAreas: data.serviceAreas,
-        willingToRelocate: data.willingToRelocate || false,
+        willingToRelocate: false, // Default to false
         
         // Experience & Specializations
         experience: data.experience,
@@ -142,6 +142,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Truck registration error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta
+    })
     
     // Handle specific Prisma errors
     if (error.code === 'P2002') {
@@ -149,9 +154,11 @@ export async function POST(request: NextRequest) {
         error: 'A truck with this information already exists' 
       }, { status: 409 })
     }
-
+    
+    // Return more specific error for debugging
     return NextResponse.json({ 
-      error: 'Failed to submit registration' 
+      error: 'Failed to submit registration. Please try again later.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }, { status: 500 })
   }
 }
