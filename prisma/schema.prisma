@@ -254,3 +254,45 @@ model TruckRegistration {
   @@index([status])
   @@map("truck_registrations")
 }
+
+model PartnerRegistration {
+  id                String   @id @default(uuid())
+  
+  // Company & Owner Information
+  companyName       String
+  ownerName         String
+  email             String   @unique
+  phoneNumber       String
+  homeAddress       String
+  officeWarehouseAddress String
+  
+  // Bank Account Details
+  bankName          String
+  accountNumber     String
+  accountName       String
+  
+  // Next of Kin Information
+  nextOfKinName     String
+  nextOfKinRelationship String
+  nextOfKinAddress  String
+  nextOfKinPhone    String
+  
+  // Document Uploads (file names/URLs)
+  nationalIdCard    String
+  utilityBill       String
+  cacRegistration   String
+  otherDocuments    String?
+  
+  // Agreement
+  agreedToTerms     Boolean  @default(false)
+  agreedToPrivacy   Boolean  @default(false)
+  
+  // Status and timestamps
+  status            String   @default("pending") // "pending", "approved", "rejected", "under_review"
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@map("partner_registrations")
+}

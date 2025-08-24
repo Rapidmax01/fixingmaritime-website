@@ -173,15 +173,15 @@ export default function Hero() {
                   </Link>
                 </div>
                 
-                {/* Truck Owner CTA */}
+                {/* New Truckers CTA */}
                 <div className="flex items-center">
                   <div className="hidden sm:block w-px h-8 bg-white/30 mx-4"></div>
                   <Link
-                    href="/register-truck"
-                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 hover:border-white/30 transition-all duration-200 group"
+                    href="/partner-registration"
+                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600/80 backdrop-blur-sm border border-green-400/50 rounded-lg hover:bg-green-600 hover:border-green-400 transition-all duration-200 group shadow-lg hover:shadow-green-500/25"
                   >
                     <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                    Own a Truck? Join Us
+                    New Truckers - Register Here
                     <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
