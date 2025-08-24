@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship } from 'lucide-react'
+import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship, Truck } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 // Mock data - would come from API in real app
@@ -122,13 +122,27 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {session.user?.name?.split(' ')[0]}
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Manage your maritime logistics from your dashboard
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome back, {session.user?.name?.split(' ')[0]}
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Manage your maritime logistics from your dashboard
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0">
+            <Link href="/request-truck">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center px-6 py-3 bg-primary-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+              >
+                <Truck className="w-4 h-4 mr-2" />
+                Request a Truck
+              </motion.button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}
