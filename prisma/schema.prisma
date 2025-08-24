@@ -172,3 +172,58 @@ model MediaFile {
   
   @@map("media_files")
 }
+
+model TruckRegistration {
+  id                String   @id @default(uuid())
+  
+  // Owner Information
+  ownerName         String
+  email             String
+  phone             String
+  address           String
+  city              String?
+  state             String?
+  zipCode           String?
+  
+  // Business Information
+  companyName       String
+  businessType      String   // "individual" or "company"
+  taxId             String?
+  yearsInBusiness   String
+  
+  // Truck Information
+  truckMake         String
+  truckModel        String
+  truckYear         Int
+  plateNumber       String   @unique
+  vinNumber         String?
+  truckType         String
+  capacity          String?
+  
+  // Insurance & Documents
+  insuranceProvider String
+  insuranceExpiry   DateTime
+  licenseExpiry     DateTime
+  
+  // Service Areas & Preferences
+  serviceAreas      String[]
+  willingToRelocate Boolean  @default(false)
+  
+  // Experience & Specializations
+  experience        String
+  specializations   String[]
+  additionalNotes   String?  @db.Text
+  
+  // Status & Metadata
+  status            String   @default("pending") // "pending", "approved", "rejected", "suspended"
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  reviewNotes       String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([email])
+  @@index([plateNumber])
+  @@index([status])
+  @@map("truck_registrations")
+}

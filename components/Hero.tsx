@@ -156,20 +156,35 @@ export default function Hero() {
                   content?.sections?.hero?.content || 'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
                 )}
               </p>
-              <div className="mt-10 flex items-center gap-x-6">
-                <Link
-                  href={session ? "/dashboard" : "/services"}
-                  className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
-                >
-                  {session ? "Go to Dashboard" : "Get Started"}
-                  <ArrowRight className="inline-block ml-2 h-4 w-4" />
-                </Link>
-                <Link
-                  href="/services"
-                  className="text-sm font-semibold leading-6 text-white hover:text-primary-400 transition-colors"
-                >
-                  Explore Services <span aria-hidden="true">→</span>
-                </Link>
+              <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex items-center gap-x-6">
+                  <Link
+                    href={session ? "/dashboard" : "/services"}
+                    className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
+                  >
+                    {session ? "Go to Dashboard" : "Get Started"}
+                    <ArrowRight className="inline-block ml-2 h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/services"
+                    className="text-sm font-semibold leading-6 text-white hover:text-primary-400 transition-colors"
+                  >
+                    Explore Services <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+                
+                {/* Truck Owner CTA */}
+                <div className="flex items-center">
+                  <div className="hidden sm:block w-px h-8 bg-white/30 mx-4"></div>
+                  <Link
+                    href="/register-truck"
+                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 hover:border-white/30 transition-all duration-200 group"
+                  >
+                    <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                    Own a Truck? Join Us
+                    <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
             </motion.div>
 
