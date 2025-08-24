@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Search, MapPin, Clock, CheckCircle, Truck, Ship, Package, AlertCircle } from 'lucide-react'
+import { Search, MapPin, Clock, CheckCircle, Truck, Ship, Package, AlertCircle, XCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 // Mock tracking data
