@@ -730,55 +730,67 @@ export default function RegisterTruck() {
             </motion.div>
           )}
 
-          {/* Step 4: Documentation */}
+          {/* Step 4: Bank Account Details */}
           {currentStep === 4 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Insurance & Documentation</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Bank Account Details</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Insurance Provider *
+                    Bank Name *
+                  </label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      required
+                      value={formData.bankName}
+                      onChange={(e) => updateFormData('bankName', e.target.value)}
+                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="e.g., First Bank, GTBank, Access Bank"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Account Number *
                   </label>
                   <input
                     type="text"
                     required
-                    value={formData.insuranceProvider}
-                    onChange={(e) => updateFormData('insuranceProvider', e.target.value)}
+                    value={formData.accountNumber}
+                    onChange={(e) => updateFormData('accountNumber', e.target.value)}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="e.g., Progressive, State Farm"
+                    placeholder="10-digit account number"
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Insurance Expiry Date *
+                    Account Name *
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     required
-                    value={formData.insuranceExpiry}
-                    onChange={(e) => updateFormData('insuranceExpiry', e.target.value)}
+                    value={formData.accountName}
+                    onChange={(e) => updateFormData('accountName', e.target.value)}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="Account holder name"
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CDL License Expiry *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.licenseExpiry}
-                    onChange={(e) => updateFormData('licenseExpiry', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                  />
-                </div>
+              </div>
+              
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-2">Payment Information</h3>
+                <p className="text-sm text-blue-800">
+                  Your account details will be used for receiving payments. Fixing Maritime collects 5% of each loading transaction, and payments are disbursed within 24 hours.
+                </p>
               </div>
               
               <div className="p-4 bg-blue-50 rounded-lg">
