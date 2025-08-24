@@ -806,46 +806,115 @@ export default function RegisterTruck() {
             </motion.div>
           )}
 
-          {/* Step 5: Services & Experience */}
+          {/* Step 5: Truck Details */}
           {currentStep === 5 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Service Areas & Specializations</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Truck Information</h2>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Primary Service Areas * (Select all that apply)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {Object.keys(statesAndCities).map(state => (
-                    <label key={state} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.serviceAreas.includes(state)}
-                        onChange={() => handleServiceAreaToggle(state)}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{state}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <label className="flex items-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Truck Make *
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={formData.willingToRelocate}
-                    onChange={(e) => updateFormData('willingToRelocate', e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    type="text"
+                    required
+                    value={formData.truckMake}
+                    onChange={(e) => updateFormData('truckMake', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="e.g., Volvo, Mercedes, MAN, Scania"
                   />
-                  <span className="ml-2 text-sm text-gray-700">
-                    Willing to relocate for long-term contracts
-                  </span>
-                </label>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Truck Model *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.truckModel}
+                    onChange={(e) => updateFormData('truckModel', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="Model name/number"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Year *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={formData.truckYear}
+                    onChange={(e) => updateFormData('truckYear', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="2020"
+                    min="1990"
+                    max="2025"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    License Plate Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.plateNumber}
+                    onChange={(e) => updateFormData('plateNumber', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="Vehicle registration number"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    VIN Number
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.vinNumber}
+                    onChange={(e) => updateFormData('vinNumber', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="Vehicle identification number"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Truck Type *
+                  </label>
+                  <select
+                    value={formData.truckType}
+                    onChange={(e) => updateFormData('truckType', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                  >
+                    <option value="">Select truck type</option>
+                    {truckTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Load Capacity
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.capacity}
+                    onChange={(e) => updateFormData('capacity', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="e.g., 30 tons, 40 tons"
+                  />
+                </div>
               </div>
               
               <div>
