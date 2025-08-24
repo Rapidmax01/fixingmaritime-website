@@ -156,35 +156,20 @@ export default function Hero() {
                   content?.sections?.hero?.content || 'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
                 )}
               </p>
-              <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="flex items-center gap-x-6">
-                  <Link
-                    href={session ? "/dashboard" : "/services"}
-                    className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
-                  >
-                    {session ? "Go to Dashboard" : "Get Started"}
-                    <ArrowRight className="inline-block ml-2 h-4 w-4" />
-                  </Link>
-                  <Link
-                    href="/services"
-                    className="text-sm font-semibold leading-6 text-white hover:text-primary-400 transition-colors"
-                  >
-                    Explore Services <span aria-hidden="true">→</span>
-                  </Link>
-                </div>
-                
-                {/* New Truckers CTA */}
-                <div className="flex items-center">
-                  <div className="hidden sm:block w-px h-8 bg-white/30 mx-4"></div>
-                  <Link
-                    href="/partner-registration"
-                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600/80 backdrop-blur-sm border border-green-400/50 rounded-lg hover:bg-green-600 hover:border-green-400 transition-all duration-200 group shadow-lg hover:shadow-green-500/25"
-                  >
-                    <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                    New Truckers - Register Here
-                    <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
+              <div className="mt-10 flex items-center gap-x-6">
+                <Link
+                  href={session ? "/dashboard" : "/services"}
+                  className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
+                >
+                  {session ? "Go to Dashboard" : "Get Started"}
+                  <ArrowRight className="inline-block ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/services"
+                  className="text-sm font-semibold leading-6 text-white hover:text-primary-400 transition-colors"
+                >
+                  Explore Services <span aria-hidden="true">→</span>
+                </Link>
               </div>
             </motion.div>
 
