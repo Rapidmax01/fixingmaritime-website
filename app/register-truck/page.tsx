@@ -184,23 +184,23 @@ export default function RegisterTruck() {
                formData.yearsInBusiness && formData.positionInCompany && 
                (!formData.areYouOwner ? formData.connectionToTrucks : true) &&
                formData.nextOfKinName && formData.nextOfKinAddress && formData.nextOfKinPhone && 
-               formData.nextOfKinRelationship
+               formData.nextOfKinRelationship;
       case 2:
         // Truck details, insurance, documents
         return formData.truckMake && formData.truckModel && formData.truckYear && formData.plateNumber && 
                formData.truckType && formData.insuranceProvider && formData.insuranceExpiry && 
                formData.licenseExpiry && formData.nationalIdCard && formData.utilityBill && 
                formData.vehicleLicense && formData.proofOfOwnership && formData.hackneyPermit && 
-               formData.roadWorthiness
+               formData.roadWorthiness;
       case 3:
         // Bank details
-        return formData.bankName && formData.accountNumber && formData.accountName
+        return formData.bankName && formData.accountNumber && formData.accountName;
       case 4:
         // Services, agreement
         return formData.serviceAreas.length > 0 && formData.experience && formData.agreedToTerms && 
-               formData.agreedToPrivacy
+               formData.agreedToPrivacy;
       default:
-        return true
+        return true;
     }
   }
 
@@ -255,6 +255,7 @@ export default function RegisterTruck() {
     { number: 5, title: 'Complete', description: 'Registration confirmation' }
   ]
 
+  // Show success page after submission
   if (submitSuccess && currentPage === 5) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -294,9 +295,10 @@ export default function RegisterTruck() {
           </div>
         </motion.div>
       </div>
-    )
+    );
   }
 
+  // Main component render
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-4xl px-4 py-8">
