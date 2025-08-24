@@ -97,7 +97,13 @@ const initializePrisma = async (): Promise<PrismaClient | null> => {
 }
 
 // Export the initialized client
-export const prisma = await initializePrisma()
+export const prisma = process.env.DATABASE_URL ? new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+}) : null
 
 // Graceful shutdown
 if (process.env.NODE_ENV !== 'test') {
