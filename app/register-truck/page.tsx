@@ -99,7 +99,6 @@ const specializationOptions = [
   'Port to Port'
 ]
 
-
 export default function RegisterTruck() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -304,10 +303,7 @@ export default function RegisterTruck() {
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
-          >
+          <Link href="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Homepage
           </Link>
@@ -323,30 +319,30 @@ export default function RegisterTruck() {
             </p>
           </div>
 
-          {/* Progress Steps */}
-          <div className="flex items-center justify-between mb-8">
-            {steps.map((step, index) => (
-              <div key={step.number} className="flex items-center">
+          {/* Progress Pages */}
+          <div className="flex items-center justify-between mb-8 max-w-4xl mx-auto">
+            {pages.slice(0, 4).map((page, index) => (
+              <div key={page.number} className="flex items-center">
                 <div className="flex items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
-                    step.number <= currentStep 
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold ${
+                    page.number <= currentPage 
                       ? 'bg-primary-600 text-white' 
                       : 'bg-gray-200 text-gray-600'
                   }`}>
-                    {step.number}
+                    {page.number}
                   </div>
-                  <div className="ml-3 hidden md:block">
+                  <div className="ml-3 hidden lg:block">
                     <p className={`text-sm font-semibold ${
-                      step.number <= currentStep ? 'text-primary-600' : 'text-gray-600'
+                      page.number <= currentPage ? 'text-primary-600' : 'text-gray-600'
                     }`}>
-                      {step.title}
+                      {page.title}
                     </p>
-                    <p className="text-xs text-gray-500">{step.description}</p>
+                    <p className="text-xs text-gray-500">{page.description}</p>
                   </div>
                 </div>
-                {index < steps.length - 1 && (
+                {index < 3 && (
                   <div className={`flex-1 h-0.5 mx-4 ${
-                    step.number < currentStep ? 'bg-primary-600' : 'bg-gray-200'
+                    page.number < currentPage ? 'bg-primary-600' : 'bg-gray-200'
                   }`} />
                 )}
               </div>
@@ -356,115 +352,87 @@ export default function RegisterTruck() {
 
         {/* Form */}
         <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* Step 1: Personal Information */}
-          {currentStep === 1 && (
+          {/* Page 1: Personal & Business Information */}
+          {currentPage === 1 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Personal Information</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Personal & Business Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name *
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      required
-                      value={formData.ownerName}
-                      onChange={(e) => updateFormData('ownerName', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                </div>
+              {/* Personal Information Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Personal Details</h3>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Official Email *
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => updateFormData('email', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="john@example.com"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name *
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="text"
+                        required
+                        value={formData.ownerName}
+                        onChange={(e) => updateFormData('ownerName', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="John Doe"
+                      />
+                    </div>
                   </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Mobile Phone Number *
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      required
-                      value={formData.mobilePhone}
-                      onChange={(e) => updateFormData('mobilePhone', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="+234 xxx xxx xxxx"
-                    />
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Official Email *
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => updateFormData('email', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="john@example.com"
+                      />
+                    </div>
                   </div>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Home Address *
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      required
-                      value={formData.homeAddress}
-                      onChange={(e) => updateFormData('homeAddress', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="Complete home address with city, state, country"
-                    />
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Mobile Phone Number *
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        required
+                        value={formData.mobilePhone}
+                        onChange={(e) => updateFormData('mobilePhone', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="+234 xxx xxx xxxx"
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => updateFormData('city', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="City"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                  <input
-                    type="text"
-                    value={formData.state}
-                    onChange={(e) => updateFormData('state', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="State"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
-                  <input
-                    type="text"
-                    value={formData.zipCode}
-                    onChange={(e) => updateFormData('zipCode', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="12345"
-                  />
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Home Address *
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <input
+                        type="text"
+                        required
+                        value={formData.homeAddress}
+                        onChange={(e) => updateFormData('homeAddress', e.target.value)}
+                        className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                        placeholder="Complete home address with city, state, country"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -684,7 +652,7 @@ export default function RegisterTruck() {
               {/* Truck Information Section */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Vehicle Information</h3>
-              
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -746,19 +714,6 @@ export default function RegisterTruck() {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      VIN Number
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.vinNumber}
-                      onChange={(e) => updateFormData('vinNumber', e.target.value)}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="Vehicle identification number"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Truck Type *
                     </label>
                     <select
@@ -786,27 +741,8 @@ export default function RegisterTruck() {
                     />
                   </div>
                 </div>
-                
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Specializations (Optional)
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {specializationOptions.map(spec => (
-                      <label key={spec} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={formData.specializations.includes(spec)}
-                          onChange={() => handleSpecializationToggle(spec)}
-                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{spec}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
               </div>
-              
+
               {/* Insurance & Licensing Section */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Insurance & Licensing</h3>
@@ -964,6 +900,75 @@ export default function RegisterTruck() {
             >
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Bank Account Details</h2>
               
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Bank Name *
+                  </label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      required
+                      value={formData.bankName}
+                      onChange={(e) => updateFormData('bankName', e.target.value)}
+                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="e.g., First Bank, GTBank, Access Bank"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Account Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.accountNumber}
+                    onChange={(e) => updateFormData('accountNumber', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="10-digit account number"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Account Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.accountName}
+                    onChange={(e) => updateFormData('accountName', e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="Account holder name"
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-2">Payment Information</h3>
+                <p className="text-sm text-blue-800">
+                  Your account details will be used for receiving payments. Fixing Maritime collects 5% of each loading transaction, and payments are disbursed within 24 hours.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Page 4: Services & Agreement */}
+          {currentPage === 4 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Areas & Agreement</h2>
+              
+              {/* Service Areas Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Service Areas & Experience</h3>
+                
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1091,89 +1096,6 @@ export default function RegisterTruck() {
             </motion.div>
           )}
 
-          {/* Page 4: Services & Agreement */}
-          {currentPage === 4 && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Areas & Agreement</h2>
-              
-              {/* Service Areas Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Service Areas & Experience</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bank Name *
-                  </label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      required
-                      value={formData.bankName}
-                      onChange={(e) => updateFormData('bankName', e.target.value)}
-                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="e.g., First Bank, GTBank, Access Bank"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Account Number *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.accountNumber}
-                    onChange={(e) => updateFormData('accountNumber', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="10-digit account number"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Account Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.accountName}
-                    onChange={(e) => updateFormData('accountName', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                    placeholder="Account holder name"
-                  />
-                </div>
-              </div>
-              
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2">Payment Information</h3>
-                <p className="text-sm text-blue-800">
-                  Your account details will be used for receiving payments. Fixing Maritime collects 5% of each loading transaction, and payments are disbursed within 24 hours.
-                </p>
-              </div>
-              
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2">Required Documents (Upload after approval)</h3>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Commercial Driver's License (CDL)</li>
-                  <li>• Vehicle Registration</li>
-                  <li>• Commercial Insurance Certificate</li>
-                  <li>• Safety Inspection Certificate</li>
-                </ul>
-              </div>
-            </motion.div>
-          )}
-
-
-
-
-
           {/* Navigation Buttons */}
           <div className="flex justify-between pt-8 border-t">
             <button
@@ -1216,5 +1138,5 @@ export default function RegisterTruck() {
         </div>
       </div>
     </div>
-  )
+  );
 }
