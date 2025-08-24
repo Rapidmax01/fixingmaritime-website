@@ -11,7 +11,10 @@ interface TruckFormData {
   ownerName: string
   email: string
   phone: string
+  mobilePhone: string
   address: string
+  homeAddress: string
+  whereDoYouLive: string
   city: string
   state: string
   zipCode: string
@@ -19,8 +22,23 @@ interface TruckFormData {
   // Business Information
   companyName: string
   businessType: 'individual' | 'company'
+  officeGarageAddress: string
   taxId: string
   yearsInBusiness: string
+  areYouOwner: boolean
+  connectionToTrucks: string
+  positionInCompany: string
+  
+  // Next of Kin Information
+  nextOfKinName: string
+  nextOfKinAddress: string
+  nextOfKinPhone: string
+  nextOfKinRelationship: string
+  
+  // Bank Account Details
+  bankName: string
+  accountNumber: string
+  accountName: string
   
   // Truck Information
   truckMake: string
@@ -44,6 +62,18 @@ interface TruckFormData {
   experience: string
   specializations: string[]
   additionalNotes: string
+  
+  // Document Uploads (file names/URLs)
+  nationalIdCard: string
+  utilityBill: string
+  vehicleLicense: string
+  proofOfOwnership: string
+  hackneyPermit: string
+  roadWorthiness: string
+  
+  // Agreement
+  agreedToTerms: boolean
+  agreedToPrivacy: boolean
 }
 
 const truckTypes = [
@@ -89,14 +119,28 @@ export default function RegisterTruck() {
     ownerName: '',
     email: '',
     phone: '',
+    mobilePhone: '',
     address: '',
+    homeAddress: '',
+    whereDoYouLive: '',
     city: '',
     state: '',
     zipCode: '',
     companyName: '',
     businessType: 'individual',
+    officeGarageAddress: '',
     taxId: '',
     yearsInBusiness: '',
+    areYouOwner: true,
+    connectionToTrucks: '',
+    positionInCompany: '',
+    nextOfKinName: '',
+    nextOfKinAddress: '',
+    nextOfKinPhone: '',
+    nextOfKinRelationship: '',
+    bankName: '',
+    accountNumber: '',
+    accountName: '',
     truckMake: '',
     truckModel: '',
     truckYear: '',
@@ -111,7 +155,15 @@ export default function RegisterTruck() {
     willingToRelocate: false,
     experience: '',
     specializations: [],
-    additionalNotes: ''
+    additionalNotes: '',
+    nationalIdCard: '',
+    utilityBill: '',
+    vehicleLicense: '',
+    proofOfOwnership: '',
+    hackneyPermit: '',
+    roadWorthiness: '',
+    agreedToTerms: false,
+    agreedToPrivacy: false
   })
 
   const updateFormData = (field: keyof TruckFormData, value: any) => {
@@ -139,15 +191,23 @@ export default function RegisterTruck() {
   const validateStep = (step: number) => {
     switch (step) {
       case 1:
-        return formData.ownerName && formData.email && formData.phone && formData.address
+        return formData.ownerName && formData.email && formData.phone && formData.mobilePhone && formData.homeAddress && formData.whereDoYouLive
       case 2:
-        return formData.companyName && formData.businessType && formData.yearsInBusiness
+        return formData.companyName && formData.officeGarageAddress && formData.businessType && formData.yearsInBusiness && formData.positionInCompany && (!formData.areYouOwner ? formData.connectionToTrucks : true)
       case 3:
-        return formData.truckMake && formData.truckModel && formData.truckYear && formData.plateNumber && formData.truckType
+        return formData.nextOfKinName && formData.nextOfKinAddress && formData.nextOfKinPhone && formData.nextOfKinRelationship
       case 4:
-        return formData.insuranceProvider && formData.insuranceExpiry && formData.licenseExpiry
+        return formData.bankName && formData.accountNumber && formData.accountName
       case 5:
+        return formData.truckMake && formData.truckModel && formData.truckYear && formData.plateNumber && formData.truckType
+      case 6:
+        return formData.insuranceProvider && formData.insuranceExpiry && formData.licenseExpiry
+      case 7:
+        return formData.nationalIdCard && formData.utilityBill && formData.vehicleLicense && formData.proofOfOwnership && formData.hackneyPermit && formData.roadWorthiness
+      case 8:
         return formData.serviceAreas.length > 0 && formData.experience
+      case 9:
+        return formData.agreedToTerms && formData.agreedToPrivacy
       default:
         return true
     }
@@ -155,7 +215,7 @@ export default function RegisterTruck() {
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 6))
+      setCurrentStep(prev => Math.min(prev + 1, 10))
     } else {
       toast.error('Please fill in all required fields')
     }
@@ -166,8 +226,8 @@ export default function RegisterTruck() {
   }
 
   const handleSubmit = async () => {
-    if (!validateStep(5)) {
-      toast.error('Please fill in all required fields')
+    if (!validateStep(9)) {
+      toast.error('Please fill in all required fields and agree to terms')
       return
     }
 
@@ -182,7 +242,7 @@ export default function RegisterTruck() {
 
       if (response.ok) {
         setSubmitSuccess(true)
-        setCurrentStep(6)
+        setCurrentStep(10)
         toast.success('Registration submitted successfully!')
       } else {
         const data = await response.json()
@@ -198,14 +258,18 @@ export default function RegisterTruck() {
 
   const steps = [
     { number: 1, title: 'Personal Info', description: 'Basic contact information' },
-    { number: 2, title: 'Business Details', description: 'Company and business info' },
-    { number: 3, title: 'Truck Details', description: 'Vehicle specifications' },
-    { number: 4, title: 'Documentation', description: 'Insurance and licenses' },
-    { number: 5, title: 'Services', description: 'Service areas and specializations' },
-    { number: 6, title: 'Complete', description: 'Registration confirmation' }
+    { number: 2, title: 'Business Details', description: 'Company information' },
+    { number: 3, title: 'Next of Kin', description: 'Emergency contact' },
+    { number: 4, title: 'Bank Details', description: 'Payment information' },
+    { number: 5, title: 'Truck Details', description: 'Vehicle specifications' },
+    { number: 6, title: 'Insurance', description: 'Insurance and licenses' },
+    { number: 7, title: 'Documents', description: 'Required uploads' },
+    { number: 8, title: 'Services', description: 'Service areas' },
+    { number: 9, title: 'Agreement', description: 'Terms and conditions' },
+    { number: 10, title: 'Complete', description: 'Registration confirmation' }
   ]
 
-  if (submitSuccess && currentStep === 6) {
+  if (submitSuccess && currentStep === 10) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <motion.div
@@ -333,7 +397,7 @@ export default function RegisterTruck() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address *
+                    Official Email *
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -360,24 +424,58 @@ export default function RegisterTruck() {
                       value={formData.phone}
                       onChange={(e) => updateFormData('phone', e.target.value)}
                       className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+234 xxx xxx xxxx"
                     />
                   </div>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address *
+                    Your Mobile *
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      required
+                      value={formData.mobilePhone}
+                      onChange={(e) => updateFormData('mobilePhone', e.target.value)}
+                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="+234 xxx xxx xxxx"
+                    />
+                  </div>
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Home Address *
                   </label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                     <input
                       type="text"
                       required
-                      value={formData.address}
-                      onChange={(e) => updateFormData('address', e.target.value)}
+                      value={formData.homeAddress}
+                      onChange={(e) => updateFormData('homeAddress', e.target.value)}
                       className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="123 Main St"
+                      placeholder="Complete home address"
+                    />
+                  </div>
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Where do you live? *
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      required
+                      value={formData.whereDoYouLive}
+                      onChange={(e) => updateFormData('whereDoYouLive', e.target.value)}
+                      className="pl-10 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="City, State, Country"
                     />
                   </div>
                 </div>
