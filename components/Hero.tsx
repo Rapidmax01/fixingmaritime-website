@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { ArrowRight, Ship, Truck, Package, FileText, Globe, Anchor } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,6 +13,17 @@ export default function Hero() {
   const [currentBackground, setCurrentBackground] = useState(0)
   const { content, loading } = useContent()
   const { data: session } = useSession()
+  const router = useRouter()
+
+  const handleRequestTruckClick = () => {
+    if (session) {
+      // User is signed in, go directly to request truck form
+      router.push('/request-truck')
+    } else {
+      // User is not signed in, redirect to signup page
+      router.push('/signup')
+    }
+  }
 
   const services = [
     { icon: FileText, name: 'Documentation', color: 'text-blue-400', link: '/services/documentation' },
@@ -145,13 +157,15 @@ export default function Hero() {
                 )}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
-                <Link
-                  href="/request-truck"
-                  className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
+                <motion.button
+                  onClick={handleRequestTruckClick}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200"
                 >
                   Request a Truck
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
-                </Link>
+                </motion.button>
                 <Link
                   href="/partner-with-us"
                   className="rounded-md bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
