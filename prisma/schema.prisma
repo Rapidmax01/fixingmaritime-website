@@ -188,8 +188,23 @@ model TruckRegistration {
   // Business Information
   companyName       String
   businessType      String   // "individual" or "company"
+  officeGarageAddress String
   taxId             String?
   yearsInBusiness   String
+  areYouOwner       Boolean  @default(true)
+  connectionToTrucks String?
+  positionInCompany String
+  
+  // Next of Kin Information
+  nextOfKinName     String
+  nextOfKinAddress  String
+  nextOfKinPhone    String
+  nextOfKinRelationship String
+  
+  // Bank Account Details
+  bankName          String
+  accountNumber     String
+  accountName       String
   
   // Truck Information
   truckMake         String
@@ -205,6 +220,14 @@ model TruckRegistration {
   insuranceExpiry   DateTime
   licenseExpiry     DateTime
   
+  // Document Uploads
+  nationalIdCard    String
+  utilityBill       String
+  vehicleLicense    String
+  proofOfOwnership  String
+  hackneyPermit     String
+  roadWorthiness    String
+  
   // Service Areas & Preferences
   serviceAreas      String[]
   willingToRelocate Boolean  @default(false)
@@ -213,6 +236,10 @@ model TruckRegistration {
   experience        String
   specializations   String[]
   additionalNotes   String?  @db.Text
+  
+  // Agreement
+  agreedToTerms     Boolean  @default(false)
+  agreedToPrivacy   Boolean  @default(false)
   
   // Status & Metadata
   status            String   @default("pending") // "pending", "approved", "rejected", "suspended"

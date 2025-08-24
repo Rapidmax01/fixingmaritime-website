@@ -23,11 +23,14 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     const requiredFields = [
-      'ownerName', 'email', 'phone', 'address',
-      'companyName', 'businessType', 'yearsInBusiness',
+      'ownerName', 'email', 'mobilePhone', 'homeAddress',
+      'companyName', 'businessType', 'yearsInBusiness', 'positionInCompany',
+      'nextOfKinName', 'nextOfKinAddress', 'nextOfKinPhone', 'nextOfKinRelationship',
+      'bankName', 'accountNumber', 'accountName',
       'truckMake', 'truckModel', 'truckYear', 'plateNumber', 'truckType',
       'insuranceProvider', 'insuranceExpiry', 'licenseExpiry',
-      'serviceAreas', 'experience'
+      'nationalIdCard', 'utilityBill', 'vehicleLicense', 'proofOfOwnership', 'hackneyPermit', 'roadWorthiness',
+      'serviceAreas', 'experience', 'agreedToTerms', 'agreedToPrivacy'
     ]
 
     for (const field of requiredFields) {
@@ -60,8 +63,8 @@ export async function POST(request: NextRequest) {
         // Owner Information
         ownerName: data.ownerName,
         email: data.email,
-        phone: data.phone,
-        address: data.address,
+        phone: data.mobilePhone,
+        address: data.homeAddress,
         city: data.city || null,
         state: data.state || null,
         zipCode: data.zipCode || null,
@@ -69,8 +72,23 @@ export async function POST(request: NextRequest) {
         // Business Information
         companyName: data.companyName,
         businessType: data.businessType,
+        officeGarageAddress: data.officeGarageAddress,
         taxId: data.taxId || null,
         yearsInBusiness: data.yearsInBusiness,
+        areYouOwner: data.areYouOwner,
+        connectionToTrucks: data.connectionToTrucks || null,
+        positionInCompany: data.positionInCompany,
+        
+        // Next of Kin Information
+        nextOfKinName: data.nextOfKinName,
+        nextOfKinAddress: data.nextOfKinAddress,
+        nextOfKinPhone: data.nextOfKinPhone,
+        nextOfKinRelationship: data.nextOfKinRelationship,
+        
+        // Bank Account Details
+        bankName: data.bankName,
+        accountNumber: data.accountNumber,
+        accountName: data.accountName,
         
         // Truck Information
         truckMake: data.truckMake,
@@ -86,6 +104,14 @@ export async function POST(request: NextRequest) {
         insuranceExpiry: new Date(data.insuranceExpiry),
         licenseExpiry: new Date(data.licenseExpiry),
         
+        // Document Uploads
+        nationalIdCard: data.nationalIdCard,
+        utilityBill: data.utilityBill,
+        vehicleLicense: data.vehicleLicense,
+        proofOfOwnership: data.proofOfOwnership,
+        hackneyPermit: data.hackneyPermit,
+        roadWorthiness: data.roadWorthiness,
+        
         // Service Areas & Preferences
         serviceAreas: data.serviceAreas,
         willingToRelocate: data.willingToRelocate || false,
@@ -94,6 +120,10 @@ export async function POST(request: NextRequest) {
         experience: data.experience,
         specializations: data.specializations || [],
         additionalNotes: data.additionalNotes || null,
+        
+        // Agreement
+        agreedToTerms: data.agreedToTerms,
+        agreedToPrivacy: data.agreedToPrivacy,
         
         // Status
         status: 'pending',

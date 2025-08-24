@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import DatabaseStatus from './DatabaseStatus'
 
 interface AdminUser {
   id: string
