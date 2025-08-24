@@ -91,7 +91,7 @@ export default function Stats() {
       <div className="absolute inset-0">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1565981063303-78c2e42aaa6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' }}
+          style={{ backgroundImage: 'url(/maritime-banner-bg.avif)' }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-primary-900/95 via-primary-800/90 to-primary-900/95" />
       </div>

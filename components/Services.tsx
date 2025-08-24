@@ -214,23 +214,23 @@ export default function Services() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="mt-16 flex flex-col sm:flex-row gap-4 items-center justify-center"
+          className="mt-16 flex flex-col sm:flex-row gap-6 items-center justify-center"
         >
           <Link
             href="/services"
-            className="group relative inline-flex items-center rounded-md bg-primary-600 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
+            className="group relative inline-flex items-center rounded-md bg-primary-600 px-12 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
           >
-            <span>Explore All Services</span>
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            <span>Our Services</span>
+            <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           
           <Link
-            href="/partner-registration"
-            className="group relative inline-flex items-center rounded-md bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
+            href="/partner-with-us"
+            className="group relative inline-flex items-center rounded-md bg-green-600 px-12 py-4 text-lg font-semibold text-white shadow-lg hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
           >
-            <Building className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+            <Building className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform" />
             <span>Partner with Us</span>
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
       </div>

@@ -296,3 +296,48 @@ model PartnerRegistration {
   @@index([status])
   @@map("partner_registrations")
 }
+
+model TruckRequest {
+  id                 String   @id @default(uuid())
+  
+  // Customer Information
+  companyName        String
+  contactName        String
+  email              String
+  phoneNumber        String
+  
+  // Pickup Details
+  pickupAddress      String
+  pickupCity         String?
+  pickupDate         DateTime
+  
+  // Delivery Details
+  deliveryAddress    String
+  deliveryCity       String?
+  deliveryDate       DateTime
+  
+  // Cargo Details
+  cargoType          String
+  cargoWeight        String
+  cargoValue         String
+  specialInstructions String?
+  
+  // Service Options
+  serviceType        String   @default("standard")
+  urgency            String   @default("normal")
+  
+  // Status and tracking
+  status             String   @default("pending") // "pending", "quoted", "confirmed", "assigned", "in_transit", "delivered", "cancelled"
+  quote              Decimal? @db.Decimal(10, 2)
+  assignedDriver     String?
+  trackingNumber     String?
+  
+  // Timestamps
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([trackingNumber])
+  @@map("truck_requests")
+}

@@ -22,20 +22,8 @@ export default function Hero() {
 
   const backgroundImages = [
     {
-      url: 'https://images.unsplash.com/photo-1605745341112-85968b19335b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      title: 'Container Ships at Port'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      title: 'Cargo Trucks'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1565981063303-78c2e42aaa6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      title: 'Maritime Port Operations'
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      title: 'Container Loading'
+      url: '/maritime-banner-bg.avif',
+      title: 'Fixing Maritime Operations'
     }
   ]
 
@@ -156,12 +144,19 @@ export default function Hero() {
                   content?.sections?.hero?.content || 'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
                 )}
               </p>
-              <div className="mt-10 flex items-center gap-x-6">
+              <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
                 <Link
-                  href={session ? "/dashboard" : "/services"}
+                  href="/request-truck"
                   className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
                 >
-                  {session ? "Go to Dashboard" : "Get Started"}
+                  Request a Truck
+                  <ArrowRight className="inline-block ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/partner-with-us"
+                  className="rounded-md bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
+                >
+                  Partner with Us
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
                 </Link>
                 <Link
