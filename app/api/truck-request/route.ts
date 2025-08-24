@@ -32,6 +32,9 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate tracking number
+    const trackingNumber = `TRK-${Date.now().toString().slice(-8)}-${Math.random().toString(36).substr(2, 3).toUpperCase()}`
+
     // Create truck request in database
     const truckRequest = await prisma.truckRequest.create({
       data: {
@@ -51,6 +54,7 @@ export async function POST(request: Request) {
         specialInstructions: body.specialInstructions || '',
         serviceType: body.serviceType,
         urgency: body.urgency,
+        trackingNumber: trackingNumber,
         status: 'pending'
       }
     })
@@ -59,7 +63,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       message: 'Truck request submitted successfully',
-      requestId: truckRequest.id
+      requestId: truckRequest.id,
+      trackingNumber: truckRequest.trackingNumber
     })
 
   } catch (error) {

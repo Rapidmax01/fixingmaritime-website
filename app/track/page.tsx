@@ -138,21 +138,27 @@ function TrackOrderContent() {
   const [isSearching, setIsSearching] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setIsSearching(true)
     setError('')
 
-    // Simulate API call
-    setTimeout(() => {
-      const data = mockTrackingData[trackingNumber as keyof typeof mockTrackingData]
-      if (data) {
-        setTrackingData(data)
+    try {
+      const response = await fetch(`/api/track?tracking=${encodeURIComponent(trackingNumber)}`)
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        setTrackingData(result.data)
       } else {
-        setError('Tracking number not found. Please check and try again.')
+        setError(result.error || 'Tracking number not found. Please check and try again.')
         setTrackingData(null)
       }
+    } catch (error) {
+      console.error('Error fetching tracking data:', error)
+      setError('Unable to fetch tracking information. Please try again.')
+      setTrackingData(null)
+    } finally {
       setIsSearching(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -222,7 +228,9 @@ function TrackOrderContent() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Order Number</h3>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    {trackingData.type === 'truck_request' ? 'Request Number' : 'Order Number'}
+                  </h3>
                   <p className="mt-1 text-lg font-semibold text-gray-900">{trackingData.orderNumber}</p>
                 </div>
                 <div>
@@ -236,10 +244,34 @@ function TrackOrderContent() {
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Current Location</h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">{trackingData.currentLocation}</p>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    {trackingData.type === 'truck_request' ? 'Customer' : 'Current Location'}
+                  </h3>
+                  <p className="mt-1 text-lg font-semibold text-gray-900">
+                    {trackingData.type === 'truck_request' ? trackingData.customer : (trackingData.currentLocation || 'Processing')}
+                  </p>
                 </div>
               </div>
+              
+              {/* Additional info for truck requests */}
+              {trackingData.type === 'truck_request' && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">Pickup Address</h3>
+                      <p className="mt-1 text-sm text-gray-900">{trackingData.pickupAddress}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">Delivery Address</h3>
+                      <p className="mt-1 text-sm text-gray-900">{trackingData.deliveryAddress}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">Cargo Type</h3>
+                      <p className="mt-1 text-sm text-gray-900">{trackingData.cargoType}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Progress Timeline */}
@@ -249,9 +281,29 @@ function TrackOrderContent() {
               <div className="flow-root">
                 <ul className="-mb-8">
                   {trackingData.events.map((event: any, eventIdx: number) => {
-                    const Icon = event.icon
+                    // Map icon string to actual icon component
+                    const getIconComponent = (iconName: string) => {
+                      switch (iconName) {
+                        case 'Package':
+                          return Package
+                        case 'Clock':
+                          return Clock
+                        case 'CheckCircle':
+                          return CheckCircle
+                        case 'Truck':
+                          return Truck
+                        case 'Ship':
+                          return Ship
+                        case 'XCircle':
+                          return XCircle
+                        default:
+                          return Package
+                      }
+                    }
+                    
+                    const Icon = typeof event.icon === 'string' ? getIconComponent(event.icon) : event.icon
                     const isLast = eventIdx === trackingData.events.length - 1
-                    const isCompleted = eventIdx < trackingData.events.length - (trackingData.status === 'completed' ? 0 : 1)
+                    const isCompleted = eventIdx < trackingData.events.length - (trackingData.status === 'completed' || trackingData.status === 'delivered' ? 0 : 1)
                     
                     return (
                       <li key={event.id}>
@@ -300,19 +352,47 @@ function TrackOrderContent() {
             </div>
 
             {/* Next Steps */}
-            {trackingData.status !== 'completed' && (
+            {trackingData.status !== 'completed' && trackingData.status !== 'delivered' && (
               <div className="bg-blue-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">What's Next?</h3>
-                {trackingData.status === 'in_transit' && (
-                  <p className="text-blue-800">
-                    Your shipment is currently in transit. We'll update you when it reaches the next checkpoint.
-                    Estimated delivery: {trackingData.estimatedDelivery}
-                  </p>
+                {trackingData.type === 'truck_request' && (
+                  <>
+                    {trackingData.status === 'pending' && (
+                      <p className="text-blue-800">
+                        Your truck request is being reviewed by our operations team. We'll contact you within 2 hours with availability and quote.
+                      </p>
+                    )}
+                    {trackingData.status === 'confirmed' && (
+                      <p className="text-blue-800">
+                        Your truck request has been confirmed. A driver will be assigned shortly and you'll receive their details.
+                      </p>
+                    )}
+                    {trackingData.status === 'assigned' && (
+                      <p className="text-blue-800">
+                        A truck has been assigned to your request. The driver will contact you before pickup.
+                      </p>
+                    )}
+                    {trackingData.status === 'in_transit' && (
+                      <p className="text-blue-800">
+                        Your cargo is currently in transit from {trackingData.pickupAddress} to {trackingData.deliveryAddress}.
+                      </p>
+                    )}
+                  </>
                 )}
-                {trackingData.status === 'processing' && (
-                  <p className="text-blue-800">
-                    Your order is being processed by our team. You'll receive an update once the next step is completed.
-                  </p>
+                {trackingData.type === 'order' && (
+                  <>
+                    {trackingData.status === 'in_transit' && (
+                      <p className="text-blue-800">
+                        Your shipment is currently in transit. We'll update you when it reaches the next checkpoint.
+                        {trackingData.estimatedDelivery && ` Estimated delivery: ${trackingData.estimatedDelivery}`}
+                      </p>
+                    )}
+                    {trackingData.status === 'processing' && (
+                      <p className="text-blue-800">
+                        Your order is being processed by our team. You'll receive an update once the next step is completed.
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             )}

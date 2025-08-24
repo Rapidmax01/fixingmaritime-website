@@ -58,6 +58,7 @@ export default function RequestTruckPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [trackingNumber, setTrackingNumber] = useState('')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -81,6 +82,8 @@ export default function RequestTruckPage() {
       })
 
       if (response.ok) {
+        const data = await response.json()
+        setTrackingNumber(data.trackingNumber)
         setSubmitted(true)
       } else {
         console.error('Failed to submit request')
@@ -110,9 +113,16 @@ export default function RequestTruckPage() {
               <CheckCircle className="h-6 w-6 text-green-600" />
             </motion.div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Request Submitted!</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4">
               Thank you for your truck request. Our team will review your requirements and contact you within 2 hours with a quote and availability.
             </p>
+            {trackingNumber && (
+              <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                <p className="text-sm font-medium text-blue-900 mb-2">Your Tracking Number:</p>
+                <p className="text-lg font-bold text-blue-800 font-mono">{trackingNumber}</p>
+                <p className="text-xs text-blue-700 mt-1">Use this number to track your request status</p>
+              </div>
+            )}
             <button
               onClick={() => {
                 setSubmitted(false)
