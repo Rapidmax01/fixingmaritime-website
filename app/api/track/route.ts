@@ -16,7 +16,14 @@ export async function GET(request: Request) {
     // Check if database is available
     if (!prisma) {
       // Fall back to mock data when database is unavailable
-      return getMockTrackingData(trackingNumber)
+      const mockResponse = getMockTrackingData(trackingNumber)
+      if (mockResponse) {
+        return mockResponse
+      }
+      return NextResponse.json(
+        { error: 'Tracking number not found' },
+        { status: 404 }
+      )
     }
 
     // Try to find in orders first
@@ -112,7 +119,9 @@ export async function GET(request: Request) {
     console.error('Error fetching tracking data:', error)
     
     // Fall back to mock data on error
-    const mockResponse = getMockTrackingData(searchParams.get('tracking') || '')
+    const { searchParams } = new URL(request.url)
+    const trackingNumber = searchParams.get('tracking') || ''
+    const mockResponse = getMockTrackingData(trackingNumber)
     if (mockResponse) {
       return mockResponse
     }
@@ -222,7 +231,7 @@ function generateTruckRequestEvents(request: any) {
   return events
 }
 
-function getMockTrackingData(trackingNumber: string) {
+function getMockTrackingData(trackingNumber: string): NextResponse | null {
   const mockTrackingData: { [key: string]: any } = {
     'TRK-DOC-001': {
       type: 'order',
