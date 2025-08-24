@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
@@ -279,14 +280,16 @@ export default function Stats() {
             className="mt-16 text-center"
           >
             <p className="text-gray-300 mb-6">Ready to be part of our success story?</p>
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(59, 130, 246, 0.5)" }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center px-6 py-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold hover:bg-white/20 hover:border-white/40 transition-all duration-300"
-            >
-              <CheckCircle className="w-5 h-5 mr-2" />
-              Join Our Network
-            </motion.button>
+            <Link href="/partner-registration">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(59, 130, 246, 0.5)" }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center px-6 py-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold hover:bg-white/20 hover:border-white/40 transition-all duration-300"
+              >
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Join Our Network
+              </motion.button>
+            </Link>
           </motion.div>
         </div>
       </div>
