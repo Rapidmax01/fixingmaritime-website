@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/database'
 
 export async function POST(request: Request) {
   try {
+    // Check if database is available
+    if (!prisma) {
+      console.error('Database not available - DATABASE_URL missing')
+      return NextResponse.json(
+        { error: 'Database service unavailable' },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     
     // Validate required fields
