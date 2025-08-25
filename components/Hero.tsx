@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { ArrowRight, Ship, Truck, Package, FileText, Globe, Anchor } from 'lucide-react'
+import { ArrowRight, Ship, Truck, Package, FileText, Globe, Anchor, ShoppingCart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useContent } from '@/contexts/ContentContext'
 
@@ -27,7 +27,7 @@ export default function Hero() {
 
   const services = [
     { icon: FileText, name: 'Documentation', color: 'text-blue-400', link: '/services/documentation' },
-    { icon: Truck, name: 'Truck Services', color: 'text-green-400', link: '/services/truck' },
+    { icon: ShoppingCart, name: 'Procure Export Goods', color: 'text-green-400', link: '/services/procurement' },
     { icon: Ship, name: 'Tug & Barge', color: 'text-purple-400', link: '/services/tugboat' },
     { icon: Package, name: 'Warehousing', color: 'text-orange-400', link: '/services/warehousing' },
   ]
