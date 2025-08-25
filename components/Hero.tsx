@@ -150,11 +150,10 @@ export default function Hero() {
                 )}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-300">
-                {loading ? (
-                  'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
-                ) : (
-                  content?.sections?.hero?.content || 'From documentation to delivery, we provide comprehensive maritime services that keep your business moving. Track shipments in real-time, manage orders efficiently, and access world-class logistics support.'
-                )}
+                Your trusted partner for comprehensive maritime solutions.
+              </p>
+              <p className="mt-4 text-lg leading-8 text-gray-300">
+                To book for a truck to load and deliver your container or cargo, safe and sound tap the request a truck button below.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
                 <motion.button

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
         sections: {
           hero: {
             title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Professional maritime services with real-time tracking and comprehensive logistics support.'
+            content: 'Your trusted partner for comprehensive maritime solutions.'
           },
           about: {
             title: 'Leading Maritime Service Provider',
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         sections: {
           hero: {
             title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Professional maritime services with real-time tracking and comprehensive logistics support.'
+            content: 'Your trusted partner for comprehensive maritime solutions.'
           },
           about: {
             title: 'Leading Maritime Service Provider',
