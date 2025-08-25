@@ -391,13 +391,13 @@ export default function Hero() {
                     </motion.button>
                   </Link>
                   
-                  <Link href="/services">
+                  <Link href="/contact">
                     <motion.button 
                       whileHover={{ scale: 1.02, x: 5 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-between group border border-white/20"
                     >
-                      <span>View Services</span>
+                      <span>Contact Us</span>
                       <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
