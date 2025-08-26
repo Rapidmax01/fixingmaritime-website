@@ -227,12 +227,9 @@ export default function Services() {
                         </ul>
                       </div>
 
-                      <div className="mt-6 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-primary-600">
-                          Request Truck Service
-                        </span>
+                      <div className="mt-6">
                         <div className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700">
-                          Get Quote
+                          Request for Truck
                           <ArrowRight className="ml-1 h-4 w-4" />
                         </div>
                       </div>
@@ -267,12 +264,9 @@ export default function Services() {
                         </ul>
                       </div>
 
-                      <div className="mt-6 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-primary-600">
-                          Request for Quote
-                        </span>
+                      <div className="mt-6">
                         <div className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700">
-                          Get Quote
+                          Request for Quote
                           <ArrowRight className="ml-1 h-4 w-4" />
                         </div>
                       </div>
