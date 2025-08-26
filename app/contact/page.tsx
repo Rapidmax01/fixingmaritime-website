@@ -70,8 +70,20 @@ export default function Contact() {
   return (
     <div className="bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-br from-primary-900 to-primary-700 py-16">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="relative bg-primary-900 py-16 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+            style={{ 
+              backgroundImage: 'url(https://images.unsplash.com/photo-1605745341112-85968b19335b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-primary-900/90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+        </div>
+        
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
               Contact Us
