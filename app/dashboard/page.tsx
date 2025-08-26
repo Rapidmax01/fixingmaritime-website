@@ -2,10 +2,10 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship, Truck } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship, Truck, Bell, Mail, MessageSquare } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Mock data - would come from API in real app
 const mockOrders = [
@@ -99,12 +99,78 @@ const getStatusIcon = (status: string) => {
 export default function Dashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
     }
   }, [status, router])
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchNotifications()
+      fetchUnreadCount()
+    }
+  }, [session])
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`/api/notifications?email=${session?.user?.email}&limit=10`)
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data.notifications || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch(`/api/notifications?email=${session?.user?.email}&count=true`)
+      if (response.ok) {
+        const data = await response.json()
+        setUnreadCount(data.unreadCount || 0)
+      }
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error)
+    }
+  }
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: session?.user?.email, 
+          action: 'mark_read' 
+        })
+      })
+      if (response.ok) {
+        fetchNotifications()
+        fetchUnreadCount()
+      }
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   if (status === 'loading') {
     return (
@@ -131,7 +197,105 @@ export default function Dashboard() {
               Manage your maritime logistics from your dashboard
             </p>
           </div>
-          <div className="mt-4 sm:mt-0">
+          <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+            {/* Notifications Bell */}
+            <div className="relative">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 text-gray-600 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-lg"
+              >
+                <Bell className="w-6 h-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </motion.button>
+              
+              {/* Notifications Dropdown */}
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto"
+                  >
+                    <div className="p-4 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <span className="text-sm text-gray-500">{unreadCount} unread</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-gray-500">
+                          <Mail className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                          <p>No notifications yet</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-gray-100">
+                          {notifications.map((notification: any) => (
+                            <motion.div
+                              key={notification.id}
+                              whileHover={{ backgroundColor: '#f9fafb' }}
+                              className={`p-4 cursor-pointer transition-colors ${
+                                notification.status === 'unread' ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                              }`}
+                              onClick={() => {
+                                if (notification.status === 'unread') {
+                                  markAsRead(notification.id)
+                                }
+                              }}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 mt-1">
+                                  {notification.type === 'quote_response' && (
+                                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className={`text-sm font-medium ${
+                                    notification.status === 'unread' ? 'text-gray-900' : 'text-gray-700'
+                                  }`}>
+                                    {notification.title}
+                                  </p>
+                                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                    {notification.message}
+                                  </p>
+                                  <p className="text-xs text-gray-400 mt-2">
+                                    {formatDate(notification.createdAt)}
+                                  </p>
+                                </div>
+                                {notification.status === 'unread' && (
+                                  <div className="flex-shrink-0">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {notifications.length > 0 && (
+                      <div className="p-3 border-t border-gray-200 bg-gray-50">
+                        <button className="w-full text-center text-sm text-primary-600 hover:text-primary-800 font-medium py-2 rounded-lg hover:bg-primary-50 transition-colors">
+                          View all notifications
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <Link href="/request-truck">
               <motion.button
                 whileHover={{ scale: 1.02 }}

@@ -304,3 +304,39 @@ model QuoteRequest {
   @@index([createdAt])
   @@map("quote_requests")
 }
+
+model Notification {
+  id          String   @id @default(uuid())
+  
+  // Recipient
+  recipientEmail String
+  recipientName  String?
+  
+  // Notification Details
+  type        String   // "quote_response", "quote_accepted", "quote_rejected", etc.
+  title       String
+  message     String   @db.Text
+  
+  // Related Data
+  relatedId   String?  // QuoteRequest ID, Order ID, etc.
+  relatedType String?  // "quote_request", "order", etc.
+  
+  // Status
+  status      String   @default("unread") // "unread", "read", "archived"
+  emailSent   Boolean  @default(false)
+  emailSentAt DateTime?
+  
+  // Metadata
+  data        Json?    // Additional structured data
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  readAt      DateTime?
+  
+  @@index([recipientEmail])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notifications")
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { sendQuoteResponseNotification } from '@/lib/notification-service'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -99,6 +100,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         }, { status: 503 })
       }
       throw dbError
+    }
+
+    // Send notification to customer if admin response is provided
+    if (adminResponse) {
+      try {
+        await sendQuoteResponseNotification(
+          quoteRequest,
+          adminResponse,
+          quotedAmount,
+          quotedCurrency
+        )
+      } catch (notificationError) {
+        console.error('Failed to send notification:', notificationError)
+        // Don't fail the quote update if notification fails
+      }
     }
 
     return NextResponse.json({ 
