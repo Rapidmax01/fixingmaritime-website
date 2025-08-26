@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { sendQuoteFormNotifications } from '@/lib/email-service'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -55,6 +56,32 @@ export async function POST(request: NextRequest) {
         }
       })
 
+      console.log('Quote request saved:', quoteRequest.id)
+
+      // Send email notifications to admins
+      try {
+        const emailSent = await sendQuoteFormNotifications({
+          name,
+          email,
+          company,
+          phone,
+          serviceName,
+          projectDescription,
+          timeline,
+          budget,
+          quoteId: quoteRequest.id
+        })
+
+        if (emailSent) {
+          console.log('Quote request email notifications sent successfully')
+        } else {
+          console.warn('Failed to send quote request email notifications')
+        }
+      } catch (emailError) {
+        console.error('Email notification error:', emailError)
+        // Continue processing even if email fails
+      }
+
       return NextResponse.json({ 
         success: true, 
         quoteRequest: {
@@ -66,11 +93,29 @@ export async function POST(request: NextRequest) {
     } catch (dbError: any) {
       console.error('Database error:', dbError)
       
-      // If table doesn't exist, return success but log for admin
+      // If table doesn't exist, return success but log for admin and send email
       if (dbError.code === 'P2021' || dbError.message?.includes('does not exist')) {
         console.log('Quote request received (table not yet created):', {
           name, email, serviceName, projectDescription, timeline, budget
         })
+        
+        // Still try to send email notifications
+        try {
+          await sendQuoteFormNotifications({
+            name,
+            email,
+            company,
+            phone,
+            serviceName,
+            projectDescription,
+            timeline,
+            budget,
+            quoteId: 'no-db-' + Date.now()
+          })
+          console.log('Quote request email sent despite database error')
+        } catch (emailError) {
+          console.error('Email notification also failed:', emailError)
+        }
         
         return NextResponse.json({ 
           success: true,

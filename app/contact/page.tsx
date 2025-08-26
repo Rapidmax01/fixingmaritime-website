@@ -43,16 +43,25 @@ export default function Contact() {
     setIsSubmitting(true)
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // In a real app, you would send this to your API
-      console.log('Contact form submission:', data)
-      
-      toast.success('Message sent successfully! We\'ll get back to you within 24 hours.')
-      reset()
-    } catch (error) {
-      toast.error('Failed to send message. Please try again.')
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        toast.success(result.message || 'Message sent successfully! We\'ll get back to you within 24 hours.')
+        reset()
+      } else {
+        throw new Error(result.error || 'Failed to send message')
+      }
+    } catch (error: any) {
+      console.error('Contact form error:', error)
+      toast.error(error.message || 'Failed to send message. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

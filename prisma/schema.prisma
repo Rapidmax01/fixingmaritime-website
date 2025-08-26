@@ -413,3 +413,40 @@ model TrackingEvent {
   @@index([createdAt])
   @@map("tracking_events")
 }
+
+model ContactSubmission {
+  id          String   @id @default(uuid())
+  
+  // Contact Information
+  name        String
+  email       String
+  company     String?
+  phone       String?
+  
+  // Message Details
+  service     String?  // Service of interest
+  subject     String
+  message     String   @db.Text
+  
+  // Status
+  status      String   @default("unread") // "unread", "read", "replied", "archived"
+  
+  // Admin Response
+  adminResponse String?  @db.Text
+  respondedBy   String?  // Admin user ID
+  respondedAt   DateTime?
+  
+  // Metadata
+  ipAddress     String?
+  userAgent     String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  readAt        DateTime?
+  
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_submissions")
+}
