@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 const benefits = [
   'Free account setup',
@@ -12,6 +13,13 @@ const benefits = [
 ]
 
 export default function CTA() {
+  const { data: session } = useSession()
+  
+  // Don't show CTA to signed-in users
+  if (session) {
+    return null
+  }
+  
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
