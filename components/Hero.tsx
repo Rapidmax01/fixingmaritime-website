@@ -34,6 +34,10 @@ export default function Hero() {
 
   const backgroundImages = [
     {
+      url: '/maritime-banner-bg.avif',
+      title: 'Fixing Maritime Operations'
+    },
+    {
       url: 'https://images.unsplash.com/photo-1605745341112-85968b19335b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
       title: 'Container Ships at Port'
     },
