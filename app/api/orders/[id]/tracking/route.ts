@@ -52,7 +52,7 @@ export async function POST(
       description,
       location,
       remarks,
-      (session.user as any)?.id
+      (session?.user as any)?.id
     )
 
     // Get updated order with tracking history
