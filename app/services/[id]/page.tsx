@@ -204,21 +204,44 @@ export default function ServiceDetail() {
     }
 
     try {
-      // Here you would normally send the quote request to your API
-      // For now, we'll just show a success message
-      toast.success('Quote request submitted! We\'ll get back to you within 24 hours.')
-      setShowQuoteForm(false)
-      setQuoteFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        projectDescription: '',
-        timeline: '',
-        budget: ''
+      const response = await fetch('/api/quote-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: quoteFormData.name,
+          email: quoteFormData.email,
+          phone: quoteFormData.phone,
+          company: quoteFormData.company,
+          serviceId: serviceId,
+          serviceName: service.name,
+          projectDescription: quoteFormData.projectDescription,
+          timeline: quoteFormData.timeline,
+          budget: quoteFormData.budget
+        })
       })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success('Quote request submitted successfully! We\'ll get back to you within 24 hours.')
+        setShowQuoteForm(false)
+        setQuoteFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          projectDescription: '',
+          timeline: '',
+          budget: ''
+        })
+      } else {
+        throw new Error(data.error || 'Failed to submit quote request')
+      }
     } catch (error) {
-      toast.error('Failed to submit quote request. Please try again.')
+      console.error('Quote request error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to submit quote request. Please try again.')
     }
   }
 

@@ -269,3 +269,38 @@ model TruckRequest {
   @@index([trackingNumber])
   @@map("truck_requests")
 }
+
+model QuoteRequest {
+  id                  String   @id @default(uuid())
+  
+  // Customer Information
+  name                String
+  email               String
+  phone               String?
+  company             String?
+  
+  // Request Details
+  serviceId           String
+  serviceName         String   // Store service name for easy reference
+  projectDescription  String   @db.Text
+  timeline            String?
+  budget              String?
+  
+  // Status and Response
+  status              String   @default("pending") // "pending", "quoted", "accepted", "rejected", "completed"
+  adminResponse       String?  @db.Text
+  quotedAmount        Decimal? @db.Decimal(10, 2)
+  quotedCurrency      String   @default("USD")
+  respondedBy         String?  // Admin user ID who responded
+  respondedAt         DateTime?
+  
+  // Timestamps
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([email])
+  @@index([serviceId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("quote_requests")
+}

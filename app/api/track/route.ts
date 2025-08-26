@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/database'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -26,61 +28,7 @@ export async function GET(request: Request) {
       )
     }
 
-    // Try to find in orders first
-    let order = null
-    try {
-      order = await prisma.order.findFirst({
-        where: {
-          OR: [
-            { trackingNumber: trackingNumber },
-            { orderNumber: trackingNumber }
-          ]
-        },
-        include: {
-          user: {
-            select: { name: true, email: true }
-          },
-          orderItems: {
-            include: {
-              service: true
-            }
-          },
-          tracking: {
-            orderBy: { createdAt: 'asc' }
-          }
-        }
-      })
-    } catch (dbError) {
-      console.error('Error querying orders:', dbError)
-      // Continue to try other sources
-    }
-
-    if (order) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          type: 'order',
-          orderNumber: order.orderNumber,
-          trackingNumber: order.trackingNumber,
-          service: order.orderItems[0]?.service?.name || 'Maritime Service',
-          status: order.status,
-          totalAmount: order.totalAmount,
-          createdAt: order.createdAt,
-          updatedAt: order.updatedAt,
-          customer: order.user.name,
-          events: order.tracking.map((track, index) => ({
-            id: track.id,
-            status: track.status,
-            location: track.location || 'Processing Center',
-            timestamp: track.createdAt,
-            description: track.description || `Order ${track.status}`,
-            icon: getIconForStatus(track.status)
-          }))
-        }
-      })
-    }
-
-    // Try to find in truck requests
+    // Try to find in truck requests first
     let truckRequest = null
     try {
       truckRequest = await prisma.truckRequest.findFirst({
@@ -93,7 +41,6 @@ export async function GET(request: Request) {
       })
     } catch (dbError) {
       console.error('Error querying truck requests:', dbError)
-      // Continue to try other sources
     }
 
     if (truckRequest) {
@@ -101,27 +48,36 @@ export async function GET(request: Request) {
         success: true,
         data: {
           type: 'truck_request',
-          orderNumber: `TR-${truckRequest.id.slice(-8)}`,
+          id: truckRequest.id,
           trackingNumber: truckRequest.trackingNumber || truckRequest.id,
-          service: 'Truck Transportation',
+          service: 'Truck Services',
           status: truckRequest.status,
+          quote: truckRequest.quote,
           createdAt: truckRequest.createdAt,
           updatedAt: truckRequest.updatedAt,
-          customer: truckRequest.companyName,
-          pickupAddress: truckRequest.pickupAddress,
-          deliveryAddress: truckRequest.deliveryAddress,
-          cargoType: truckRequest.cargoType,
-          events: generateTruckRequestEvents(truckRequest)
+          customer: truckRequest.contactName,
+          company: truckRequest.companyName,
+          pickup: {
+            address: truckRequest.pickupAddress,
+            city: truckRequest.pickupCity,
+            date: truckRequest.pickupDate
+          },
+          delivery: {
+            address: truckRequest.deliveryAddress,
+            city: truckRequest.deliveryCity,
+            date: truckRequest.deliveryDate
+          },
+          cargo: {
+            type: truckRequest.cargoType,
+            weight: truckRequest.cargoWeight,
+            value: truckRequest.cargoValue
+          },
+          events: generateTrackingEvents(truckRequest.status, truckRequest.createdAt, truckRequest.updatedAt)
         }
       })
     }
 
-    // If not found in database, try mock data
-    const mockResponse = getMockTrackingData(trackingNumber)
-    if (mockResponse) {
-      return mockResponse
-    }
-
+    // If no results found, return error
     return NextResponse.json(
       { error: 'Tracking number not found' },
       { status: 404 }
@@ -129,15 +85,6 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('Error fetching tracking data:', error)
-    
-    // Fall back to mock data on error
-    const { searchParams } = new URL(request.url)
-    const trackingNumber = searchParams.get('tracking') || ''
-    const mockResponse = getMockTrackingData(trackingNumber)
-    if (mockResponse) {
-      return mockResponse
-    }
-
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -145,226 +92,137 @@ export async function GET(request: Request) {
   }
 }
 
-function getIconForStatus(status: string) {
-  switch (status.toLowerCase()) {
-    case 'pending':
-      return 'Package'
-    case 'processing':
-      return 'Clock'
-    case 'in_transit':
-      return 'Truck'
-    case 'delivered':
-    case 'completed':
-      return 'CheckCircle'
-    case 'cancelled':
-      return 'XCircle'
-    default:
-      return 'Package'
-  }
-}
-
-function generateTruckRequestEvents(request: any) {
+function generateTrackingEvents(status: string, createdAt: Date, updatedAt: Date) {
   const events = []
-  const baseTime = new Date(request.createdAt)
-
-  // Request placed
+  
   events.push({
     id: '1',
-    status: 'Request Submitted',
-    location: 'Customer Portal',
-    timestamp: request.createdAt,
-    description: `Truck request submitted for pickup from ${request.pickupAddress}`,
-    icon: 'Package'
+    status: 'pending',
+    location: 'Request Received',
+    timestamp: createdAt,
+    description: 'Your request has been received and is being processed',
+    icon: 'Clock'
   })
 
-  // If not pending, add more events
-  if (request.status !== 'pending') {
+  if (status !== 'pending') {
     events.push({
       id: '2',
-      status: 'Request Reviewed',
-      location: 'Operations Center',
-      timestamp: new Date(baseTime.getTime() + 2 * 60 * 60 * 1000), // +2 hours
-      description: 'Request has been reviewed and approved by operations team',
+      status: 'quoted',
+      location: 'Quote Prepared',
+      timestamp: updatedAt,
+      description: 'Quote has been prepared and sent',
+      icon: 'DollarSign'
+    })
+  }
+
+  if (status === 'confirmed' || status === 'assigned' || status === 'in_transit' || status === 'delivered') {
+    events.push({
+      id: '3',
+      status: 'confirmed',
+      location: 'Booking Confirmed',
+      timestamp: updatedAt,
+      description: 'Your booking has been confirmed',
       icon: 'CheckCircle'
     })
+  }
 
-    if (request.status === 'confirmed' || request.status === 'assigned' || request.status === 'in_transit' || request.status === 'delivered') {
-      events.push({
-        id: '3',
-        status: 'Truck Assigned',
-        location: 'Dispatch Center',
-        timestamp: new Date(baseTime.getTime() + 4 * 60 * 60 * 1000), // +4 hours
-        description: `Truck assigned${request.assignedDriver ? ` to driver ${request.assignedDriver}` : ''}`,
-        icon: 'Truck'
-      })
-    }
+  if (status === 'assigned' || status === 'in_transit' || status === 'delivered') {
+    events.push({
+      id: '4',
+      status: 'assigned',
+      location: 'Driver Assigned',
+      timestamp: updatedAt,
+      description: 'A driver has been assigned to your request',
+      icon: 'Truck'
+    })
+  }
 
-    if (request.status === 'in_transit' || request.status === 'delivered') {
-      events.push({
-        id: '4',
-        status: 'En Route to Pickup',
-        location: request.pickupAddress.split(',')[0], // First part of address
-        timestamp: new Date(baseTime.getTime() + 6 * 60 * 60 * 1000), // +6 hours
-        description: 'Truck is en route to pickup location',
-        icon: 'Truck'
-      })
+  if (status === 'in_transit') {
+    events.push({
+      id: '5',
+      status: 'in_transit',
+      location: 'In Transit',
+      timestamp: updatedAt,
+      description: 'Your cargo is in transit',
+      icon: 'Navigation'
+    })
+  }
 
-      events.push({
-        id: '5',
-        status: 'Cargo Loaded',
-        location: request.pickupAddress,
-        timestamp: new Date(baseTime.getTime() + 8 * 60 * 60 * 1000), // +8 hours
-        description: `${request.cargoType} cargo loaded and secured`,
-        icon: 'Package'
-      })
-
-      events.push({
-        id: '6',
-        status: 'In Transit',
-        location: 'En Route',
-        timestamp: new Date(baseTime.getTime() + 9 * 60 * 60 * 1000), // +9 hours
-        description: `Truck is in transit to ${request.deliveryAddress}`,
-        icon: 'Truck'
-      })
-    }
-
-    if (request.status === 'delivered') {
-      events.push({
-        id: '7',
-        status: 'Delivered',
-        location: request.deliveryAddress,
-        timestamp: new Date(baseTime.getTime() + 12 * 60 * 60 * 1000), // +12 hours
-        description: 'Cargo successfully delivered to destination',
-        icon: 'CheckCircle'
-      })
-    }
+  if (status === 'delivered') {
+    events.push({
+      id: '6',
+      status: 'delivered',
+      location: 'Delivered',
+      timestamp: updatedAt,
+      description: 'Your cargo has been delivered successfully',
+      icon: 'CheckCircle2'
+    })
   }
 
   return events
 }
 
 function getMockTrackingData(trackingNumber: string): NextResponse | null {
-  const mockTrackingData: { [key: string]: any } = {
-    'TRK-DOC-001': {
-      type: 'order',
-      orderNumber: 'ORD-2024-001',
-      trackingNumber: 'TRK-DOC-001',
-      service: 'Documentation Services',
-      status: 'completed',
-      estimatedDelivery: '2024-08-15',
-      currentLocation: 'Delivered',
-      events: [
-        {
-          id: '1',
-          status: 'Order Placed',
-          location: 'Customer Portal',
-          timestamp: '2024-08-12T09:00:00Z',
-          description: 'Documentation service order has been placed and confirmed.',
-          icon: 'Package',
-        },
-        {
-          id: '2',
-          status: 'Processing Started',
-          location: 'Documentation Center',
-          timestamp: '2024-08-12T14:30:00Z',
-          description: 'Our team has started processing your documents.',
-          icon: 'Clock',
-        },
-        {
-          id: '3',
-          status: 'Documents Prepared',
-          location: 'Quality Control',
-          timestamp: '2024-08-14T11:00:00Z',
-          description: 'All documents have been prepared and are undergoing quality review.',
-          icon: 'CheckCircle',
-        },
-        {
-          id: '4',
-          status: 'Completed',
-          location: 'Digital Delivery',
-          timestamp: '2024-08-15T16:45:00Z',
-          description: 'Documents have been delivered digitally to your email.',
-          icon: 'CheckCircle',
-        },
-      ],
-    },
-    'TRK-FRT-002': {
-      type: 'order',
-      orderNumber: 'ORD-2024-002',
-      trackingNumber: 'TRK-FRT-002',
-      service: 'Freight Forwarding',
+  // Mock tracking data for demo purposes
+  const mockData = {
+    'DEMO001': {
+      type: 'truck_request',
+      id: 'DEMO001',
+      trackingNumber: 'DEMO001',
+      service: 'Truck Services',
       status: 'in_transit',
-      estimatedDelivery: '2024-08-25',
-      currentLocation: 'Pacific Ocean - En Route to Los Angeles',
+      createdAt: new Date('2024-08-20T10:00:00Z'),
+      updatedAt: new Date('2024-08-22T14:30:00Z'),
+      customer: 'John Doe',
+      company: 'Demo Company',
+      pickup: {
+        address: '123 Main St, Lagos',
+        city: 'Lagos',
+        date: new Date('2024-08-21T08:00:00Z')
+      },
+      delivery: {
+        address: '456 Industrial Ave, Abuja',
+        city: 'Abuja',
+        date: new Date('2024-08-23T16:00:00Z')
+      },
+      cargo: {
+        type: 'Electronics',
+        weight: '500kg',
+        value: '₦2,000,000'
+      },
       events: [
         {
           id: '1',
-          status: 'Order Confirmed',
-          location: 'Singapore Port',
-          timestamp: '2024-08-18T08:00:00Z',
-          description: 'Freight forwarding order confirmed and cargo received.',
-          icon: 'Package',
+          status: 'pending',
+          location: 'Request Received',
+          timestamp: new Date('2024-08-20T10:00:00Z'),
+          description: 'Your request has been received',
+          icon: 'Clock'
         },
         {
           id: '2',
-          status: 'Loaded on Vessel',
-          location: 'Singapore Port Terminal 3',
-          timestamp: '2024-08-19T15:30:00Z',
-          description: 'Container loaded onto vessel MV Pacific Star.',
-          icon: 'Ship',
+          status: 'confirmed',
+          location: 'Lagos Depot',
+          timestamp: new Date('2024-08-21T08:00:00Z'),
+          description: 'Pickup confirmed',
+          icon: 'CheckCircle'
         },
         {
           id: '3',
-          status: 'Departed Singapore',
-          location: 'Singapore Strait',
-          timestamp: '2024-08-19T22:00:00Z',
-          description: 'Vessel has departed Singapore and is en route to Los Angeles.',
-          icon: 'Ship',
-        },
-        {
-          id: '4',
-          status: 'In Transit',
-          location: 'Pacific Ocean',
-          timestamp: '2024-08-20T12:00:00Z',
-          description: 'Currently sailing across the Pacific Ocean. ETA: August 25th.',
-          icon: 'Ship',
-        },
-      ],
-    },
-    'TRK-WHS-003': {
-      type: 'order',
-      orderNumber: 'ORD-2024-003',
-      trackingNumber: 'TRK-WHS-003',
-      service: 'Warehousing',
-      status: 'processing',
-      estimatedDelivery: 'Ongoing Storage',
-      currentLocation: 'Warehouse Facility A-12',
-      events: [
-        {
-          id: '1',
-          status: 'Goods Received',
-          location: 'Warehouse Reception',
-          timestamp: '2024-08-20T10:00:00Z',
-          description: 'Your goods have been received and checked into our warehouse.',
-          icon: 'Package',
-        },
-        {
-          id: '2',
-          status: 'Storage Allocated',
-          location: 'Warehouse Section A-12',
-          timestamp: '2024-08-20T14:00:00Z',
-          description: 'Storage space has been allocated in climate-controlled section.',
-          icon: 'CheckCircle',
-        },
-      ],
-    },
+          status: 'in_transit',
+          location: 'En Route',
+          timestamp: new Date('2024-08-22T14:30:00Z'),
+          description: 'Package in transit to Abuja',
+          icon: 'Navigation'
+        }
+      ]
+    }
   }
 
-  const data = mockTrackingData[trackingNumber]
-  if (data) {
+  if (mockData[trackingNumber as keyof typeof mockData]) {
     return NextResponse.json({
       success: true,
-      data: data
+      data: mockData[trackingNumber as keyof typeof mockData]
     })
   }
 

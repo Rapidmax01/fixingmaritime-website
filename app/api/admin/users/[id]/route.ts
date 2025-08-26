@@ -22,32 +22,7 @@ export async function GET(
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
-      include: {
-        orders: {
-          select: {
-            id: true,
-            orderNumber: true,
-            totalAmount: true,
-            status: true,
-            paymentStatus: true,
-            createdAt: true,
-            orderItems: {
-              include: {
-                service: {
-                  select: {
-                    name: true,
-                    slug: true
-                  }
-                }
-              }
-            }
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        }
-      }
+      where: { id: params.id }
     })
 
     if (!user) {
@@ -58,8 +33,9 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const orderCount = user.orders.length
-    const totalSpent = user.orders.reduce((sum, order) => sum + Number(order.totalAmount), 0)
+    // TODO: Replace with quote request counts when needed
+    const orderCount = 0
+    const totalSpent = 0
 
     const userWithStats = {
       id: user.id,
@@ -74,7 +50,6 @@ export async function GET(
       emailVerified: user.emailVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      orders: user.orders,
       orderCount,
       totalSpent,
       status: user.emailVerified ? 'active' : 'inactive'
@@ -223,16 +198,15 @@ export async function DELETE(
       }, { status: 403 })
     }
 
-    // Check if user has orders
-    const orderCount = await prisma.order.count({
-      where: { userId: params.id }
-    })
-
-    if (orderCount > 0) {
-      return NextResponse.json({ 
-        error: `Cannot delete user with ${orderCount} orders. Consider deactivating instead.` 
-      }, { status: 409 })
-    }
+    // TODO: Check if user has quote requests before deletion
+    // const quoteCount = await prisma.quoteRequest.count({
+    //   where: { email: user.email }
+    // })
+    // if (quoteCount > 0) {
+    //   return NextResponse.json({ 
+    //     error: `Cannot delete user with ${quoteCount} quote requests. Consider deactivating instead.` 
+    //   }, { status: 409 })
+    // }
 
     await prisma.user.delete({
       where: { id: params.id }

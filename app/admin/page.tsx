@@ -45,7 +45,7 @@ const adminStats = [
     color: 'bg-blue-500'
   },
   {
-    name: 'Active Orders',
+    name: 'Quote Requests',
     value: '89',
     change: '+8%',
     changeType: 'positive',
@@ -53,9 +53,9 @@ const adminStats = [
     color: 'bg-green-500'
   },
   {
-    name: 'Monthly Revenue',
-    value: '$45,678',
-    change: '+15%',
+    name: 'Pending Quotes',
+    value: '23',
+    change: '+5%',
     changeType: 'positive',
     icon: DollarSign,
     color: 'bg-purple-500'
@@ -73,8 +73,8 @@ const adminStats = [
 const recentActivity = [
   {
     id: 1,
-    type: 'order',
-    message: 'New order #ORD-2024-089 from Acme Corp',
+    type: 'quote',
+    message: 'New quote request for Documentation Services from Acme Corp',
     time: '2 minutes ago',
     status: 'new'
   },
@@ -87,8 +87,8 @@ const recentActivity = [
   },
   {
     id: 3,
-    type: 'payment',
-    message: 'Payment received for order #ORD-2024-087',
+    type: 'quote',
+    message: 'Quote response sent for Freight Forwarding service',
     time: '1 hour ago',
     status: 'completed'
   },
@@ -103,38 +103,38 @@ const recentActivity = [
 
 const quickActions = [
   {
-    name: 'User Management',
-    description: 'View and manage all users',
-    href: '/admin/users',
-    icon: Users,
+    name: 'Quote Requests',
+    description: 'Manage customer quote requests',
+    href: '/admin/quotes',
+    icon: DollarSign,
     color: 'bg-blue-500'
-  },
-  {
-    name: 'Order Management',
-    description: 'View and manage all orders',
-    href: '/admin/orders',
-    icon: Package,
-    color: 'bg-green-500'
   },
   {
     name: 'Service Management',
     description: 'Configure maritime services',
     href: '/admin/services',
     icon: Ship,
-    color: 'bg-purple-500'
+    color: 'bg-green-500'
   },
   {
-    name: 'Analytics',
-    description: 'View reports and analytics',
-    href: '/admin/analytics',
-    icon: BarChart3,
-    color: 'bg-orange-500'
+    name: 'User Management',
+    description: 'View and manage all users',
+    href: '/admin/users',
+    icon: Users,
+    color: 'bg-purple-500'
   },
   {
     name: 'Content Management',
     description: 'Manage website content',
     href: '/admin/content',
     icon: FileText,
+    color: 'bg-orange-500'
+  },
+  {
+    name: 'Analytics',
+    description: 'View reports and analytics',
+    href: '/admin/analytics',
+    icon: BarChart3,
     color: 'bg-indigo-500'
   },
   {
@@ -148,6 +148,7 @@ const quickActions = [
 
 const getActivityIcon = (type: string) => {
   switch (type) {
+    case 'quote': return DollarSign
     case 'order': return Package
     case 'user': return Users
     case 'payment': return DollarSign

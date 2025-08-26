@@ -19,16 +19,6 @@ export async function GET(request: NextRequest) {
     }
 
     const users = await prisma.user.findMany({
-      include: {
-        orders: {
-          select: {
-            id: true,
-            totalAmount: true,
-            status: true,
-            createdAt: true
-          }
-        }
-      },
       orderBy: {
         createdAt: 'desc'
       }
@@ -38,11 +28,10 @@ export async function GET(request: NextRequest) {
     const filteredUsers = users.filter(user => canViewUser(currentUser, user.role))
 
     const usersWithStats = filteredUsers.map(user => {
-      const orderCount = user.orders.length
-      const totalSpent = user.orders.reduce((sum, order) => sum + Number(order.totalAmount), 0)
-      const lastOrderDate = user.orders.length > 0 
-        ? user.orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
-        : null
+      // TODO: Replace with quote request counts when needed
+      const orderCount = 0
+      const totalSpent = 0
+      const lastOrderDate = null
 
       return {
         id: user.id,

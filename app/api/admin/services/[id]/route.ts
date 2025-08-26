@@ -15,28 +15,16 @@ export async function GET(
     }
 
     const service = await prisma.service.findUnique({
-      where: { id: params.id },
-      include: {
-        orderItems: {
-          include: {
-            order: true
-          }
-        }
-      }
+      where: { id: params.id }
     })
 
     if (!service) {
       return NextResponse.json({ error: 'Service not found' }, { status: 404 })
     }
 
-    const orders = service.orderItems.length
-    const revenue = service.orderItems.reduce((sum, item) => sum + Number(item.totalPrice), 0)
-
     const serviceWithStats = {
       ...service,
-      basePrice: Number(service.basePrice || 0),
-      orders,
-      revenue,
+      requests: 0, // Placeholder - would count from QuoteRequest table
       rating: 4.5 // Default rating
     }
 
@@ -57,7 +45,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { name, slug, description, basePrice, priceUnit, features, active } = body
+    const { name, slug, description, features, active } = body
 
     const service = await prisma.service.update({
       where: { id: params.id },
@@ -65,8 +53,6 @@ export async function PUT(
         ...(name !== undefined && { name }),
         ...(slug !== undefined && { slug }),
         ...(description !== undefined && { description }),
-        ...(basePrice !== undefined && { basePrice: basePrice ? parseFloat(basePrice) : null }),
-        ...(priceUnit !== undefined && { priceUnit }),
         ...(features !== undefined && { features }),
         ...(active !== undefined && { active })
       }
