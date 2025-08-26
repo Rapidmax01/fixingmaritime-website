@@ -11,9 +11,22 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const quoteRequest = await prisma.quoteRequest.findUnique({
-      where: { id: params.id }
-    })
+    let quoteRequest = null
+    
+    try {
+      quoteRequest = await prisma.quoteRequest.findUnique({
+        where: { id: params.id }
+      })
+    } catch (dbError: any) {
+      console.error('Database error:', dbError)
+      
+      if (dbError.code === 'P2021' || dbError.message?.includes('does not exist')) {
+        return NextResponse.json({ 
+          error: 'Quote request system not yet available' 
+        }, { status: 503 })
+      }
+      throw dbError
+    }
 
     if (!quoteRequest) {
       return NextResponse.json({ error: 'Quote request not found' }, { status: 404 })
@@ -70,10 +83,23 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       updateData.quotedCurrency = quotedCurrency
     }
 
-    const quoteRequest = await prisma.quoteRequest.update({
-      where: { id: params.id },
-      data: updateData
-    })
+    let quoteRequest = null
+    
+    try {
+      quoteRequest = await prisma.quoteRequest.update({
+        where: { id: params.id },
+        data: updateData
+      })
+    } catch (dbError: any) {
+      console.error('Database error:', dbError)
+      
+      if (dbError.code === 'P2021' || dbError.message?.includes('does not exist')) {
+        return NextResponse.json({ 
+          error: 'Quote request system not yet available' 
+        }, { status: 503 })
+      }
+      throw dbError
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -97,9 +123,20 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    await prisma.quoteRequest.delete({
-      where: { id: params.id }
-    })
+    try {
+      await prisma.quoteRequest.delete({
+        where: { id: params.id }
+      })
+    } catch (dbError: any) {
+      console.error('Database error:', dbError)
+      
+      if (dbError.code === 'P2021' || dbError.message?.includes('does not exist')) {
+        return NextResponse.json({ 
+          error: 'Quote request system not yet available' 
+        }, { status: 503 })
+      }
+      throw dbError
+    }
 
     return NextResponse.json({ success: true })
 
