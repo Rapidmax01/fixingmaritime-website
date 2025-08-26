@@ -208,7 +208,7 @@ function TrackOrderContent() {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
             style={{ 
-              backgroundImage: 'url(https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
+              backgroundImage: 'url(https://images.unsplash.com/photo-1578575437130-527eed3abbec?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-primary-900/90" />

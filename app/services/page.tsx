@@ -157,7 +157,7 @@ export default function Services() {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
             style={{ 
-              backgroundImage: 'url(https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
+              backgroundImage: 'url(https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-primary-900/90" />

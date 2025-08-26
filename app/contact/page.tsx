@@ -76,7 +76,7 @@ export default function Contact() {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
             style={{ 
-              backgroundImage: 'url(https://images.unsplash.com/photo-1605745341112-85968b19335b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
+              backgroundImage: 'url(https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80)' 
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-primary-900/90" />
