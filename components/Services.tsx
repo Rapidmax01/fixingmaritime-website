@@ -257,7 +257,7 @@ export default function Services() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href="/truck-registration"
+                  href="/register-truck"
                   className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-10 py-4 text-lg font-semibold text-white shadow-lg hover:from-green-500 hover:to-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-300"
                 >
                   <Truck className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform" />
