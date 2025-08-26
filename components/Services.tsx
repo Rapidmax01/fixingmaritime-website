@@ -214,24 +214,84 @@ export default function Services() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="mt-16 flex flex-col sm:flex-row gap-6 items-center justify-center"
+          className="mt-16 flex flex-col items-center justify-center"
         >
-          <Link
-            href="/services"
-            className="group relative inline-flex items-center rounded-md bg-primary-600 px-12 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200 hover:scale-105"
-          >
-            <span>Our Services</span>
-            <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          
-          <Link
-            href="/partner-with-us"
-            className="group relative inline-flex items-center rounded-md bg-green-600 px-12 py-4 text-lg font-semibold text-white shadow-lg hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
-          >
-            <Building className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform" />
-            <span>Partner with Us</span>
-            <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 lg:p-12 shadow-xl border border-green-200">
+            <div className="text-center">
+              <motion.h3 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6"
+              >
+                Maximize Your Earning Potential – Join Our Professional Fleet Network
+              </motion.h3>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="text-lg leading-relaxed text-gray-700 mb-8 space-y-4"
+              >
+                <p>
+                  We invite you to take advantage of consistent job opportunities for your truck(s) by joining our established fleet. Our platform connects truck owners with reliable work assignments, ensuring steady income streams for your trucks.
+                </p>
+                
+                <p>
+                  To register your truck(s) on our platform and begin accessing available jobs, simply tap "Get Started" below.
+                </p>
+                
+                <p className="font-semibold text-green-800">
+                  Join our network today and start maximizing your trucking business potential.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link
+                  href="/truck-registration"
+                  className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-10 py-4 text-lg font-semibold text-white shadow-lg hover:from-green-500 hover:to-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-300"
+                >
+                  <Truck className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform" />
+                  <span>Get Started</span>
+                  <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                  
+                  {/* Animated background effect */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-green-400 to-emerald-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                </Link>
+              </motion.div>
+
+              {/* Additional visual elements */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                className="mt-6 flex items-center justify-center space-x-8 text-sm text-green-700"
+              >
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <span>Consistent Work</span>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <span>Steady Income</span>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <span>Professional Network</span>
+                </div>
+              </motion.div>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
