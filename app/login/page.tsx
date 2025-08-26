@@ -19,8 +19,14 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showResendEmail, setShowResendEmail] = useState('')
+  const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
   
   const message = searchParams.get('message')
+  
+  useEffect(() => {
+    const callback = searchParams.get('callbackUrl')
+    setCallbackUrl(callback)
+  }, [searchParams])
   
   useEffect(() => {
     if (message === 'verification-sent') {
@@ -85,7 +91,8 @@ function LoginForm() {
         toast.error('Invalid email or password')
       } else {
         toast.success('Welcome back!')
-        router.push('/dashboard')
+        const redirectUrl = callbackUrl || '/dashboard'
+        router.push(redirectUrl)
       }
     } catch (error) {
       toast.error('Something went wrong')
@@ -105,7 +112,10 @@ function LoginForm() {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <Link href="/signup" className="font-semibold text-primary-600 hover:text-primary-500">
+          <Link 
+            href={callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup"} 
+            className="font-semibold text-primary-600 hover:text-primary-500"
+          >
             create a new account
           </Link>
         </p>
@@ -247,7 +257,7 @@ function LoginForm() {
           <div className="mt-6">
             <button
               type="button"
-              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+              onClick={() => signIn('google', { callbackUrl: callbackUrl || '/dashboard' })}
               className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">

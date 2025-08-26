@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 import { Globe, Ship, Clock, Users, TrendingUp, CheckCircle, Package, Anchor } from 'lucide-react'
+import AuthLink from './AuthLink'
 
 const stats = [
   { 
@@ -280,7 +281,7 @@ export default function Stats() {
             className="mt-16 text-center"
           >
             <p className="text-gray-300 mb-6">Ready to be part of our success story?</p>
-            <Link href="/partner-registration">
+            <AuthLink href="/register-truck">
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(59, 130, 246, 0.5)" }}
                 whileTap={{ scale: 0.95 }}
@@ -289,7 +290,7 @@ export default function Stats() {
                 <CheckCircle className="w-5 h-5 mr-2" />
                 Join Our Network
               </motion.button>
-            </Link>
+            </AuthLink>
           </motion.div>
         </div>
       </div>

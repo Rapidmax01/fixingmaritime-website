@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { FileText, Truck, Ship, Package, Globe, Warehouse, FileCheck, ArrowRight, Clock, CheckCircle, Building } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
+import AuthLink from './AuthLink'
 
 const services = [
   {
@@ -256,7 +257,7 @@ export default function Services() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Link
+                <AuthLink
                   href="/register-truck"
                   className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-10 py-4 text-lg font-semibold text-white shadow-lg hover:from-green-500 hover:to-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-300"
                 >
@@ -266,7 +267,7 @@ export default function Services() {
                   
                   {/* Animated background effect */}
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-green-400 to-emerald-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                </Link>
+                </AuthLink>
               </motion.div>
 
               {/* Additional visual elements */}
