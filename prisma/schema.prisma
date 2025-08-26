@@ -342,3 +342,74 @@ model Notification {
   @@index([createdAt])
   @@map("notifications")
 }
+
+model Order {
+  id               String   @id @default(uuid())
+  orderNumber      String   @unique // e.g., "ORD-2024-000001"
+  trackingNumber   String   @unique // e.g., "TRK-FX-000001"
+  
+  // Customer Information
+  userId           String?  // Links to User.id if logged in
+  customerName     String
+  customerEmail    String
+  customerPhone    String
+  company          String?
+  
+  // Order Details
+  serviceId        String
+  serviceName      String
+  description      String   @db.Text
+  amount           Decimal  @db.Decimal(10, 2)
+  currency         String   @default("USD")
+  
+  // Quote Reference
+  quoteRequestId   String?  // Reference to original quote
+  
+  // Status & Payment
+  status           String   @default("pending") // "pending", "processing", "confirmed", "in_transit", "delivered", "cancelled"
+  paymentStatus    String   @default("unpaid") // "unpaid", "paid", "refunded"
+  paymentMethod    String?  // "card", "transfer", "cash"
+  paidAt           DateTime?
+  
+  // Shipping Details
+  pickupAddress    String?
+  pickupCity       String?
+  deliveryAddress  String?
+  deliveryCity     String?
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deliveredAt      DateTime?
+  
+  // Relations
+  trackingHistory  TrackingEvent[]
+  
+  @@index([orderNumber])
+  @@index([trackingNumber])
+  @@index([userId])
+  @@index([customerEmail])
+  @@index([status])
+  @@map("orders")
+}
+
+model TrackingEvent {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  
+  status      String   // "order_placed", "payment_confirmed", "processing", "dispatched", "in_transit", "out_for_delivery", "delivered"
+  title       String
+  description String   @db.Text
+  location    String?
+  
+  // Additional Details
+  remarks     String?  @db.Text
+  updatedBy   String?  // Admin user ID
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("tracking_events")
+}

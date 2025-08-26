@@ -148,31 +148,52 @@ function TrackOrderContent() {
     setError('')
 
     try {
-      const response = await fetch(`/api/track?tracking=${encodeURIComponent(trackingNumber.trim())}`)
+      // Try real API first
+      const response = await fetch(`/api/track?number=${encodeURIComponent(trackingNumber.trim())}`)
       
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError('Tracking number not found. Please check and try again.')
-        } else if (response.status === 500) {
-          setError('Service temporarily unavailable. Please try again later.')
-        } else {
-          setError('Unable to fetch tracking information. Please try again.')
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          // Transform API response to match expected format
+          const transformedData = {
+            orderNumber: result.order.orderNumber,
+            service: result.order.serviceName,
+            status: result.order.status,
+            currentLocation: result.trackingHistory[0]?.location || 'Processing',
+            estimatedDelivery: result.order.deliveredAt ? new Date(result.order.deliveredAt).toLocaleDateString() : 'TBD',
+            progress: result.order.progress,
+            events: result.trackingHistory.map((event: any) => ({
+              id: event.id,
+              status: event.title,
+              location: event.location || 'System',
+              timestamp: event.createdAt,
+              description: event.description,
+              icon: 'Package' // Default icon, could be enhanced based on status
+            }))
+          }
+          setTrackingData(transformedData)
+          return
         }
-        setTrackingData(null)
-        return
       }
-
-      const result = await response.json()
-      if (result.success) {
-        setTrackingData(result.data)
+      
+      // Fall back to mock data for demo purposes
+      const mockData = mockTrackingData[trackingNumber as keyof typeof mockTrackingData]
+      if (mockData) {
+        setTrackingData(mockData)
       } else {
-        setError(result.error || 'Tracking number not found. Please check and try again.')
+        setError('Tracking number not found. Please check and try again.')
         setTrackingData(null)
       }
     } catch (error) {
       console.error('Error fetching tracking data:', error)
-      setError('Unable to connect to tracking service. Please check your connection and try again.')
-      setTrackingData(null)
+      // Fall back to mock data on error
+      const mockData = mockTrackingData[trackingNumber as keyof typeof mockTrackingData]
+      if (mockData) {
+        setTrackingData(mockData)
+      } else {
+        setError('Unable to connect to tracking service. Please check your connection and try again.')
+        setTrackingData(null)
+      }
     } finally {
       setIsSearching(false)
     }
