@@ -60,12 +60,46 @@ export default function Hero() {
               transition={{ duration: 2, ease: "easeInOut" }}
               className="absolute inset-0"
             >
-              <div 
+              <motion.div 
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: `url(${bg.url})` }}
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                  x: [0, -10, 0],
+                  y: [0, -5, 0]
+                }}
+                transition={{ 
+                  duration: 20, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-navy-900/80 via-navy-800/70 to-primary-900/80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-navy-900/80 via-navy-800/70 to-primary-900/80"
+                animate={{
+                  background: [
+                    "linear-gradient(135deg, rgba(30, 58, 138, 0.8), rgba(55, 65, 81, 0.7), rgba(79, 70, 229, 0.8))",
+                    "linear-gradient(135deg, rgba(55, 65, 81, 0.8), rgba(79, 70, 229, 0.7), rgba(30, 58, 138, 0.8))",
+                    "linear-gradient(135deg, rgba(30, 58, 138, 0.8), rgba(55, 65, 81, 0.7), rgba(79, 70, 229, 0.8))"
+                  ]
+                }}
+                transition={{
+                  duration: 15,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"
+                animate={{
+                  opacity: [0.5, 0.3, 0.5]
+                }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
             </motion.div>
           )
         ))}
@@ -117,10 +151,62 @@ export default function Hero() {
         >
           <Anchor className="h-40 w-40" />
         </motion.div>
+        
+        {/* Floating Particles */}
+        {Array.from({ length: 6 }).map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute w-2 h-2 bg-white/20 rounded-full"
+            style={{
+              left: `${20 + i * 15}%`,
+              top: `${30 + i * 10}%`,
+            }}
+            animate={{
+              y: [-20, -40, -20],
+              x: [-10, 10, -10],
+              opacity: [0.2, 0.8, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 8 + i,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.5,
+            }}
+          />
+        ))}
       </div>
 
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
+      <motion.div 
+        className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"
+        animate={{
+          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%']
+        }}
+        transition={{
+          duration: 30,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      ></motion.div>
+      
+      {/* Additional animated overlay for depth */}
+      <motion.div
+        className="absolute inset-0 opacity-10"
+        animate={{
+          background: [
+            "radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
+            "radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
+            "radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)"
+          ]
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
       
       {/* Animated Waves */}
       <div className="absolute bottom-0 left-0 right-0">
