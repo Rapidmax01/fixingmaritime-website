@@ -102,11 +102,36 @@ export default function AdminQuotes() {
       if (response.ok) {
         const data = await response.json()
         setQuotes(data.quoteRequests || [])
-        setStatusSummary(data.statusSummary || {})
+        setStatusSummary(data.statusSummary || {
+          pending: 0,
+          quoted: 0,
+          accepted: 0,
+          rejected: 0,
+          completed: 0
+        })
+        if (data.message) {
+          toast.success(data.message)
+        }
       } else {
-        // Fallback data for demo mode
+        // Handle different error types
         setQuotes([])
-        toast('Demo mode: No database connection')
+        setStatusSummary({
+          pending: 0,
+          quoted: 0,
+          accepted: 0,
+          rejected: 0,
+          completed: 0
+        })
+        
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        
+        if (response.status === 403) {
+          toast.error('Admin access required')
+        } else if (response.status === 503) {
+          toast.error('Database not available - showing empty state')
+        } else {
+          toast.error(errorData.error || 'Failed to fetch quote requests')
+        }
       }
     } catch (error) {
       console.error('Error fetching quotes:', error)
