@@ -34,72 +34,16 @@ interface AdminUser {
   role: string
 }
 
-// Mock admin data
-const adminStats = [
-  {
-    name: 'Total Users',
-    value: '1,234',
-    change: '+12%',
-    changeType: 'positive',
-    icon: Users,
-    color: 'bg-blue-500'
-  },
-  {
-    name: 'Quote Requests',
-    value: '89',
-    change: '+8%',
-    changeType: 'positive',
-    icon: Package,
-    color: 'bg-green-500'
-  },
-  {
-    name: 'Pending Quotes',
-    value: '23',
-    change: '+5%',
-    changeType: 'positive',
-    icon: DollarSign,
-    color: 'bg-purple-500'
-  },
-  {
-    name: 'Services Active',
-    value: '7',
-    change: '0%',
-    changeType: 'neutral',
-    icon: Ship,
-    color: 'bg-orange-500'
+// Icon mapping for stats
+const getStatIcon = (iconName: string) => {
+  switch (iconName) {
+    case 'Users': return Users
+    case 'Package': return Package
+    case 'DollarSign': return DollarSign
+    case 'Ship': return Ship
+    default: return Package
   }
-]
-
-const recentActivity = [
-  {
-    id: 1,
-    type: 'quote',
-    message: 'New quote request for Documentation Services from Acme Corp',
-    time: '2 minutes ago',
-    status: 'new'
-  },
-  {
-    id: 2,
-    type: 'user',
-    message: 'New user registration: john@example.com',
-    time: '15 minutes ago',
-    status: 'pending'
-  },
-  {
-    id: 3,
-    type: 'quote',
-    message: 'Quote response sent for Freight Forwarding service',
-    time: '1 hour ago',
-    status: 'completed'
-  },
-  {
-    id: 4,
-    type: 'service',
-    message: 'Freight forwarding service updated',
-    time: '2 hours ago',
-    status: 'completed'
-  }
-]
+}
 
 const quickActions = [
   {
@@ -179,10 +123,19 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [admin, setAdmin] = useState<AdminUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [adminStats, setAdminStats] = useState<any[]>([])
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [statsLoading, setStatsLoading] = useState(true)
 
   useEffect(() => {
     checkAdminAuth()
   }, [])
+
+  useEffect(() => {
+    if (admin) {
+      fetchAdminStats()
+    }
+  }, [admin])
 
   const checkAdminAuth = async () => {
     try {
@@ -199,6 +152,33 @@ export default function AdminDashboard() {
       return
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchAdminStats = async () => {
+    try {
+      setStatsLoading(true)
+      const response = await fetch('/api/admin/stats')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          // Convert icon strings to components
+          const statsWithIcons = data.stats.map((stat: any) => ({
+            ...stat,
+            icon: getStatIcon(stat.icon)
+          }))
+          setAdminStats(statsWithIcons)
+          setRecentActivity(data.recentActivity)
+        }
+      } else {
+        console.error('Failed to fetch admin stats')
+        // Keep empty arrays as fallback
+      }
+    } catch (error) {
+      console.error('Error fetching admin stats:', error)
+      // Keep empty arrays as fallback
+    } finally {
+      setStatsLoading(false)
     }
   }
 
@@ -306,17 +286,38 @@ export default function AdminDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          {adminStats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
+          {statsLoading ? (
+            // Loading skeleton
+            Array.from({ length: 4 }).map((_, index) => (
               <motion.div
-                key={stat.name}
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="group relative bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl p-6 border border-white/20 transition-all duration-300 overflow-hidden"
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20"
               >
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-8 bg-gray-200 rounded animate-pulse w-16"></div>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-2xl animate-pulse"></div>
+                </div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+              </motion.div>
+            ))
+          ) : (
+            adminStats.map((stat, index) => {
+              const Icon = stat.icon
+              return (
+                <motion.div
+                  key={stat.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="group relative bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl p-6 border border-white/20 transition-all duration-300 overflow-hidden"
+                >
                 {/* Background Pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
@@ -354,7 +355,8 @@ export default function AdminDashboard() {
                 <div className={`absolute bottom-0 left-0 right-0 h-1 ${stat.color.replace('bg-', 'bg-')} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`}></div>
               </motion.div>
             )
-          })}
+          })
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -441,10 +443,16 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="space-y-4">
-                  {recentActivity.map((activity, index) => {
-                    const ActivityIcon = getActivityIcon(activity.type)
-                    const StatusIcon = getStatusIcon(activity.status)
-                    return (
+                  {recentActivity.length === 0 ? (
+                    <div className="text-center py-8">
+                      <AlertCircle className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-500">No recent activity</p>
+                    </div>
+                  ) : (
+                    recentActivity.map((activity, index) => {
+                      const ActivityIcon = getActivityIcon(activity.type)
+                      const StatusIcon = getStatusIcon(activity.status)
+                      return (
                       <motion.div
                         key={activity.id}
                         initial={{ opacity: 0, x: 20 }}
@@ -483,8 +491,9 @@ export default function AdminDashboard() {
                           <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
                         </div>
                       </motion.div>
-                    )
-                  })}
+                      )
+                    })
+                  )}
                 </div>
                 
                 <motion.div

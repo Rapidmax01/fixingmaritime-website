@@ -8,64 +8,16 @@ import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign
 import { motion, AnimatePresence } from 'framer-motion'
 import QuoteClaimModal from '@/components/QuoteClaimModal'
 
-// Mock data - would come from API in real app
-const mockOrders = [
-  {
-    id: 'ORD-2024-001',
-    service: 'Documentation Services',
-    status: 'completed',
-    amount: 300,
-    date: '2024-08-15',
-    trackingNumber: 'TRK-DOC-001',
-  },
-  {
-    id: 'ORD-2024-002',
-    service: 'Freight Forwarding',
-    status: 'in_transit',
-    amount: 2500,
-    date: '2024-08-18',
-    trackingNumber: 'TRK-FRT-002',
-  },
-  {
-    id: 'ORD-2024-003',
-    service: 'Warehousing',
-    status: 'processing',
-    amount: 150,
-    date: '2024-08-20',
-    trackingNumber: 'TRK-WHS-003',
-  },
-]
-
-const stats = [
-  {
-    name: 'Active Orders',
-    value: '12',
-    change: '+2.1%',
-    changeType: 'positive',
-    icon: Package,
-  },
-  {
-    name: 'Total Spent',
-    value: '$15,240',
-    change: '+4.5%',
-    changeType: 'positive',
-    icon: DollarSign,
-  },
-  {
-    name: 'Completed Orders',
-    value: '48',
-    change: '+12%',
-    changeType: 'positive',
-    icon: CheckCircle,
-  },
-  {
-    name: 'Shipments In Transit',
-    value: '8',
-    change: '-2%',
-    changeType: 'negative',
-    icon: Ship,
-  },
-]
+// Icon mapping for stats
+const getStatIcon = (iconName: string) => {
+  switch (iconName) {
+    case 'Package': return Package
+    case 'DollarSign': return DollarSign
+    case 'CheckCircle': return CheckCircle
+    case 'Ship': return Ship
+    default: return Package
+  }
+}
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -105,6 +57,9 @@ export default function Dashboard() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [showClaimModal, setShowClaimModal] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<any[]>([])
+  const [orders, setOrders] = useState<any[]>([])
+  const [statsLoading, setStatsLoading] = useState(true)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -117,6 +72,7 @@ export default function Dashboard() {
       console.log('Fetching notifications for:', session.user.email)
       fetchNotifications()
       fetchUnreadCount()
+      fetchDashboardStats()
     }
   }, [session])
 
@@ -153,6 +109,33 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Failed to fetch unread count:', error)
+    }
+  }
+
+  const fetchDashboardStats = async () => {
+    try {
+      setStatsLoading(true)
+      const response = await fetch('/api/dashboard/stats')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          // Convert icon strings to components
+          const statsWithIcons = data.stats.map((stat: any) => ({
+            ...stat,
+            icon: getStatIcon(stat.icon)
+          }))
+          setStats(statsWithIcons)
+          setOrders(data.orders || [])
+        }
+      } else {
+        console.error('Failed to fetch dashboard stats')
+        // Keep empty arrays as fallback
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error)
+      // Keep empty arrays as fallback
+    } finally {
+      setStatsLoading(false)
     }
   }
 
@@ -330,16 +313,39 @@ export default function Dashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
+          {statsLoading ? (
+            // Loading skeleton
+            Array.from({ length: 4 }).map((_, index) => (
               <motion.div
-                key={stat.name}
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-white rounded-lg shadow-sm p-6"
               >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-20"></div>
+                    <div className="h-8 bg-gray-200 rounded animate-pulse w-12"></div>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+                </div>
+                <div className="mt-4 flex items-center">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            stats.map((stat, index) => {
+              const Icon = stat.icon
+              return (
+                <motion.div
+                  key={stat.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-lg shadow-sm p-6"
+                >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.name}</p>
@@ -358,8 +364,9 @@ export default function Dashboard() {
                   <span className="text-sm text-gray-500 ml-2">from last month</span>
                 </div>
               </motion.div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -418,9 +425,23 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="divide-y divide-gray-200">
-            {mockOrders.map((order, index) => {
-              const StatusIcon = getStatusIcon(order.status)
-              return (
+            {orders.length === 0 ? (
+              <div className="p-6 text-center">
+                <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+                <p className="text-gray-600 mb-4">Get started by requesting a service quote</p>
+                <Link
+                  href="/services"
+                  className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Request Service
+                </Link>
+              </div>
+            ) : (
+              orders.map((order, index) => {
+                const StatusIcon = getStatusIcon(order.status)
+                return (
                 <motion.div
                   key={order.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -453,8 +474,9 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </motion.div>
-              )
-            })}
+                )
+              })
+            )}
           </div>
         </div>
       </div>
