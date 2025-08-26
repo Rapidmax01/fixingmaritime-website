@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle, Phone, Mail, MessageSquare, ShoppingCart, X, User, UserPlus } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Phone, Mail, MessageSquare, X, User, UserPlus, ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
@@ -31,13 +31,8 @@ const servicesData = {
       'Quality check and compliance verification',
       'Digital delivery of completed documents',
     ],
-    pricing: {
-      basic: { name: 'Basic Package', price: 150, features: ['Up to 5 documents', 'Standard processing (3-5 days)', 'Email support'] },
-      professional: { name: 'Professional', price: 300, features: ['Up to 15 documents', 'Express processing (1-2 days)', 'Priority support', 'Document storage'] },
-      enterprise: { name: 'Enterprise', price: 'Custom', features: ['Unlimited documents', 'Same-day processing', 'Dedicated account manager', 'API integration'] },
-    },
   },
-  truck: {
+  'truck-services': {
     name: 'Truck Services',
     description: 'Reliable ground transportation for cargo delivery',
     longDescription: 'Our modern fleet of trucks provides seamless land transportation for your cargo. With real-time GPS tracking, experienced drivers, and a commitment to safety, we ensure your goods reach their destination on time and in perfect condition.',
@@ -58,13 +53,8 @@ const servicesData = {
       'Schedule pickup at your convenience',
       'Track your shipment in real-time',
     ],
-    pricing: {
-      basic: { name: 'LTL Shipping', price: '$0.50/mile', features: ['Shared truck space', 'Standard delivery', 'Basic tracking'] },
-      professional: { name: 'FTL Shipping', price: '$2.50/mile', features: ['Dedicated truck', 'Express delivery', 'Real-time tracking', 'Insurance included'] },
-      enterprise: { name: 'Dedicated Fleet', price: 'Custom', features: ['Dedicated trucks', 'Custom routes', 'Priority service', 'Fleet management'] },
-    },
   },
-  tugboat: {
+  'tugboat-barge': {
     name: 'Tug Boat & Barge',
     description: 'Professional marine transportation services',
     longDescription: 'Our tug boat and barge services provide efficient marine transportation for oversized cargo, bulk materials, and special projects. With experienced crews and modern equipment, we handle complex marine logistics with precision.',
@@ -85,11 +75,6 @@ const servicesData = {
       'Permits and clearances',
       'Safe execution and delivery',
     ],
-    pricing: {
-      basic: { name: 'Harbor Towing', price: 'From $5,000', features: ['Local harbor services', 'Standard equipment', 'Basic insurance'] },
-      professional: { name: 'Coastal Towing', price: 'From $25,000', features: ['Coastal operations', 'Specialized equipment', 'Comprehensive insurance'] },
-      enterprise: { name: 'Project Cargo', price: 'Custom Quote', features: ['Complex projects', 'Multiple vessels', 'Full project management'] },
-    },
   },
   procurement: {
     name: 'Procurement Services',
@@ -112,13 +97,8 @@ const servicesData = {
       'Sample approval and quality check',
       'Order placement and monitoring',
     ],
-    pricing: {
-      basic: { name: 'Basic Sourcing', price: '5% commission', features: ['Product sourcing', 'Basic QC', 'Standard support'] },
-      professional: { name: 'Managed Procurement', price: '8% commission', features: ['Full procurement', 'Comprehensive QC', 'Factory audits', 'Priority support'] },
-      enterprise: { name: 'Strategic Partnership', price: 'Custom', features: ['Dedicated team', 'Strategic sourcing', 'Full supply chain management'] },
-    },
   },
-  freight: {
+  'freight-forwarding': {
     name: 'Freight Forwarding',
     description: 'Global shipping solutions',
     longDescription: 'Our freight forwarding services optimize your supply chain with multimodal transportation options. We handle the complexities of international shipping, ensuring cost-effective and timely delivery worldwide.',
@@ -139,11 +119,6 @@ const servicesData = {
       'Booking and documentation',
       'Shipment tracking and delivery',
     ],
-    pricing: {
-      basic: { name: 'LCL Shipping', price: 'From $50/CBM', features: ['Shared container', 'Port-to-port', 'Basic tracking'] },
-      professional: { name: 'FCL Shipping', price: 'From $2,000/container', features: ['Full container', 'Door-to-door option', 'Real-time tracking'] },
-      enterprise: { name: 'Contract Rates', price: 'Custom', features: ['Volume discounts', 'Dedicated support', 'Custom solutions'] },
-    },
   },
   warehousing: {
     name: 'Warehousing',
@@ -166,13 +141,8 @@ const servicesData = {
       'Inventory receipt and management',
       'Distribution as required',
     ],
-    pricing: {
-      basic: { name: 'Pallet Storage', price: '$5/pallet/month', features: ['Basic storage', 'Monthly reporting', 'Standard security'] },
-      professional: { name: 'Managed Storage', price: '$15/pallet/month', features: ['Climate control', 'Inventory management', 'Pick & pack services'] },
-      enterprise: { name: 'Dedicated Facility', price: 'Custom', features: ['Dedicated space', 'Custom solutions', 'Full integration'] },
-    },
   },
-  customs: {
+  'custom-clearing': {
     name: 'Custom Clearing',
     description: 'Expert customs clearance services',
     longDescription: 'Navigate complex customs regulations with our experienced team. We ensure smooth clearance and compliance with all import/export requirements, minimizing delays and optimizing duty payments.',
@@ -193,11 +163,6 @@ const servicesData = {
       'Customs submission',
       'Clearance and delivery coordination',
     ],
-    pricing: {
-      basic: { name: 'Standard Clearance', price: 200, features: ['Basic clearance', 'Standard processing', 'Email support'] },
-      professional: { name: 'Express Clearance', price: 400, features: ['Priority clearance', 'Express processing', 'Duty optimization', 'Phone support'] },
-      enterprise: { name: 'Managed Services', price: 'Custom', features: ['Dedicated team', 'Compliance management', 'Full integration'] },
-    },
   },
 }
 
@@ -205,9 +170,16 @@ export default function ServiceDetail() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
-  const [selectedPlan, setSelectedPlan] = useState<string>('professional')
-  const [quantity, setQuantity] = useState(1)
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showQuoteForm, setShowQuoteForm] = useState(false)
+  const [quoteFormData, setQuoteFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    projectDescription: '',
+    timeline: '',
+    budget: ''
+  })
 
   const serviceId = params.id as string
   const service = servicesData[serviceId as keyof typeof servicesData]
@@ -225,42 +197,29 @@ export default function ServiceDetail() {
     )
   }
 
-  const handleAddToCart = () => {
-    if (!session) {
-      setShowAuthModal(true)
+  const handleQuoteRequest = async () => {
+    if (!quoteFormData.name || !quoteFormData.email || !quoteFormData.projectDescription) {
+      toast.error('Please fill in all required fields')
       return
     }
 
-    // Add to cart logic here
-    toast.success('Service added to cart!')
-    // TODO: Implement actual cart functionality
-  }
-
-  const handleGuestCheckout = () => {
-    // Store the selected service in sessionStorage for guest checkout
-    const orderData = {
-      serviceId,
-      serviceName: service.name,
-      plan: selectedPlan,
-      quantity,
-      price: service.pricing[selectedPlan as keyof typeof service.pricing].price
+    try {
+      // Here you would normally send the quote request to your API
+      // For now, we'll just show a success message
+      toast.success('Quote request submitted! We\'ll get back to you within 24 hours.')
+      setShowQuoteForm(false)
+      setQuoteFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        projectDescription: '',
+        timeline: '',
+        budget: ''
+      })
+    } catch (error) {
+      toast.error('Failed to submit quote request. Please try again.')
     }
-    sessionStorage.setItem('guestOrder', JSON.stringify(orderData))
-    setShowAuthModal(false)
-    router.push('/checkout?guest=true')
-  }
-
-  const handleLogin = () => {
-    // Store the current selection before redirecting
-    const orderData = {
-      serviceId,
-      serviceName: service.name,
-      plan: selectedPlan,
-      quantity,
-      returnUrl: `/services/${serviceId}`
-    }
-    sessionStorage.setItem('pendingOrder', JSON.stringify(orderData))
-    router.push('/login')
   }
 
   return (
@@ -341,64 +300,166 @@ export default function ServiceDetail() {
             </motion.div>
           </div>
 
-          {/* Pricing Sidebar */}
+          {/* Quote Request Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <h3 className="text-xl font-bold text-gray-900">Pricing Plans</h3>
-              <div className="mt-6 space-y-4">
-                {Object.entries(service.pricing).map(([key, plan]) => (
-                  <motion.div
-                    key={key}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
-                      selectedPlan === key
-                        ? 'border-primary-600 bg-primary-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedPlan(key)}
-                  >
-                    <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">
-                      {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
-                    </p>
-                    <ul className="mt-4 space-y-2">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start">
-                          <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                          <span className="ml-2 text-sm text-gray-600">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                ))}
+              <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-2xl p-6 border border-primary-200">
+                <h3 className="text-xl font-bold text-gray-900">Request a Quote</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Get personalized pricing based on your specific needs
+                </p>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowQuoteForm(!showQuoteForm)}
+                  className="mt-6 flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition-all duration-200"
+                >
+                  {showQuoteForm ? (
+                    <>
+                      <ChevronUp className="mr-2 h-5 w-5" />
+                      Hide Quote Form
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="mr-2 h-5 w-5" />
+                      Get Quote
+                    </>
+                  )}
+                </motion.button>
+
+                <AnimatePresence>
+                  {showQuoteForm && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-6 space-y-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Name *
+                            </label>
+                            <input
+                              type="text"
+                              value={quoteFormData.name}
+                              onChange={(e) => setQuoteFormData({...quoteFormData, name: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                              placeholder="Your name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Email *
+                            </label>
+                            <input
+                              type="email"
+                              value={quoteFormData.email}
+                              onChange={(e) => setQuoteFormData({...quoteFormData, email: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                              placeholder="your@email.com"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Phone
+                            </label>
+                            <input
+                              type="tel"
+                              value={quoteFormData.phone}
+                              onChange={(e) => setQuoteFormData({...quoteFormData, phone: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                              placeholder="+1 (555) 123-4567"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Company
+                            </label>
+                            <input
+                              type="text"
+                              value={quoteFormData.company}
+                              onChange={(e) => setQuoteFormData({...quoteFormData, company: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                              placeholder="Your company"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Project Description *
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={quoteFormData.projectDescription}
+                            onChange={(e) => setQuoteFormData({...quoteFormData, projectDescription: e.target.value})}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                            placeholder="Tell us about your project requirements..."
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Timeline
+                            </label>
+                            <select
+                              value={quoteFormData.timeline}
+                              onChange={(e) => setQuoteFormData({...quoteFormData, timeline: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                            >
+                              <option value="">Select timeline</option>
+                              <option value="immediate">Immediate (ASAP)</option>
+                              <option value="1-week">Within 1 week</option>
+                              <option value="1-month">Within 1 month</option>
+                              <option value="flexible">Flexible</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Budget Range
+                            </label>
+                            <select
+                              value={quoteFormData.budget}
+                              onChange={(e) => setQuoteFormData({...quoteFormData, budget: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                            >
+                              <option value="">Select budget</option>
+                              <option value="under-1k">Under $1,000</option>
+                              <option value="1k-5k">$1,000 - $5,000</option>
+                              <option value="5k-10k">$5,000 - $10,000</option>
+                              <option value="10k-50k">$10,000 - $50,000</option>
+                              <option value="50k-plus">$50,000+</option>
+                              <option value="discuss">Let's discuss</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleQuoteRequest}
+                          className="w-full bg-primary-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all duration-200"
+                        >
+                          Submit Quote Request
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              <div className="mt-8">
-                <label className="block text-sm font-medium text-gray-700">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                />
-              </div>
-
-              <button
-                onClick={handleAddToCart}
-                className="mt-6 flex w-full items-center justify-center rounded-md bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700"
-              >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
-              </button>
-
-              <div className="mt-8 rounded-lg bg-gray-50 p-6">
+              <div className="mt-6 rounded-lg bg-gray-50 p-6">
                 <h4 className="font-semibold text-gray-900">Need Help?</h4>
                 <p className="mt-2 text-sm text-gray-600">
-                  Our experts are here to help you choose the right plan.
+                  Our experts are here to help you with your project.
                 </p>
                 <div className="mt-4 space-y-3">
                   <a href="tel:+15551234567" className="flex items-center text-sm text-primary-600 hover:text-primary-700">
@@ -420,101 +481,6 @@ export default function ServiceDetail() {
         </div>
       </div>
 
-      {/* Authentication Modal */}
-      <AnimatePresence>
-        {showAuthModal && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAuthModal(false)}
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            />
-            
-            {/* Modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 50 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-              <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 relative">
-                <button
-                  onClick={() => setShowAuthModal(false)}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-                
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900">Ready to Order?</h2>
-                  <p className="mt-2 text-gray-600">
-                    Choose how you'd like to continue with your order
-                  </p>
-                </div>
-                
-                <div className="space-y-4">
-                  {/* Login Option */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleLogin}
-                    className="w-full flex items-center justify-center px-6 py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all duration-200"
-                  >
-                    <User className="mr-3 h-5 w-5" />
-                    Sign In to Your Account
-                  </motion.button>
-                  
-                  {/* Guest Option */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleGuestCheckout}
-                    className="w-full flex items-center justify-center px-6 py-4 bg-white text-gray-700 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
-                  >
-                    <UserPlus className="mr-3 h-5 w-5" />
-                    Continue as Guest
-                  </motion.button>
-                </div>
-                
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-500">
-                    Don't have an account?{' '}
-                    <Link
-                      href="/signup"
-                      className="text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      Sign up for free
-                    </Link>
-                  </p>
-                </div>
-                
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="text-sm text-gray-600">
-                    <h4 className="font-semibold mb-2">Benefits of creating an account:</h4>
-                    <ul className="space-y-1 text-left">
-                      <li className="flex items-start">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        Track your orders in real-time
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        Save your preferences for faster checkout
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        Access order history and invoices
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   )
 }

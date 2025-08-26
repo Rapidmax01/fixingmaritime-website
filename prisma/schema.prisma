@@ -40,8 +40,6 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   
-  orders    Order[]
-  
   @@map("app_users")
 }
 
@@ -50,84 +48,14 @@ model Service {
   slug        String   @unique
   name        String
   description String?
-  basePrice   Decimal? @db.Decimal(10, 2)
-  priceUnit   String?
   features    Json?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  orderItems  OrderItem[]
-  
   @@map("services")
 }
 
-enum OrderStatus {
-  pending
-  processing
-  in_transit
-  delivered
-  cancelled
-}
-
-enum PaymentStatus {
-  pending
-  paid
-  failed
-  refunded
-}
-
-model Order {
-  id             String        @id @default(uuid())
-  userId         String
-  orderNumber    String        @unique
-  status         OrderStatus   @default(pending)
-  paymentStatus  PaymentStatus @default(pending)
-  totalAmount    Decimal       @db.Decimal(10, 2)
-  trackingNumber String?
-  notes          String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  
-  user           User          @relation(fields: [userId], references: [id])
-  orderItems     OrderItem[]
-  tracking       OrderTracking[]
-  
-  @@index([userId])
-  @@index([orderNumber])
-  @@map("orders")
-}
-
-model OrderItem {
-  id             String   @id @default(uuid())
-  orderId        String
-  serviceId      String
-  quantity       Int      @default(1)
-  unitPrice      Decimal  @db.Decimal(10, 2)
-  totalPrice     Decimal  @db.Decimal(10, 2)
-  specifications Json?
-  createdAt      DateTime @default(now())
-  
-  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  service  Service @relation(fields: [serviceId], references: [id])
-  
-  @@index([orderId])
-  @@map("order_items")
-}
-
-model OrderTracking {
-  id          String   @id @default(uuid())
-  orderId     String
-  status      String
-  location    String?
-  description String?
-  createdAt   DateTime @default(now())
-  
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  @@index([orderId])
-  @@map("order_tracking")
-}
 
 model ContentSection {
   id        String   @id @default(uuid())

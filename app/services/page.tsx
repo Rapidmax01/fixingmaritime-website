@@ -21,11 +21,10 @@ const services = [
       'Packing lists',
       'Insurance documentation',
     ],
-    pricing: 'Starting from $150 per shipment',
     color: 'from-blue-500 to-cyan-500',
   },
   {
-    id: 'truck',
+    id: 'truck-services',
     name: 'Truck Services',
     description: 'Reliable ground transportation for cargo delivery',
     longDescription: 'Our fleet of modern trucks provides seamless land transportation for your cargo. With GPS tracking and experienced drivers, we ensure timely and safe delivery.',
@@ -38,11 +37,10 @@ const services = [
       'Hazmat certified drivers',
       'Door-to-door delivery',
     ],
-    pricing: 'Starting from $0.50 per mile',
     color: 'from-green-500 to-emerald-500',
   },
   {
-    id: 'tugboat',
+    id: 'tugboat-barge',
     name: 'Tug Boat & Barge',
     description: 'Professional marine transportation services',
     longDescription: 'Our tug boat and barge services provide efficient marine transportation for oversized cargo, bulk materials, and special projects along coastal and inland waterways.',
@@ -55,7 +53,6 @@ const services = [
       'Emergency response',
       'Salvage operations',
     ],
-    pricing: 'Custom quotes based on project',
     color: 'from-purple-500 to-pink-500',
   },
   {
@@ -72,11 +69,10 @@ const services = [
       'Factory audits',
       'Product sourcing',
     ],
-    pricing: 'Commission-based pricing',
     color: 'from-orange-500 to-red-500',
   },
   {
-    id: 'freight',
+    id: 'freight-forwarding',
     name: 'Freight Forwarding',
     description: 'Global shipping solutions',
     longDescription: 'Our freight forwarding services optimize your supply chain with multimodal transportation options, ensuring cost-effective and timely delivery worldwide.',
@@ -89,7 +85,6 @@ const services = [
       'Cargo insurance',
       'Door-to-door delivery',
     ],
-    pricing: 'Competitive market rates',
     color: 'from-indigo-500 to-blue-500',
   },
   {
@@ -106,11 +101,10 @@ const services = [
       'Distribution services',
       '24/7 security monitoring',
     ],
-    pricing: 'Starting from $5 per pallet/month',
     color: 'from-teal-500 to-green-500',
   },
   {
-    id: 'customs',
+    id: 'custom-clearing',
     name: 'Custom Clearing',
     description: 'Expert customs clearance services',
     longDescription: 'Navigate complex customs regulations with our experienced team. We ensure smooth clearance and compliance with all import/export requirements.',
@@ -123,7 +117,6 @@ const services = [
       'Documentation review',
       'Customs audit support',
     ],
-    pricing: 'Starting from $200 per clearance',
     color: 'from-rose-500 to-pink-500',
   },
 ]
@@ -186,46 +179,45 @@ export default function Services() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative"
               >
-                <div className="relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
-                  
-                  <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${service.color} shadow-lg`}>
-                    <Icon className="h-7 w-7 text-white" />
-                  </div>
-                  
-                  <h3 className="mt-6 text-xl font-semibold text-gray-900">
-                    {service.name}
-                  </h3>
-                  
-                  <p className="mt-3 text-gray-600">
-                    {service.longDescription}
-                  </p>
+                <Link href={`/services/${service.id}`} className="block">
+                  <div className="relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                    
+                    <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${service.color} shadow-lg`}>
+                      <Icon className="h-7 w-7 text-white" />
+                    </div>
+                    
+                    <h3 className="mt-6 text-xl font-semibold text-gray-900">
+                      {service.name}
+                    </h3>
+                    
+                    <p className="mt-3 text-gray-600">
+                      {service.longDescription}
+                    </p>
 
-                  <div className="mt-6">
-                    <h4 className="text-sm font-semibold text-gray-900">Key Features:</h4>
-                    <ul className="mt-3 space-y-2">
-                      {service.features.slice(0, 3).map((feature, idx) => (
-                        <li key={idx} className="flex items-start">
-                          <span className="mr-2 text-primary-600">•</span>
-                          <span className="text-sm text-gray-600">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                    <div className="mt-6">
+                      <h4 className="text-sm font-semibold text-gray-900">Key Features:</h4>
+                      <ul className="mt-3 space-y-2">
+                        {service.features.slice(0, 3).map((feature, idx) => (
+                          <li key={idx} className="flex items-start">
+                            <span className="mr-2 text-primary-600">•</span>
+                            <span className="text-sm text-gray-600">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                  <div className="mt-6 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-primary-600">
-                      {service.pricing}
-                    </span>
-                    <Link
-                      href={`/services/${service.id}`}
-                      className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700"
-                    >
-                      Learn more
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </Link>
+                    <div className="mt-6 flex items-center justify-between">
+                      <span className="text-sm font-semibold text-primary-600">
+                        Request for Quote
+                      </span>
+                      <div className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700">
+                        Get Quote
+                        <ArrowRight className="ml-1 h-4 w-4" />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             )
           })}

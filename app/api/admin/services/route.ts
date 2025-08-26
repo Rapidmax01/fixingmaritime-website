@@ -12,33 +12,20 @@ export async function GET() {
     }
 
     const services = await prisma.service.findMany({
-      include: {
-        orderItems: {
-          include: {
-            order: true
-          }
-        }
-      },
       orderBy: {
         createdAt: 'desc'
       }
     })
 
     const servicesWithStats = services.map(service => {
-      const orders = service.orderItems.length
-      const revenue = service.orderItems.reduce((sum, item) => sum + Number(item.totalPrice), 0)
-      
       return {
         id: service.id,
         slug: service.slug,
         name: service.name,
         description: service.description,
-        basePrice: Number(service.basePrice || 0),
-        priceUnit: service.priceUnit,
         features: service.features || [],
         active: service.active,
-        orders,
-        revenue,
+        requests: 0, // Placeholder for quote requests count
         rating: 4.5, // Default rating - implement rating system later
         lastUpdated: service.updatedAt.toISOString().split('T')[0],
         createdAt: service.createdAt,
@@ -60,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, slug, description, basePrice, priceUnit, features, active = true } = body
+    const { name, slug, description, features, active = true } = body
 
     if (!name || !slug) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 })
@@ -71,8 +58,6 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         description,
-        basePrice: basePrice ? parseFloat(basePrice) : null,
-        priceUnit,
         features: features || [],
         active
       }

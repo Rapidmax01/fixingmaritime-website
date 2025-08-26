@@ -17,6 +17,7 @@ import {
   Navigation,
   Users,
   DollarSign,
+  MessageCircle,
   TrendingUp,
   ToggleLeft,
   ToggleRight,
@@ -32,12 +33,9 @@ interface ServiceData {
   slug: string
   name: string
   description: string
-  basePrice: number
-  priceUnit: string
   features: string[]
   active: boolean
-  orders: number
-  revenue: number
+  requests: number
   rating: number
   lastUpdated: string
 }
@@ -64,12 +62,6 @@ const mockServices = [
     description: 'Complete maritime documentation and paperwork services',
     category: 'Documentation',
     icon: FileText,
-    price: {
-      min: 200,
-      max: 500,
-      currency: 'USD',
-      type: 'per_shipment'
-    },
     features: [
       'Bill of Lading preparation',
       'Certificate of Origin',
@@ -78,8 +70,7 @@ const mockServices = [
       'Insurance certificates'
     ],
     active: true,
-    orders: 156,
-    revenue: 45600,
+    requests: 156,
     rating: 4.8,
     lastUpdated: '2024-08-15'
   },
@@ -89,12 +80,6 @@ const mockServices = [
     description: 'Reliable ground transportation for your cargo',
     category: 'Transportation',
     icon: Truck,
-    price: {
-      min: 150,
-      max: 800,
-      currency: 'USD',
-      type: 'per_mile'
-    },
     features: [
       'Local and long-distance transport',
       'Real-time GPS tracking',
@@ -103,8 +88,7 @@ const mockServices = [
       '24/7 customer support'
     ],
     active: true,
-    orders: 203,
-    revenue: 78900,
+    requests: 203,
     rating: 4.6,
     lastUpdated: '2024-08-18'
   },
@@ -114,12 +98,6 @@ const mockServices = [
     description: 'Heavy cargo transportation via water routes',
     category: 'Marine Transport',
     icon: Ship,
-    price: {
-      min: 2000,
-      max: 8000,
-      currency: 'USD',
-      type: 'per_trip'
-    },
     features: [
       'Heavy machinery transport',
       'Bulk cargo handling',
@@ -128,8 +106,7 @@ const mockServices = [
       'Port-to-port service'
     ],
     active: true,
-    orders: 47,
-    revenue: 234500,
+    requests: 47,
     rating: 4.9,
     lastUpdated: '2024-08-20'
   },
@@ -139,12 +116,6 @@ const mockServices = [
     description: 'Source and procure goods for international export',
     category: 'Procurement',
     icon: Package,
-    price: {
-      min: 500,
-      max: 5000,
-      currency: 'USD',
-      type: 'per_order'
-    },
     features: [
       'Global supplier network',
       'Quality assurance',
@@ -153,8 +124,7 @@ const mockServices = [
       'Logistics coordination'
     ],
     active: true,
-    orders: 89,
-    revenue: 167800,
+    requests: 89,
     rating: 4.7,
     lastUpdated: '2024-08-12'
   },
@@ -164,12 +134,6 @@ const mockServices = [
     description: 'Comprehensive freight forwarding solutions',
     category: 'Logistics',
     icon: Navigation,
-    price: {
-      min: 300,
-      max: 2000,
-      currency: 'USD',
-      type: 'per_shipment'
-    },
     features: [
       'Air and sea freight',
       'Customs clearance',
@@ -178,8 +142,7 @@ const mockServices = [
       'End-to-end tracking'
     ],
     active: true,
-    orders: 312,
-    revenue: 298700,
+    requests: 312,
     rating: 4.8,
     lastUpdated: '2024-08-19'
   },
@@ -189,12 +152,6 @@ const mockServices = [
     description: 'Secure storage and inventory management',
     category: 'Storage',
     icon: Warehouse,
-    price: {
-      min: 50,
-      max: 200,
-      currency: 'USD',
-      type: 'per_month'
-    },
     features: [
       'Climate-controlled storage',
       'Inventory management',
@@ -203,8 +160,7 @@ const mockServices = [
       'Flexible terms'
     ],
     active: true,
-    orders: 178,
-    revenue: 67400,
+    requests: 178,
     rating: 4.5,
     lastUpdated: '2024-08-16'
   },
@@ -214,12 +170,6 @@ const mockServices = [
     description: 'Expert customs clearance and compliance',
     category: 'Compliance',
     icon: FileText,
-    price: {
-      min: 100,
-      max: 400,
-      currency: 'USD',
-      type: 'per_clearance'
-    },
     features: [
       'Import/export clearance',
       'Duty calculation',
@@ -228,8 +178,7 @@ const mockServices = [
       'Regulatory updates'
     ],
     active: false,
-    orders: 124,
-    revenue: 34200,
+    requests: 124,
     rating: 4.4,
     lastUpdated: '2024-07-28'
   }
@@ -243,12 +192,9 @@ export default function AdminServices() {
       slug: 'documentation',
       name: 'Documentation Services',
       description: 'Complete maritime documentation and paperwork services',
-      basePrice: 350,
-      priceUnit: 'per_shipment',
       features: ['Bills of Lading', 'Customs Papers', 'Digital Processing'],
       active: true,
-      orders: 156,
-      revenue: 45600,
+      requests: 156,
       rating: 4.8,
       lastUpdated: '2025-08-22'
     }
@@ -264,8 +210,6 @@ export default function AdminServices() {
     name: '',
     slug: '',
     description: '',
-    basePrice: '',
-    priceUnit: 'per_shipment',
     features: [''],
     active: true
   })
@@ -318,12 +262,9 @@ export default function AdminServices() {
           slug: 'documentation',
           name: 'Documentation Services',
           description: 'Complete maritime documentation and paperwork services',
-          basePrice: 350,
-          priceUnit: 'per_shipment',
           features: ['Bills of Lading', 'Customs Papers', 'Digital Processing'],
           active: true,
-          orders: 156,
-          revenue: 45600,
+          requests: 156,
           rating: 4.8,
           lastUpdated: '2025-08-22'
         },
@@ -332,12 +273,9 @@ export default function AdminServices() {
           slug: 'truck-services',
           name: 'Truck Services',
           description: 'Reliable ground transportation for cargo delivery',
-          basePrice: 2.5,
-          priceUnit: 'per_mile',
           features: ['GPS Tracking', 'Door-to-Door', 'Temperature Control'],
           active: true,
-          orders: 203,
-          revenue: 78900,
+          requests: 203,
           rating: 4.6,
           lastUpdated: '2025-08-22'
         }
@@ -347,8 +285,7 @@ export default function AdminServices() {
     }
   }
 
-  const totalOrders = services.reduce((sum, service) => sum + service.orders, 0)
-  const totalRevenue = services.reduce((sum, service) => sum + service.revenue, 0)
+  const totalRequests = services.reduce((sum, service) => sum + service.requests, 0)
   const activeServices = services.filter(service => service.active).length
   const avgRating = services.length > 0 ? services.reduce((sum, service) => sum + service.rating, 0) / services.length : 0
 
@@ -399,8 +336,6 @@ export default function AdminServices() {
       name: '',
       slug: '',
       description: '',
-      basePrice: '',
-      priceUnit: 'per_shipment',
       features: [''],
       active: true
     })
@@ -417,8 +352,6 @@ export default function AdminServices() {
       name: service.name,
       slug: service.slug,
       description: service.description,
-      basePrice: service.basePrice.toString(),
-      priceUnit: service.priceUnit || 'per_shipment',
       features: service.features,
       active: service.active
     })
@@ -442,7 +375,6 @@ export default function AdminServices() {
     try {
       const payload = {
         ...formData,
-        basePrice: parseFloat(formData.basePrice) || 0,
         features: formData.features.filter(f => f.trim() !== '')
       }
 
@@ -577,8 +509,8 @@ export default function AdminServices() {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                <p className="text-2xl font-semibold text-gray-900">{totalOrders.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-600">Total Requests</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalRequests.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -587,12 +519,12 @@ export default function AdminServices() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <DollarSign className="h-4 w-4 text-purple-600" />
+                  <MessageCircle className="h-4 w-4 text-purple-600" />
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-semibold text-gray-900">${totalRevenue.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-600">Quote-Based Pricing</p>
+                <p className="text-2xl font-semibold text-gray-900">All Services</p>
               </div>
             </div>
           </div>
@@ -643,7 +575,7 @@ export default function AdminServices() {
                       </div>
                       <div className="ml-4">
                         <h3 className="text-lg font-medium text-gray-900">{service.name}</h3>
-                        <p className="text-sm text-gray-500">{service.priceUnit?.replace('_', ' ')}</p>
+                        <p className="text-sm text-gray-500">Request for Quote</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -718,19 +650,19 @@ export default function AdminServices() {
                     <div>
                       <p className="text-sm font-medium text-gray-600">Base Price</p>
                       <p className="text-lg font-semibold text-gray-900">
-                        ${service.basePrice.toLocaleString()}
+                        Request for Quote
                       </p>
-                      <p className="text-xs text-gray-500">{service.priceUnit?.replace('_', ' ')}</p>
+                      <p className="text-xs text-gray-500">Request for Quote</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Orders</p>
-                      <p className="text-lg font-semibold text-gray-900">{service.orders}</p>
+                      <p className="text-sm font-medium text-gray-600">Requests</p>
+                      <p className="text-lg font-semibold text-gray-900">{service.requests}</p>
                       <p className="text-xs text-gray-500">total</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Revenue</p>
+                      <p className="text-sm font-medium text-gray-600">Pricing</p>
                       <p className="text-lg font-semibold text-gray-900">
-                        ${service.revenue.toLocaleString()}
+                        Quote-based
                       </p>
                       <p className="text-xs text-gray-500">total</p>
                     </div>
@@ -837,32 +769,15 @@ export default function AdminServices() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Base Price</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={formData.basePrice}
-                          onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Price Unit</label>
-                        <select
-                          value={formData.priceUnit}
-                          onChange={(e) => setFormData({ ...formData, priceUnit: e.target.value })}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
-                        >
-                          <option value="per_shipment">Per Shipment</option>
-                          <option value="per_mile">Per Mile</option>
-                          <option value="per_trip">Per Trip</option>
-                          <option value="per_order">Per Order</option>
-                          <option value="per_month">Per Month</option>
-                          <option value="per_clearance">Per Clearance</option>
-                        </select>
+                    <div className="mb-6">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <MessageCircle className="h-5 w-5 text-blue-600 mr-2" />
+                          <h4 className="text-sm font-medium text-blue-800">Pricing Policy</h4>
+                        </div>
+                        <p className="text-sm text-blue-700 mt-2">
+                          All services are quote-based. Customers can request a quote for personalized pricing based on their specific needs.
+                        </p>
                       </div>
                     </div>
 
@@ -994,32 +909,15 @@ export default function AdminServices() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Base Price</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={formData.basePrice}
-                          onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Price Unit</label>
-                        <select
-                          value={formData.priceUnit}
-                          onChange={(e) => setFormData({ ...formData, priceUnit: e.target.value })}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
-                        >
-                          <option value="per_shipment">Per Shipment</option>
-                          <option value="per_mile">Per Mile</option>
-                          <option value="per_trip">Per Trip</option>
-                          <option value="per_order">Per Order</option>
-                          <option value="per_month">Per Month</option>
-                          <option value="per_clearance">Per Clearance</option>
-                        </select>
+                    <div className="mb-6">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <MessageCircle className="h-5 w-5 text-blue-600 mr-2" />
+                          <h4 className="text-sm font-medium text-blue-800">Pricing Policy</h4>
+                        </div>
+                        <p className="text-sm text-blue-700 mt-2">
+                          All services are quote-based. Customers can request a quote for personalized pricing based on their specific needs.
+                        </p>
                       </div>
                     </div>
 
@@ -1186,16 +1084,16 @@ export default function AdminServices() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Base Price</h3>
-                        <p className="mt-1 text-xl font-bold text-gray-900">${currentService.basePrice.toLocaleString()}</p>
-                        <p className="text-sm text-gray-500">{currentService.priceUnit?.replace('_', ' ')}</p>
+                        <p className="mt-1 text-xl font-bold text-gray-900">Request for Quote</p>
+                        <p className="text-sm text-gray-500">Request for Quote</p>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-                        <p className="mt-1 text-xl font-bold text-gray-900">{currentService.orders}</p>
+                        <h3 className="text-sm font-medium text-gray-500">Total Requests</h3>
+                        <p className="mt-1 text-xl font-bold text-gray-900">{currentService.requests}</p>
                       </div>
                       <div>
-                        <h3 className="text-sm font-medium text-gray-500">Revenue</h3>
-                        <p className="mt-1 text-xl font-bold text-gray-900">${currentService.revenue.toLocaleString()}</p>
+                        <h3 className="text-sm font-medium text-gray-500">Pricing</h3>
+                        <p className="mt-1 text-xl font-bold text-gray-900">Quote-based</p>
                       </div>
                     </div>
 

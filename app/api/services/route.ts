@@ -12,8 +12,6 @@ const fallbackServices = [
     slug: 'documentation',
     name: 'Documentation',
     description: 'Complete documentation services for all your maritime needs. From bills of lading to customs paperwork.',
-    basePrice: 350,
-    priceUnit: 'per_shipment',
     features: ['Bills of Lading', 'Customs Papers', 'Digital Processing'],
     active: true,
     href: '/services/documentation'
@@ -23,8 +21,6 @@ const fallbackServices = [
     slug: 'truck-services',
     name: 'Truck Services',
     description: 'Reliable ground transportation for cargo delivery to and from ports with real-time tracking.',
-    basePrice: 2.50,
-    priceUnit: 'per_mile',
     features: ['GPS Tracking', 'Door-to-Door', 'Temperature Control'],
     active: true,
     href: '/services/truck'
@@ -34,8 +30,6 @@ const fallbackServices = [
     slug: 'tugboat-barge',
     name: 'Tug Boat & Barge',
     description: 'Professional tug boat and barge services for safe and efficient marine transportation.',
-    basePrice: 5000,
-    priceUnit: 'per_trip',
     features: ['Harbor Towing', 'Ocean Transport', 'Heavy Cargo'],
     active: true,
     href: '/services/tugboat'
@@ -45,8 +39,6 @@ const fallbackServices = [
     slug: 'procurement',
     name: 'Procurement',
     description: 'Expert procurement of export goods with quality assurance and competitive pricing.',
-    basePrice: 2500,
-    priceUnit: 'per_order',
     features: ['Quality Control', 'Supplier Vetting', 'Price Negotiation'],
     active: true,
     href: '/services/procurement'
@@ -56,8 +48,6 @@ const fallbackServices = [
     slug: 'freight-forwarding',
     name: 'Freight Forwarding',
     description: 'Global freight forwarding solutions with optimized routes and cost-effective shipping.',
-    basePrice: 650,
-    priceUnit: 'per_shipment',
     features: ['Global Network', 'Route Optimization', 'Multimodal Transport'],
     active: true,
     href: '/services/freight'
@@ -67,8 +57,6 @@ const fallbackServices = [
     slug: 'warehousing',
     name: 'Warehousing',
     description: 'Secure, climate-controlled warehousing facilities with inventory management systems.',
-    basePrice: 125,
-    priceUnit: 'per_month',
     features: ['Climate Control', 'Inventory Management', 'Pick & Pack'],
     active: true,
     href: '/services/warehousing'
@@ -78,8 +66,6 @@ const fallbackServices = [
     slug: 'custom-clearing',
     name: 'Custom Clearing',
     description: 'Expert customs clearance services ensuring smooth import/export operations.',
-    basePrice: 250,
-    priceUnit: 'per_clearance',
     features: ['Import/Export', 'Compliance', 'Duty Optimization'],
     active: true,
     href: '/services/customs'
@@ -103,8 +89,6 @@ export async function GET() {
       slug: service.slug,
       name: service.name,
       description: service.description,
-      basePrice: Number(service.basePrice || 0),
-      priceUnit: service.priceUnit,
       features: Array.isArray(service.features) ? service.features.slice(0, 3) : [],
       active: service.active,
       href: `/services/${service.slug}`

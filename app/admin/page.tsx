@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { toast } from 'react-hot-toast'
 import { 
   Users, 
+  User,
   Package, 
   TrendingUp, 
   DollarSign, 
@@ -247,30 +248,60 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <AdminHeader admin={admin} onLogout={handleLogout} />
       <div className="flex-grow mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Database Status */}
-        <div className="mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
           <DatabaseStatus />
-        </div>
+        </motion.div>
+        
         {/* Welcome Section */}
-        <div className="mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="mt-1 text-gray-600">
-                Welcome back, {admin.name || admin.email}
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+              <p className="mt-2 text-slate-600 text-lg">
+                Welcome back, <span className="font-semibold text-blue-600">{admin.name || admin.email}</span>
+              </p>
+              <p className="text-sm text-slate-500 mt-1">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                System Online
-              </span>
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
+              >
+                <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
+                <span className="text-sm font-medium">System Online</span>
+              </motion.div>
+              <div className="hidden md:flex items-center px-4 py-2 rounded-full bg-white/70 backdrop-blur-sm border border-white/20 shadow-lg">
+                <User className="w-4 h-4 text-blue-600 mr-2" />
+                <span className="text-sm font-medium text-slate-700 capitalize">
+                  {admin.role.replace('_', ' ')}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -281,27 +312,45 @@ export default function AdminDashboard() {
                 key={stat.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-lg shadow-sm p-6"
+                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="group relative bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl p-6 border border-white/20 transition-all duration-300 overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                    <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
+                {/* Background Pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                {/* Content */}
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-medium text-slate-600">{stat.name}</p>
+                      <p className="text-3xl font-bold text-slate-900 mt-1">{stat.value}</p>
+                    </div>
+                    <motion.div 
+                      whileHover={{ rotate: 10, scale: 1.1 }}
+                      className={`relative p-3 rounded-2xl ${stat.color.replace('bg-', 'bg-').replace('-500', '-100')} shadow-lg group-hover:shadow-xl transition-shadow`}
+                    >
+                      <Icon className={`h-6 w-6 ${stat.color.replace('bg-', 'text-')}`} />
+                      <div className={`absolute inset-0 rounded-2xl ${stat.color.replace('bg-', 'bg-').replace('-500', '-200')} opacity-0 group-hover:opacity-20 transition-opacity`}></div>
+                    </motion.div>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.color.replace('bg-', 'bg-').replace('-500', '-100')}`}>
-                    <Icon className={`h-6 w-6 ${stat.color.replace('bg-', 'text-')}`} />
+                  
+                  <div className="flex items-center">
+                    <div className={`flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                      stat.changeType === 'positive' ? 'bg-green-100 text-green-700' : 
+                      stat.changeType === 'negative' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'
+                    }`}>
+                      <TrendingUp className={`w-3 h-3 mr-1 ${
+                        stat.changeType === 'negative' ? 'rotate-180' : ''
+                      }`} />
+                      {stat.change}
+                    </div>
+                    <span className="text-xs text-slate-500 ml-2">vs last month</span>
                   </div>
                 </div>
-                <div className="mt-4 flex items-center">
-                  <span className={`text-sm font-medium ${
-                    stat.changeType === 'positive' ? 'text-green-600' : 
-                    stat.changeType === 'negative' ? 'text-red-600' : 'text-gray-600'
-                  }`}>
-                    {stat.change}
-                  </span>
-                  <span className="text-sm text-gray-500 ml-2">from last month</span>
-                </div>
+
+                {/* Hover Effect */}
+                <div className={`absolute bottom-0 left-0 right-0 h-1 ${stat.color.replace('bg-', 'bg-')} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`}></div>
               </motion.div>
             )
           })}
@@ -310,8 +359,17 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Quick Actions */}
           <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mb-6"
+            >
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Quick Actions</h2>
+              <p className="text-slate-600">Access commonly used admin functions</p>
+            </motion.div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {quickActions.map((action, index) => {
                 const Icon = action.icon
                 return (
@@ -319,21 +377,34 @@ export default function AdminDashboard() {
                     key={action.name}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
+                    whileHover={{ y: -3, scale: 1.02 }}
                   >
                     <Link
                       href={action.href}
-                      className="block p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                      className="group relative block p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl border border-white/20 transition-all duration-300 overflow-hidden"
                     >
-                      <div className="flex items-center">
-                        <div className={`p-3 rounded-full ${action.color.replace('bg-', 'bg-').replace('-500', '-100')} mr-4`}>
-                          <Icon className={`h-6 w-6 ${action.color.replace('bg-', 'text-')}`} />
+                      {/* Background Gradient */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${action.color.replace('bg-', 'from-').replace('-500', '-50')} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      
+                      <div className="relative flex items-center">
+                        <motion.div 
+                          whileHover={{ rotate: 10, scale: 1.1 }}
+                          className={`p-4 rounded-2xl ${action.color.replace('bg-', 'bg-').replace('-500', '-100')} shadow-lg group-hover:shadow-xl transition-shadow mr-4`}
+                        >
+                          <Icon className={`h-7 w-7 ${action.color.replace('bg-', 'text-')}`} />
+                        </motion.div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-slate-900 group-hover:text-slate-800">{action.name}</h3>
+                          <p className="text-sm text-slate-600 mt-1">{action.description}</p>
                         </div>
-                        <div>
-                          <h3 className="text-lg font-medium text-gray-900">{action.name}</h3>
-                          <p className="text-sm text-gray-600">{action.description}</p>
+                        <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
                         </div>
                       </div>
+
+                      {/* Hover Effect */}
+                      <div className={`absolute bottom-0 left-0 right-0 h-1 ${action.color.replace('bg-', 'bg-')} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`}></div>
                     </Link>
                   </motion.div>
                 )
@@ -343,37 +414,90 @@ export default function AdminDashboard() {
 
           {/* Recent Activity */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="divide-y divide-gray-200">
-                {recentActivity.map((activity, index) => {
-                  const ActivityIcon = getActivityIcon(activity.type)
-                  const StatusIcon = getStatusIcon(activity.status)
-                  return (
-                    <motion.div
-                      key={activity.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="p-4"
-                    >
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0">
-                          <ActivityIcon className="h-5 w-5 text-gray-400" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="mb-6"
+            >
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Live Activity</h2>
+              <p className="text-slate-600">Real-time system updates</p>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+              className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-slate-900">Recent Events</h3>
+                  <div className="flex items-center text-xs text-slate-500">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+                    Live
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  {recentActivity.map((activity, index) => {
+                    const ActivityIcon = getActivityIcon(activity.type)
+                    const StatusIcon = getStatusIcon(activity.status)
+                    return (
+                      <motion.div
+                        key={activity.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
+                        className="group relative flex items-start p-4 rounded-xl hover:bg-slate-50/50 transition-colors"
+                      >
+                        <div className="flex-shrink-0 relative">
+                          <div className={`p-2 rounded-full ${
+                            activity.status === 'completed' ? 'bg-green-100' :
+                            activity.status === 'pending' ? 'bg-yellow-100' :
+                            'bg-blue-100'
+                          }`}>
+                            <ActivityIcon className={`h-4 w-4 ${
+                              activity.status === 'completed' ? 'text-green-600' :
+                              activity.status === 'pending' ? 'text-yellow-600' :
+                              'text-blue-600'
+                            }`} />
+                          </div>
+                          {index !== recentActivity.length - 1 && (
+                            <div className="absolute top-8 left-1/2 w-px h-6 bg-slate-200 transform -translate-x-1/2"></div>
+                          )}
                         </div>
-                        <div className="ml-3 flex-1">
-                          <p className="text-sm text-gray-900">{activity.message}</p>
-                          <div className="mt-1 flex items-center">
-                            <StatusIcon className={`h-4 w-4 mr-1 ${getStatusColor(activity.status)}`} />
-                            <span className="text-xs text-gray-500">{activity.time}</span>
+                        
+                        <div className="ml-4 flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-900 leading-relaxed">
+                            {activity.message}
+                          </p>
+                          <div className="mt-2 flex items-center">
+                            <StatusIcon className={`h-3 w-3 mr-1 ${getStatusColor(activity.status)}`} />
+                            <span className="text-xs text-slate-500">{activity.time}</span>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  )
-                })}
+                        
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+                
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.5 }}
+                  className="mt-6 pt-4 border-t border-slate-100"
+                >
+                  <button className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors py-2 rounded-lg hover:bg-blue-50">
+                    View all activity →
+                  </button>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
