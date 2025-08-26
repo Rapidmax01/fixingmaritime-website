@@ -8,7 +8,7 @@ export default function PartnerWithUsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative bg-primary-900 py-24 sm:py-32 overflow-hidden">
+      <div className="relative bg-primary-900 py-16 overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
           <div 
