@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    const userEmail = session.user.email
+    const userEmail = session.user.email!
     const userId = (session.user as any)?.id
 
     try {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         prisma.order?.count({
           where: {
             OR: [
-              { userId: userId },
+              ...(userId ? [{ userId: userId }] : []),
               { customerEmail: userEmail }
             ],
             status: {
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         prisma.order?.count({
           where: {
             OR: [
-              { userId: userId },
+              ...(userId ? [{ userId: userId }] : []),
               { customerEmail: userEmail }
             ],
             status: 'delivered'
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         prisma.order?.aggregate({
           where: {
             OR: [
-              { userId: userId },
+              ...(userId ? [{ userId: userId }] : []),
               { customerEmail: userEmail }
             ],
             paymentStatus: 'paid'
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         prisma.order?.count({
           where: {
             OR: [
-              { userId: userId },
+              ...(userId ? [{ userId: userId }] : []),
               { customerEmail: userEmail }
             ],
             status: 'in_transit'
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         prisma.order?.findMany({
           where: {
             OR: [
-              { userId: userId },
+              ...(userId ? [{ userId: userId }] : []),
               { customerEmail: userEmail }
             ]
           },
