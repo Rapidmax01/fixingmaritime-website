@@ -423,3 +423,292 @@ This is an automated notification from your quote request system.
     return false
   }
 }
+
+export function generateTruckRegistrationEmail(data: {
+  ownerName: string
+  email: string
+  companyName: string
+  truckMake: string
+  truckModel: string
+  truckYear: number
+  plateNumber: string
+  registrationId: string
+}): { subject: string; html: string; text: string } {
+  const { ownerName, email, companyName, truckMake, truckModel, truckYear, plateNumber, registrationId } = data
+  
+  const emailSubject = `New Truck Registration: ${truckMake} ${truckModel} - Fixing Maritime`
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
+        .registration-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #059669; }
+        .button { display: inline-block; background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+        .footer { text-align: center; color: #6b7280; font-size: 14px; margin-top: 30px; }
+        .urgent { color: #dc2626; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🚛 New Truck Registration</h1>
+          <p class="urgent">A new truck has been registered for partnership</p>
+        </div>
+        
+        <div class="content">
+          <div class="registration-details">
+            <h3>Owner Information</h3>
+            <p><strong>Name:</strong> ${ownerName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>Company:</strong> ${companyName}</p>
+            <p><strong>Registration ID:</strong> ${registrationId}</p>
+          </div>
+          
+          <div class="registration-details">
+            <h3>Vehicle Information</h3>
+            <p><strong>Make:</strong> ${truckMake}</p>
+            <p><strong>Model:</strong> ${truckModel}</p>
+            <p><strong>Year:</strong> ${truckYear}</p>
+            <p><strong>Plate Number:</strong> ${plateNumber}</p>
+          </div>
+          
+          <p><strong>⏰ Action Required:</strong> Please review this registration application within 48 hours. Complete verification includes:</p>
+          
+          <ul>
+            <li>Document verification (ID, vehicle papers, insurance)</li>
+            <li>Background check</li>
+            <li>Vehicle inspection</li>
+            <li>Partnership agreement signing</li>
+          </ul>
+          
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://www.fixingmaritime.com'}/admin/truck-registrations" class="button">
+            Review Registration
+          </a>
+          
+          <p><strong>Next Steps:</strong></p>
+          <p>• Visit the admin portal to review all registration details</p>
+          <p>• Contact the owner for any clarifications</p>
+          <p>• Schedule vehicle inspection if documents are approved</p>
+        </div>
+        
+        <div class="footer">
+          <p>© 2024 Fixing Maritime Admin System</p>
+          <p>This is an automated notification from your truck registration system</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+🚛 NEW TRUCK REGISTRATION - Fixing Maritime
+
+Owner Information:
+- Name: ${ownerName}
+- Email: ${email}
+- Company: ${companyName}
+- Registration ID: ${registrationId}
+
+Vehicle Information:
+- Make: ${truckMake}
+- Model: ${truckModel}
+- Year: ${truckYear}
+- Plate Number: ${plateNumber}
+
+⏰ Action Required: Please review within 48 hours.
+
+Review checklist:
+• Document verification (ID, vehicle papers, insurance)
+• Background check
+• Vehicle inspection
+• Partnership agreement signing
+
+Visit the admin portal to review: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.fixingmaritime.com'}/admin/truck-registrations
+
+This is an automated notification from your truck registration system.
+  `.trim()
+
+  return { subject: emailSubject, html, text }
+}
+
+export function generateTruckRegistrationConfirmationEmail(data: {
+  ownerName: string
+  companyName: string
+  truckMake: string
+  truckModel: string
+  truckYear: number
+  plateNumber: string
+  registrationId: string
+}): { subject: string; html: string; text: string } {
+  const { ownerName, companyName, truckMake, truckModel, truckYear, plateNumber, registrationId } = data
+  
+  const subject = `Registration Received - ${truckMake} ${truckModel} - Fixing Maritime`
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
+        .registration-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6; }
+        .next-steps { background: #e0f2fe; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .footer { text-align: center; color: #6b7280; font-size: 14px; margin-top: 30px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Registration Received!</h1>
+          <p>Thank you for joining our truck network</p>
+        </div>
+        
+        <div class="content">
+          <p>Dear ${ownerName},</p>
+          
+          <p>We have successfully received your truck registration application. Thank you for your interest in partnering with Fixing Maritime!</p>
+          
+          <div class="registration-details">
+            <h3>Your Registration Details</h3>
+            <p><strong>Registration ID:</strong> ${registrationId}</p>
+            <p><strong>Company:</strong> ${companyName}</p>
+            <p><strong>Vehicle:</strong> ${truckMake} ${truckModel} (${truckYear})</p>
+            <p><strong>Plate Number:</strong> ${plateNumber}</p>
+            <p><strong>Status:</strong> Under Review</p>
+          </div>
+          
+          <div class="next-steps">
+            <h3>What Happens Next?</h3>
+            <ol>
+              <li><strong>Document Verification (1-2 business days)</strong>
+                <br>Our team will review all submitted documents</li>
+              <li><strong>Background Check</strong>
+                <br>Standard verification process for all partners</li>
+              <li><strong>Vehicle Inspection</strong>
+                <br>Physical inspection may be required</li>
+              <li><strong>Partnership Agreement</strong>
+                <br>Final contract signing and onboarding</li>
+            </ol>
+          </div>
+          
+          <p><strong>Timeline:</strong> The complete review process typically takes 2-3 business days.</p>
+          
+          <p><strong>Important Notes:</strong></p>
+          <ul>
+            <li>Please ensure all documents are current and valid</li>
+            <li>Keep your phone available for any verification calls</li>
+            <li>We may request additional documents if needed</li>
+          </ul>
+          
+          <p>We'll keep you updated on your application status via email. If you have any questions or need to update any information, please don't hesitate to contact us.</p>
+          
+          <p>Welcome to the Fixing Maritime family!</p>
+          
+          <p>Best regards,<br>
+          The Fixing Maritime Partnership Team</p>
+        </div>
+        
+        <div class="footer">
+          <p>© 2024 Fixing Maritime. All rights reserved.</p>
+          <p>Email: admin@fixingmaritime.com | Phone: +234 XXX XXX XXXX</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+Dear ${ownerName},
+
+Thank you for registering your truck with Fixing Maritime!
+
+We have successfully received your application and our team is now reviewing it.
+
+Your Registration Details:
+- Registration ID: ${registrationId}
+- Company: ${companyName}
+- Vehicle: ${truckMake} ${truckModel} (${truckYear})
+- Plate Number: ${plateNumber}
+- Status: Under Review
+
+What Happens Next?
+1. Document Verification (1-2 business days)
+2. Background Check
+3. Vehicle Inspection (if required)
+4. Partnership Agreement & Onboarding
+
+Timeline: 2-3 business days for complete review
+
+Important Notes:
+• Please ensure all documents are current and valid
+• Keep your phone available for verification calls
+• We may request additional documents if needed
+
+We'll keep you updated via email throughout the process.
+
+If you have any questions, please contact us at admin@fixingmaritime.com
+
+Welcome to the Fixing Maritime family!
+
+Best regards,
+The Fixing Maritime Partnership Team
+  `.trim()
+
+  return { subject, html, text }
+}
+
+export async function sendTruckRegistrationNotifications(registrationData: {
+  ownerName: string
+  email: string
+  companyName: string
+  truckMake: string
+  truckModel: string
+  truckYear: number
+  plateNumber: string
+  registrationId: string
+}): Promise<boolean> {
+  const adminEmails = ['info@fixingmaritime.com', 'raphael@fixingmaritime.com', 'admin@fixingmaritime.com']
+  
+  try {
+    // Send notification to admin team
+    const adminEmailContent = generateTruckRegistrationEmail(registrationData)
+    const adminEmailPromises = adminEmails.map(email => 
+      sendEmail({
+        to: email,
+        subject: adminEmailContent.subject,
+        html: adminEmailContent.html,
+        text: adminEmailContent.text
+      })
+    )
+    
+    // Send confirmation to truck owner
+    const ownerEmailContent = generateTruckRegistrationConfirmationEmail(registrationData)
+    const ownerEmailPromise = sendEmail({
+      to: registrationData.email,
+      subject: ownerEmailContent.subject,
+      html: ownerEmailContent.html,
+      text: ownerEmailContent.text
+    })
+    
+    // Wait for all emails to be sent
+    const results = await Promise.allSettled([...adminEmailPromises, ownerEmailPromise])
+    const successes = results.filter(r => r.status === 'fulfilled' && r.value === true).length
+    
+    console.log(`Truck registration notifications: ${successes}/${results.length} emails sent successfully`)
+    
+    // Return true if at least one email was sent successfully
+    return successes > 0
+  } catch (error) {
+    console.error('Failed to send truck registration notifications:', error)
+    return false
+  }
+}

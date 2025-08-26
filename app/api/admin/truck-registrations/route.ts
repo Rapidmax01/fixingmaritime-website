@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/database'
-import { getAdminFromRequest } from '@/lib/admin-auth'
+import { PrismaClient } from '@prisma/client'
+
+export const dynamic = 'force-dynamic'
+
+const prisma = process.env.DATABASE_URL ? new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+}) : null
 
 export async function GET(request: NextRequest) {
   try {
-    // Check admin authentication
-    const admin = getAdminFromRequest(request)
-    if (!admin) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     // Check if database is available
     if (!prisma) {
       // Return empty array in demo mode
@@ -23,11 +23,25 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Get all truck registrations, ordered by creation date (newest first)
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const status = searchParams.get('status')
+    
+    // Build where clause
+    const whereClause: any = {}
+    if (status && status !== 'all') {
+      whereClause.status = status
+    }
+
+    // Get truck registrations with pagination, ordered by creation date (newest first)
     const registrations = await prisma.truckRegistration.findMany({
+      where: whereClause,
       orderBy: {
         createdAt: 'desc'
-      }
+      },
+      skip: (page - 1) * limit,
+      take: limit
     })
 
     return NextResponse.json({

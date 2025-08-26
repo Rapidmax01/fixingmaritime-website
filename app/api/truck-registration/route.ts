@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { sendTruckRegistrationNotifications } from '@/lib/email-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -132,8 +133,23 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // TODO: Send confirmation email to truck owner
-    // TODO: Send notification email to admin team
+    // Send email notifications
+    try {
+      await sendTruckRegistrationNotifications({
+        ownerName: registration.ownerName,
+        email: registration.email,
+        companyName: registration.companyName,
+        truckMake: registration.truckMake,
+        truckModel: registration.truckModel,
+        truckYear: registration.truckYear,
+        plateNumber: registration.plateNumber,
+        registrationId: registration.id
+      })
+      console.log('Email notifications sent successfully')
+    } catch (emailError) {
+      console.error('Failed to send email notifications:', emailError)
+      // Don't fail the registration if emails fail
+    }
 
     return NextResponse.json({ 
       message: 'Registration submitted successfully',

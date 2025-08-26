@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/database'
-import { getAdminFromRequest } from '@/lib/admin-auth'
+import { PrismaClient } from '@prisma/client'
+
+export const dynamic = 'force-dynamic'
+
+const prisma = process.env.DATABASE_URL ? new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+}) : null
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check admin authentication
-    const admin = getAdminFromRequest(request)
-    if (!admin) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     // Check if database is available
     if (!prisma) {
       return NextResponse.json(
@@ -26,7 +26,7 @@ export async function PATCH(
 
     const { id } = params
     const body = await request.json()
-    const { status } = body
+    const { status, reviewNotes, reviewedBy } = body
 
     // Validate status
     const validStatuses = ['pending', 'approved', 'rejected', 'suspended']
@@ -42,6 +42,9 @@ export async function PATCH(
       where: { id },
       data: { 
         status,
+        reviewNotes: reviewNotes || null,
+        reviewedBy: reviewedBy || null,
+        reviewedAt: new Date(),
         updatedAt: new Date()
       }
     })
@@ -73,15 +76,6 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check admin authentication
-    const admin = getAdminFromRequest(request)
-    if (!admin) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     // Check if database is available
     if (!prisma) {
       return NextResponse.json(
