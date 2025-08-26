@@ -116,21 +116,45 @@ export async function sendQuoteResponseNotification(
   }
 }
 
-export async function getNotifications(email: string, limit = 20, offset = 0) {
+export async function getNotifications(email: string, userId?: string, limit = 20, offset = 0) {
   try {
     if (!prisma) {
       return { notifications: [], totalCount: 0 }
     }
 
+    // Build where clause to find notifications for:
+    // 1. Quotes made by the logged-in user (userId match)
+    // 2. Quotes made with the same email as the logged-in user (email match)
+    const whereClause: any = {
+      OR: [
+        { recipientEmail: email }
+      ]
+    }
+
+    // If user is logged in, also find notifications for their quotes
+    if (userId) {
+      // Find quote requests by this user and get notifications for those quotes
+      const userQuoteRequests = await prisma.quoteRequest.findMany({
+        where: { userId: userId },
+        select: { id: true, email: true }
+      })
+
+      // Add quote emails to the OR condition
+      const quoteEmails = Array.from(new Set(userQuoteRequests.map(q => q.email)))
+      quoteEmails.forEach(quoteEmail => {
+        whereClause.OR.push({ recipientEmail: quoteEmail })
+      })
+    }
+
     const [notifications, totalCount] = await Promise.all([
       prisma.notification.findMany({
-        where: { recipientEmail: email },
+        where: whereClause,
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset
       }),
       prisma.notification.count({
-        where: { recipientEmail: email }
+        where: whereClause
       })
     ])
 
@@ -165,17 +189,34 @@ export async function markNotificationAsRead(notificationId: string, userEmail: 
   }
 }
 
-export async function getUnreadNotificationCount(email: string) {
+export async function getUnreadNotificationCount(email: string, userId?: string) {
   try {
     if (!prisma) {
       return { count: 0 }
     }
 
+    // Build same where clause as getNotifications
+    const whereClause: any = {
+      OR: [
+        { recipientEmail: email, status: 'unread' }
+      ]
+    }
+
+    // If user is logged in, also count notifications for their quotes
+    if (userId) {
+      const userQuoteRequests = await prisma.quoteRequest.findMany({
+        where: { userId: userId },
+        select: { id: true, email: true }
+      })
+
+      const quoteEmails = Array.from(new Set(userQuoteRequests.map(q => q.email)))
+      quoteEmails.forEach(quoteEmail => {
+        whereClause.OR.push({ recipientEmail: quoteEmail, status: 'unread' })
+      })
+    }
+
     const count = await prisma.notification.count({
-      where: {
-        recipientEmail: email,
-        status: 'unread'
-      }
+      where: whereClause
     })
 
     return { count }

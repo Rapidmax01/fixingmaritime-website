@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { Anchor, Mail, Lock, User, Building, Phone, Eye, EyeOff } from 'lucide-react'
@@ -20,7 +20,14 @@ type FormData = {
 
 export default function SignUp() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
+  const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    const callback = searchParams.get('callbackUrl')
+    setCallbackUrl(callback)
+  }, [searchParams])
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
@@ -57,10 +64,16 @@ export default function SignUp() {
         if (result.requiresEmailVerification) {
           toast.success('Account created! Please check your email to verify your account.')
           // Redirect to a verification pending page or show instructions
-          router.push('/login?message=verification-sent')
+          const loginUrl = callbackUrl 
+            ? `/login?message=verification-sent&callbackUrl=${encodeURIComponent(callbackUrl)}`
+            : '/login?message=verification-sent'
+          router.push(loginUrl)
         } else {
           toast.success('Account created successfully!')
-          router.push('/login')
+          const loginUrl = callbackUrl 
+            ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+            : '/login'
+          router.push(loginUrl)
         }
       } else {
         const error = await response.json()
@@ -82,9 +95,19 @@ export default function SignUp() {
         <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Create your account
         </h2>
+        {callbackUrl?.includes('request-truck') && (
+          <div className="mt-4 p-3 bg-primary-50 border border-primary-200 rounded-md">
+            <p className="text-center text-sm text-primary-700">
+              🚛 Sign up to request truck services and manage all your logistics from your dashboard
+            </p>
+          </div>
+        )}
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-500">
+          <Link 
+            href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/login'} 
+            className="font-semibold text-primary-600 hover:text-primary-500"
+          >
             Sign in
           </Link>
         </p>

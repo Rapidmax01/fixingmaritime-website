@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { 
+      userId,
       name, 
       email, 
       phone, 
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
     try {
       const quoteRequest = await prisma.quoteRequest.create({
         data: {
+          userId: userId || null, // Store userId if provided (logged in user)
           name,
           email,
           phone: phone || null,

@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, Phone, Mail, MessageSquare, X, User, UserPlus, ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-hot-toast'
 
@@ -184,6 +184,17 @@ export default function ServiceDetail() {
   const serviceId = params.id as string
   const service = servicesData[serviceId as keyof typeof servicesData]
 
+  // Auto-populate form data for logged-in users
+  useEffect(() => {
+    if (session?.user && showQuoteForm) {
+      setQuoteFormData(prev => ({
+        ...prev,
+        name: session.user?.name || '',
+        email: session.user?.email || ''
+      }))
+    }
+  }, [session, showQuoteForm])
+
   if (!service) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -210,6 +221,7 @@ export default function ServiceDetail() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          userId: (session?.user as any)?.id || null, // Include userId if logged in
           name: quoteFormData.name,
           email: quoteFormData.email,
           phone: quoteFormData.phone,

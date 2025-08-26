@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const email = searchParams.get('email')
+    const userId = searchParams.get('userId')
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
     const countOnly = searchParams.get('count') === 'true'
@@ -16,11 +17,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (countOnly) {
-      const { count } = await getUnreadNotificationCount(email)
+      const { count } = await getUnreadNotificationCount(email, userId || undefined)
       return NextResponse.json({ unreadCount: count })
     }
 
-    const { notifications, totalCount } = await getNotifications(email, limit, offset)
+    const { notifications, totalCount } = await getNotifications(email, userId || undefined, limit, offset)
 
     return NextResponse.json({
       notifications,

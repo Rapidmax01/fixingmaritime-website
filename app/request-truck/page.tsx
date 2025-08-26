@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Truck, MapPin, Calendar, Package, User, Phone, Mail, Clock, ArrowRight, CheckCircle } from 'lucide-react'
 
@@ -35,6 +37,8 @@ interface TruckRequestForm {
 }
 
 export default function RequestTruckPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [formData, setFormData] = useState<TruckRequestForm>({
     companyName: '',
     contactName: '',
@@ -59,6 +63,24 @@ export default function RequestTruckPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [trackingNumber, setTrackingNumber] = useState('')
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/signup?callbackUrl=' + encodeURIComponent('/request-truck'))
+    }
+  }, [status, router])
+
+  // Auto-populate form with user information when session is available
+  useEffect(() => {
+    if (session?.user && !submitted) {
+      setFormData(prev => ({
+        ...prev,
+        contactName: session.user?.name || '',
+        email: session.user?.email || ''
+      }))
+    }
+  }, [session, submitted])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -95,6 +117,23 @@ export default function RequestTruckPage() {
     }
   }
 
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render form if user is not authenticated (will redirect)
+  if (!session) {
+    return null
+  }
+
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -127,7 +166,10 @@ export default function RequestTruckPage() {
               onClick={() => {
                 setSubmitted(false)
                 setFormData({
-                  companyName: '', contactName: '', email: '', phoneNumber: '',
+                  companyName: '', 
+                  contactName: session?.user?.name || '', 
+                  email: session?.user?.email || '', 
+                  phoneNumber: '',
                   pickupAddress: '', pickupCity: '', pickupDate: '', pickupTime: '',
                   deliveryAddress: '', deliveryCity: '', deliveryDate: '', deliveryTime: '',
                   cargoType: '', cargoWeight: '', cargoValue: '', specialInstructions: '',

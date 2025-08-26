@@ -4,8 +4,9 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship, Truck, Bell, Mail, MessageSquare } from 'lucide-react'
+import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship, Truck, Bell, Mail, MessageSquare, Link2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import QuoteClaimModal from '@/components/QuoteClaimModal'
 
 // Mock data - would come from API in real app
 const mockOrders = [
@@ -102,6 +103,7 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showClaimModal, setShowClaimModal] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -112,6 +114,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (session?.user?.email) {
+      console.log('Fetching notifications for:', session.user.email)
       fetchNotifications()
       fetchUnreadCount()
     }
@@ -119,10 +122,15 @@ export default function Dashboard() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`/api/notifications?email=${session?.user?.email}&limit=10`)
+      const userId = (session?.user as any)?.id || ''
+      const response = await fetch(`/api/notifications?email=${session?.user?.email}&userId=${userId}&limit=10`)
+      console.log('Notifications response:', response.status, response.ok)
       if (response.ok) {
         const data = await response.json()
+        console.log('Notifications data:', data)
         setNotifications(data.notifications || [])
+      } else {
+        console.error('Notifications API error:', response.status, await response.text())
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
@@ -133,10 +141,15 @@ export default function Dashboard() {
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await fetch(`/api/notifications?email=${session?.user?.email}&count=true`)
+      const userId = (session?.user as any)?.id || ''
+      const response = await fetch(`/api/notifications?email=${session?.user?.email}&userId=${userId}&count=true`)
+      console.log('Unread count response:', response.status, response.ok)
       if (response.ok) {
         const data = await response.json()
+        console.log('Unread count data:', data)
         setUnreadCount(data.unreadCount || 0)
+      } else {
+        console.error('Unread count API error:', response.status, await response.text())
       }
     } catch (error) {
       console.error('Failed to fetch unread count:', error)
@@ -160,6 +173,12 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Failed to mark notification as read:', error)
     }
+  }
+
+  const handleQuotesClaimed = () => {
+    // Refresh notifications when quotes are claimed
+    fetchNotifications()
+    fetchUnreadCount()
   }
 
   const formatDate = (dateString: string) => {
@@ -346,7 +365,7 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <Link
               href="/services"
               className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
@@ -375,6 +394,13 @@ export default function Dashboard() {
               <Package className="h-5 w-5 text-primary-600 mr-2" />
               <span className="font-medium text-gray-900">Support</span>
             </Link>
+            <button
+              onClick={() => setShowClaimModal(true)}
+              className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              <Link2 className="h-5 w-5 text-primary-600 mr-2" />
+              <span className="font-medium text-gray-900">Claim Quotes</span>
+            </button>
           </div>
         </div>
 
@@ -432,6 +458,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Quote Claim Modal */}
+      <QuoteClaimModal
+        isOpen={showClaimModal}
+        onClose={() => setShowClaimModal(false)}
+        onQuotesClaimed={handleQuotesClaimed}
+      />
     </div>
   )
 }

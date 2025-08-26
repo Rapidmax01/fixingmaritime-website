@@ -26,6 +26,7 @@ import AdminHeader from '@/components/AdminHeader'
 
 interface QuoteRequest {
   id: string
+  userId?: string
   name: string
   email: string
   phone?: string

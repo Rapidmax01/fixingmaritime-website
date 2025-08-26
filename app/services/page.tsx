@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Search, FileText, Truck, Ship, Package, Globe, Warehouse, FileCheck, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useContent } from '@/contexts/ContentContext'
@@ -125,12 +127,26 @@ export default function Services() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const { content, loading } = useContent()
+  const { data: session } = useSession()
+  const router = useRouter()
 
   const filteredServices = services.filter(service => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesSearch
   })
+
+  const handleTruckServiceClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    
+    if (session) {
+      // User is logged in, go directly to truck request form
+      router.push('/request-truck')
+    } else {
+      // User not logged in, redirect to signup with return URL
+      router.push('/signup?callbackUrl=' + encodeURIComponent('/request-truck'))
+    }
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -179,45 +195,90 @@ export default function Services() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative"
               >
-                <Link href={`/services/${service.id}`} className="block">
-                  <div className="relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
-                    
-                    <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${service.color} shadow-lg`}>
-                      <Icon className="h-7 w-7 text-white" />
-                    </div>
-                    
-                    <h3 className="mt-6 text-xl font-semibold text-gray-900">
-                      {service.name}
-                    </h3>
-                    
-                    <p className="mt-3 text-gray-600">
-                      {service.longDescription}
-                    </p>
+                {service.id === 'truck-services' ? (
+                  <div 
+                    onClick={handleTruckServiceClick}
+                    className="block cursor-pointer"
+                  >
+                    <div className="relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                      
+                      <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${service.color} shadow-lg`}>
+                        <Icon className="h-7 w-7 text-white" />
+                      </div>
+                      
+                      <h3 className="mt-6 text-xl font-semibold text-gray-900">
+                        {service.name}
+                      </h3>
+                      
+                      <p className="mt-3 text-gray-600">
+                        {service.longDescription}
+                      </p>
 
-                    <div className="mt-6">
-                      <h4 className="text-sm font-semibold text-gray-900">Key Features:</h4>
-                      <ul className="mt-3 space-y-2">
-                        {service.features.slice(0, 3).map((feature, idx) => (
-                          <li key={idx} className="flex items-start">
-                            <span className="mr-2 text-primary-600">•</span>
-                            <span className="text-sm text-gray-600">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                      <div className="mt-6">
+                        <h4 className="text-sm font-semibold text-gray-900">Key Features:</h4>
+                        <ul className="mt-3 space-y-2">
+                          {service.features.slice(0, 3).map((feature, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="mr-2 text-primary-600">•</span>
+                              <span className="text-sm text-gray-600">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
-                    <div className="mt-6 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-primary-600">
-                        Request for Quote
-                      </span>
-                      <div className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700">
-                        Get Quote
-                        <ArrowRight className="ml-1 h-4 w-4" />
+                      <div className="mt-6 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-primary-600">
+                          Request Truck Service
+                        </span>
+                        <div className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700">
+                          Get Quote
+                          <ArrowRight className="ml-1 h-4 w-4" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </Link>
+                ) : (
+                  <Link href={`/services/${service.id}`} className="block">
+                    <div className="relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                      
+                      <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${service.color} shadow-lg`}>
+                        <Icon className="h-7 w-7 text-white" />
+                      </div>
+                      
+                      <h3 className="mt-6 text-xl font-semibold text-gray-900">
+                        {service.name}
+                      </h3>
+                      
+                      <p className="mt-3 text-gray-600">
+                        {service.longDescription}
+                      </p>
+
+                      <div className="mt-6">
+                        <h4 className="text-sm font-semibold text-gray-900">Key Features:</h4>
+                        <ul className="mt-3 space-y-2">
+                          {service.features.slice(0, 3).map((feature, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="mr-2 text-primary-600">•</span>
+                              <span className="text-sm text-gray-600">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="mt-6 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-primary-600">
+                          Request for Quote
+                        </span>
+                        <div className="inline-flex items-center text-sm font-semibold text-primary-600 hover:text-primary-700">
+                          Get Quote
+                          <ArrowRight className="ml-1 h-4 w-4" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )}
               </motion.div>
             )
           })}
