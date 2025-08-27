@@ -281,7 +281,7 @@ export default function Stats() {
             className="mt-16 text-center"
           >
             <p className="text-gray-300 mb-6">Ready to be part of our success story?</p>
-            <AuthLink href="/register-truck">
+            <AuthLink href="/partner-registration">
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(59, 130, 246, 0.5)" }}
                 whileTap={{ scale: 0.95 }}
