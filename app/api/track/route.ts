@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const trackingNumber = searchParams.get('tracking')
+    const trackingNumber = searchParams.get('number') || searchParams.get('tracking')
 
     if (!trackingNumber) {
       return NextResponse.json(
@@ -35,6 +35,7 @@ export async function GET(request: Request) {
         where: {
           OR: [
             { trackingNumber: trackingNumber },
+            { trackingNumber: { contains: trackingNumber, mode: 'insensitive' } },
             { id: trackingNumber }
           ]
         }

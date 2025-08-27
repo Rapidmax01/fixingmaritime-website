@@ -153,23 +153,20 @@ function TrackOrderContent() {
       
       if (response.ok) {
         const result = await response.json()
-        if (result.success) {
+        if (result.success && result.data) {
           // Transform API response to match expected format
+          const data = result.data
           const transformedData = {
-            orderNumber: result.order.orderNumber,
-            service: result.order.serviceName,
-            status: result.order.status,
-            currentLocation: result.trackingHistory[0]?.location || 'Processing',
-            estimatedDelivery: result.order.deliveredAt ? new Date(result.order.deliveredAt).toLocaleDateString() : 'TBD',
-            progress: result.order.progress,
-            events: result.trackingHistory.map((event: any) => ({
-              id: event.id,
-              status: event.title,
-              location: event.location || 'System',
-              timestamp: event.createdAt,
-              description: event.description,
-              icon: 'Package' // Default icon, could be enhanced based on status
-            }))
+            type: data.type,
+            orderNumber: data.trackingNumber || data.id,
+            service: data.service,
+            status: data.status,
+            currentLocation: data.status === 'in_transit' ? 'En Route' : data.status,
+            customer: data.customer,
+            pickupAddress: data.pickup?.address,
+            deliveryAddress: data.delivery?.address,
+            cargoType: data.cargo?.type,
+            events: data.events || []
           }
           setTrackingData(transformedData)
           return
