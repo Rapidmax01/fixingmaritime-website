@@ -22,7 +22,7 @@ const services = [
     icon: Truck,
     href: '/services/truck-services',
     color: 'from-green-500 to-emerald-500',
-    bgImage: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    bgImage: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     features: ['GPS Tracking', 'Door-to-Door', 'Temperature Control'],
   },
   {
@@ -31,7 +31,7 @@ const services = [
     icon: Ship,
     href: '/services/tugboat-barge',
     color: 'from-purple-500 to-pink-500',
-    bgImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    bgImage: '/tug-boat.png',
     features: ['Harbor Towing', 'Ocean Transport', 'Heavy Cargo'],
   },
   {
@@ -40,7 +40,7 @@ const services = [
     icon: Package,
     href: '/services/procurement',
     color: 'from-orange-500 to-red-500',
-    bgImage: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    bgImage: '/agro-product.jpg',
     features: ['Quality Control', 'Supplier Vetting', 'Price Negotiation'],
   },
   {
@@ -67,7 +67,7 @@ const services = [
     icon: FileCheck,
     href: '/services/custom-clearing',
     color: 'from-rose-500 to-pink-500',
-    bgImage: 'https://images.unsplash.com/photo-1565981063303-78c2e42aaa6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    bgImage: '/custom-clearing.jpg',
     features: ['Import/Export', 'Compliance', 'Duty Optimization'],
   },
 ]
@@ -217,14 +217,28 @@ export default function Services() {
           transition={{ delay: 0.5 }}
           className="mt-16 flex flex-col items-center justify-center"
         >
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 lg:p-12 shadow-xl border border-green-200">
+          <div className="max-w-4xl mx-auto relative overflow-hidden rounded-2xl shadow-2xl">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0">
+              <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('/truck-park.jpg')` }}
+              />
+              {/* Gradient Overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-br from-green-900/90 via-emerald-900/85 to-green-800/90" />
+              {/* Additional decorative overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            </div>
+            
+            {/* Content Container */}
+            <div className="relative z-10 p-8 lg:p-12">
             <div className="text-center">
               <motion.h3 
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6"
+                className="text-2xl lg:text-3xl font-bold text-white mb-6 drop-shadow-lg"
               >
                 Maximize Your Earning Potential – Join Our Professional Fleet Network
               </motion.h3>
@@ -234,7 +248,7 @@ export default function Services() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="text-lg leading-relaxed text-gray-700 mb-8 space-y-4"
+                className="text-lg leading-relaxed text-gray-100 mb-8 space-y-4"
               >
                 <p>
                   We invite you to take advantage of consistent job opportunities for your truck(s) by joining our established fleet. Our platform connects truck owners with reliable work assignments, ensuring steady income streams for your trucks.
@@ -244,7 +258,7 @@ export default function Services() {
                   To register your truck(s) on our platform and begin accessing available jobs, simply tap "Get Started" below.
                 </p>
                 
-                <p className="font-semibold text-green-800">
+                <p className="font-semibold text-green-300">
                   Join our network today and start maximizing your trucking business potential.
                 </p>
               </motion.div>
@@ -259,7 +273,7 @@ export default function Services() {
               >
                 <AuthLink
                   href="/register-truck"
-                  className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-10 py-4 text-lg font-semibold text-white shadow-lg hover:from-green-500 hover:to-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-300"
+                  className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-10 py-4 text-lg font-semibold text-white shadow-2xl hover:from-green-400 hover:to-emerald-400 hover:shadow-green-500/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-400 transition-all duration-300 border border-green-400/30"
                 >
                   <Truck className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform" />
                   <span>Get Started</span>
@@ -276,7 +290,7 @@ export default function Services() {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.4 }}
-                className="mt-6 flex items-center justify-center space-x-8 text-sm text-green-700"
+                className="mt-6 flex items-center justify-center space-x-8 text-sm text-green-300"
               >
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 mr-2" />
@@ -292,6 +306,7 @@ export default function Services() {
                 </div>
               </motion.div>
             </div>
+          </div>
           </div>
         </motion.div>
       </div>

@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { ArrowRight, Ship, Truck, Package, FileText, Globe, Anchor, ShoppingCart } from 'lucide-react'
+import { ArrowRight, Ship, Truck, Package, Globe, Anchor } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useContent } from '@/contexts/ContentContext'
 
 export default function Hero() {
-  const [hoveredService, setHoveredService] = useState<string | null>(null)
   const [currentBackground, setCurrentBackground] = useState(0)
   const { content, loading } = useContent()
   const { data: session } = useSession()
@@ -24,13 +23,6 @@ export default function Hero() {
       router.push('/signup')
     }
   }
-
-  const services = [
-    { icon: FileText, name: 'Documentation', color: 'text-blue-400', link: '/services/documentation' },
-    { icon: ShoppingCart, name: 'Procure Export Goods', color: 'text-green-400', link: '/services/procurement' },
-    { icon: Ship, name: 'Tug & Barge', color: 'text-purple-400', link: '/services/tugboat' },
-    { icon: Package, name: 'Warehousing', color: 'text-orange-400', link: '/services/warehousing' },
-  ]
 
   const backgroundImages = [
     {
@@ -69,25 +61,31 @@ export default function Hero() {
   }, [])
 
   return (
-    <div className="relative overflow-hidden min-h-screen">
+    <div className="relative overflow-hidden" style={{ minHeight: '70vh' }}>
+      {/* Background color to prevent white flash */}
+      <div className="absolute inset-0 bg-navy-900" />
+      
       {/* Dynamic Background Images */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentBackground}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-          className="absolute inset-0"
-        >
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${backgroundImages[currentBackground].url})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-navy-900/80 via-navy-800/70 to-primary-900/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-        </motion.div>
-      </AnimatePresence>
+      <div className="absolute inset-0">
+        {backgroundImages.map((bg, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: index === currentBackground ? 1 : 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0"
+          >
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${bg.url})` }}
+            />
+          </motion.div>
+        ))}
+      </div>
+      
+      {/* Persistent overlays */}
+      <div className="absolute inset-0 bg-gradient-to-br from-navy-900/80 via-navy-800/70 to-primary-900/80" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
       {/* Floating Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -179,7 +177,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
+      <div className="relative mx-auto max-w-7xl px-6 py-16 sm:py-20 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-2xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-x-16 lg:gap-y-12 xl:gap-x-20">
           <div className="lg:col-span-1">
             <motion.div
@@ -226,45 +224,6 @@ export default function Hero() {
               </div>
             </motion.div>
 
-            {/* Quick Service Icons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4"
-            >
-              {services.map((service, index) => {
-                const Icon = service.icon
-                return (
-                  <Link key={service.name} href={service.link}>
-                    <motion.div
-                      whileHover={{ scale: 1.05, y: -5 }}
-                      whileTap={{ scale: 0.95 }}
-                      onHoverStart={() => setHoveredService(service.name)}
-                      onHoverEnd={() => setHoveredService(null)}
-                      className="relative group cursor-pointer"
-                    >
-                      <div className="flex flex-col items-center p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 group-hover:bg-white/20 group-hover:border-white/30 transition-all duration-300">
-                        <div className="p-3 bg-white/10 rounded-lg group-hover:bg-white/20 transition-all duration-300 group-hover:rotate-3">
-                          <Icon className={`h-6 w-6 ${service.color} group-hover:scale-110 transition-transform duration-300`} />
-                        </div>
-                        <span className="mt-2 text-xs text-gray-300 text-center font-medium group-hover:text-white transition-colors">
-                          {service.name}
-                        </span>
-                      </div>
-                      
-                      {hoveredService === service.name && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary-400 rounded-full"
-                        />
-                      )}
-                    </motion.div>
-                  </Link>
-                )
-              })}
-            </motion.div>
 
             {/* Background Indicator */}
             <motion.div
