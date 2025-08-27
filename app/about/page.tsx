@@ -34,20 +34,6 @@ const values = [
   },
 ]
 
-const team = [
-  {
-    name: 'Raphael Ugochukwu U.',
-    role: 'Founder & CEO',
-    bio: '30+ years in maritime industry, former naval officer with extensive experience in international shipping.',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&h=256&q=80',
-  },
-  {
-    name: 'Maximus U.',
-    role: 'Head of Technology',
-    bio: 'Tech innovator bringing cutting-edge solutions to maritime logistics with AI and IoT integration.',
-    image: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&h=256&q=80',
-  },
-]
 
 export default function About() {
   const { content, loading } = useContent()
@@ -287,46 +273,6 @@ export default function About() {
         </div>
       </div>
 
-      {/* Team Section */}
-      <div className="bg-gray-50 py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              {loading ? 'Leadership Team' : (content?.sections?.leadership?.title || 'Leadership Team')}
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
-              {loading ? (
-                'Meet the experts behind Fixing Maritime'
-              ) : (
-                content?.sections?.leadership?.content || 'Meet the experts behind Fixing Maritime'
-              )}
-            </p>
-          </div>
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
-            {team.map((person, index) => (
-              <motion.div
-                key={person.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <img
-                  className="mx-auto h-24 w-24 rounded-full"
-                  src={person.image}
-                  alt={person.name}
-                />
-                <h3 className="mt-6 text-lg font-semibold leading-8 text-gray-900 text-center">
-                  {person.name}
-                </h3>
-                <p className="text-base leading-7 text-primary-600 text-center">{person.role}</p>
-                <p className="mt-4 text-sm leading-6 text-gray-600 text-center">{person.bio}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* CTA Section */}
       <div className="bg-primary-900">

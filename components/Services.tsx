@@ -20,7 +20,7 @@ const services = [
     name: 'Truck Services',
     description: 'Reliable ground transportation for cargo delivery to and from ports with real-time tracking.',
     icon: Truck,
-    href: '/services/truck-services',
+    href: '/request-truck',
     color: 'from-green-500 to-emerald-500',
     bgImage: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     features: ['GPS Tracking', 'Door-to-Door', 'Temperature Control'],

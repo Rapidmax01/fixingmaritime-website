@@ -209,7 +209,7 @@ export default function Hero() {
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
                 </motion.button>
                 <Link
-                  href="/partner-with-us"
+                  href="/partner-registration"
                   className="rounded-md bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
                 >
                   Partner with Us

@@ -127,7 +127,7 @@ export default function PartnerWithUsPage() {
               </div>
             </motion.div>
 
-            {/* Business Agent/Broker Partnership */}
+            {/* Clearing and forwarding or export procurement agency Partnership */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -153,7 +153,7 @@ export default function PartnerWithUsPage() {
 
                 <div className="p-8">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                    Business Agent/Broker
+                    Clearing and forwarding or export procurement agency
                   </h3>
                   
                   <p className="text-gray-600 mb-6">
@@ -208,7 +208,7 @@ export default function PartnerWithUsPage() {
               Why Choose Fixing Maritime?
             </h2>
             <p className="text-lg leading-8 text-gray-600">
-              Join a trusted network that's transforming maritime logistics across Africa and beyond.
+              Join a trusted network that's transforming maritime logistics across the globe.
             </p>
           </motion.div>
 

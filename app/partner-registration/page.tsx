@@ -208,8 +208,7 @@ export default function PartnerRegistration() {
               <h1 className="text-3xl font-bold text-gray-900">Partner Registration</h1>
             </div>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Join Fixing Maritime as a trusted partner. Register your trucking or logistics company 
-              to access exclusive business opportunities.
+              Join Fixing Maritime as a trusted partner. Register your clearing and forwarding agency or export procurement agency.
             </p>
           </div>
 
