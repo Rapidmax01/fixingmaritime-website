@@ -26,6 +26,12 @@ A modern, full-featured website for Fixing Maritime, offering comprehensive mari
 - **Order Management** with status tracking
 - **Media Management** for images and files
 - **SEO Settings** management
+- **Messaging System** 
+  - Real-time customer-admin communication
+  - File attachment support (10MB max)
+  - Email notifications to admin emails
+  - All admins see all customer messages
+  - Unread message notifications
 - **Analytics Dashboard** (coming soon)
 
 ### Technical Features
@@ -76,7 +82,7 @@ A modern, full-featured website for Fixing Maritime, offering comprehensive mari
    NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
    SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
    
-   # Email (optional)
+   # Email (required for messaging notifications)
    GMAIL_USER="your-email@gmail.com"
    GMAIL_APP_PASSWORD="your-app-password"
    ```
@@ -146,6 +152,75 @@ fixingmaritime-website/
    - Navigate to `/api/admin/content/migrate` (POST)
    - Or use the migration button in admin panel
 
+## 📡 API Routes
+
+### Messaging System
+- `GET /api/messages` - Fetch messages (inbox/sent)
+  - Query params: `type` (inbox/sent/all), `status` (read/unread), `count` (true for count only)
+- `POST /api/messages` - Send new message
+  - Body: `{ receiverId, subject, content, parentId?, attachments? }`
+- `PATCH /api/messages` - Mark message as read
+  - Body: `{ messageId, status }`
+- `POST /api/messages/upload` - Upload file attachment
+  - Form data with file (max 10MB)
+
+### Admin Authentication
+- `POST /api/admin/auth/login` - Admin login
+  - Body: `{ email, password }`
+- `GET /api/admin/auth/profile` - Get admin profile
+- `PUT /api/admin/auth/profile` - Update admin profile
+- `POST /api/admin/auth/logout` - Admin logout
+- `POST /api/admin/create-first-admin` - Create initial admin
+  - Body: `{ email, secretKey }`
+
+### User Management
+- `GET /api/users` - Get users list
+  - Customers see only admins, admins see all users
+
+### Content Management
+- `GET /api/content` - Get all content sections (public)
+- `GET /api/admin/content` - Admin content management
+- `PUT /api/admin/content` - Update content section
+- `POST /api/admin/content/migrate` - Migrate/seed initial content
+- `GET /api/admin/content/media` - Get media files
+- `POST /api/admin/content/media` - Upload media
+
+### Services
+- `GET /api/services` - Get all services (public)
+- `GET /api/admin/services` - Admin service management
+- `POST /api/admin/services` - Create service
+- `PUT /api/admin/services/[id]` - Update service
+- `DELETE /api/admin/services/[id]` - Delete service
+
+### Other APIs
+- `POST /api/contact` - Submit contact form
+- `GET /api/quote-requests` - Get quote requests
+- `POST /api/quote-requests` - Submit quote request
+- `GET /api/notifications` - Get notifications
+- `PATCH /api/notifications` - Update notification status
+
+## 🗄️ Database Configuration
+
+### Production Database (Google Cloud)
+The production database is hosted on Google Cloud Platform:
+- Host: 35.192.22.45
+- Port: 5432
+- Database: maritime
+- SSL: Required
+
+### Database Schema
+Key tables include:
+- `app_users` - User accounts and authentication
+- `messages` - Messaging system with attachments
+- `content_sections` - CMS content (9 sections)
+- `services` - Service offerings
+- `media_files` - Uploaded media/attachments
+- `quote_requests` - Customer quote requests
+- `notifications` - System notifications
+- `truck_registrations` - Truck registration data
+- `partner_registrations` - Partner applications
+- `truck_requests` - Truck service requests
+
 ## 🔧 Admin Features Guide
 
 ### Content Management
@@ -206,6 +281,20 @@ Visit [https://www.fixingmaritime.com](https://www.fixingmaritime.com)
 For support or inquiries:
 - Email: info@fixingmaritime.com
 - Phone: +1 (555) 123-4567
+
+## 🚀 Recent Updates
+
+### August 2024 - Messaging System Enhancement
+- **File Attachments**: Added support for file uploads in messages (PDF, DOC, XLS, TXT, Images)
+- **Admin Visibility**: All admin users now see ALL customer messages in their inbox
+- **Email Notifications**: Customer messages automatically email raphael@fixingmaritime.com and admin@fixingmaritime.com
+- **Virtual Admin Support**: System works even when admin users aren't in database
+- **Real-time Notifications**: Badge shows unread message count
+
+### Database Fixes
+- Fixed connection pooling issues preventing login
+- Added fallbacks for missing database models
+- Improved error handling for demo mode
 
 ## 👥 Team
 
