@@ -388,3 +388,99 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to update message' }, { status: 500 })
   }
 }
+
+// Delete message
+export async function DELETE(request: NextRequest) {
+  try {
+    // Try NextAuth session first (for customers)
+    const session = await getServerSession(authOptions)
+    
+    // Try admin authentication (for admins)
+    const admin = session?.user?.email ? null : await getAdminFromRequest(request)
+    
+    if (!session?.user?.email && !admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      // In demo mode, simulate successful message deletion
+      return NextResponse.json({ 
+        success: true, 
+        deleted: true,
+        demoMode: true 
+      })
+    }
+
+    const body = await request.json()
+    const { messageId } = body
+
+    if (!messageId) {
+      return NextResponse.json({ error: 'Message ID required' }, { status: 400 })
+    }
+
+    // Get user (handle both customer sessions and admin auth)
+    let user
+    
+    if (session?.user?.email) {
+      // Customer authentication
+      user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      })
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+    } else if (admin) {
+      // Admin authentication - find admin user in database by email
+      user = await prisma.user.findUnique({
+        where: { email: admin.email }
+      })
+      if (!user) {
+        // If admin not in database, create a virtual admin user
+        user = {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role || 'admin'
+        } as any
+      }
+    } else {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // Get the message to check permissions
+    const message = await prisma.message.findUnique({
+      where: { id: messageId }
+    })
+
+    if (!message) {
+      return NextResponse.json({ error: 'Message not found' }, { status: 404 })
+    }
+
+    // Check if user can delete this message
+    // Users can delete messages they sent or received, admins can delete any message
+    const isAdmin = user.role === 'admin' || user.role === 'super_admin' || user.role === 'sub_admin'
+    const canDelete = isAdmin || message.senderId === user.id || message.receiverId === user.id
+
+    if (!canDelete) {
+      return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
+    }
+
+    // Soft delete the message
+    await prisma.message.update({
+      where: { id: messageId },
+      data: {
+        isDeleted: true,
+        updatedAt: new Date()
+      }
+    })
+
+    return NextResponse.json({
+      success: true,
+      deleted: true
+    })
+
+  } catch (error) {
+    console.error('Error deleting message:', error)
+    return NextResponse.json({ error: 'Failed to delete message' }, { status: 500 })
+  }
+}

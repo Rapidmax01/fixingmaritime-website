@@ -21,7 +21,8 @@ import {
   Shield,
   Paperclip,
   Upload,
-  File
+  File,
+  Trash2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -271,6 +272,32 @@ export default function AdminInbox() {
     }
   }
 
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId })
+      })
+
+      if (response.ok) {
+        toast.success('Message deleted successfully')
+        setSelectedMessage(null)
+        fetchMessages()
+        refreshUnreadCount()
+      } else {
+        toast.error('Failed to delete message')
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error)
+      toast.error('Failed to delete message')
+    }
+  }
+
   const filteredMessages = messages.filter(msg =>
     msg.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
     msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -405,13 +432,25 @@ export default function AdminInbox() {
                             {message.content}
                           </p>
                         </div>
-                        <div className="ml-4 text-right">
-                          <p className="text-xs text-gray-500">
-                            {new Date(message.createdAt).toLocaleDateString()}
-                          </p>
-                          {message.status === 'unread' && activeTab === 'inbox' && (
-                            <span className="inline-block mt-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-                          )}
+                        <div className="ml-4 flex items-center space-x-2">
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">
+                              {new Date(message.createdAt).toLocaleDateString()}
+                            </p>
+                            {message.status === 'unread' && activeTab === 'inbox' && (
+                              <span className="inline-block mt-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              deleteMessage(message.id)
+                            }}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete message"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     </motion.div>
@@ -592,15 +631,24 @@ export default function AdminInbox() {
               >
                 <div className="flex items-center justify-between p-6 border-b">
                   <h2 className="text-xl font-semibold">{selectedMessage.subject}</h2>
-                  <button
-                    onClick={() => {
-                      setSelectedMessage(null)
-                      setShowReply(false)
-                    }}
-                    className="text-gray-400 hover:text-gray-500"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => deleteMessage(selectedMessage.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete message"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedMessage(null)
+                        setShowReply(false)
+                      }}
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="p-6 overflow-y-auto max-h-[60vh]">
