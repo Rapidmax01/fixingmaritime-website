@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getAdminFromRequest } from '@/lib/admin-auth'
+import { sendEmail, generateNewMessageEmail } from '@/lib/email-service'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -75,7 +76,13 @@ export async function GET(request: NextRequest) {
         where: { email: admin.email }
       })
       if (!user) {
-        return NextResponse.json({ error: 'Admin user not found in database' }, { status: 404 })
+        // If admin not in database, create a virtual admin user
+        user = {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role || 'admin'
+        } as any
       }
       userRole = user.role || 'admin'
     } else {
@@ -88,15 +95,29 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === 'inbox') {
-      whereClause.receiverId = user.id
+      if (userRole === 'admin' || userRole === 'super_admin' || userRole === 'sub_admin') {
+        // Admins see ALL messages sent to any admin
+        whereClause.receiverRole = { in: ['admin', 'super_admin', 'sub_admin'] }
+      } else {
+        // Regular users only see their own messages
+        whereClause.receiverId = user.id
+      }
     } else if (type === 'sent') {
       whereClause.senderId = user.id
     } else {
       // Show all messages for the user
-      whereClause.OR = [
-        { receiverId: user.id },
-        { senderId: user.id }
-      ]
+      if (userRole === 'admin' || userRole === 'super_admin' || userRole === 'sub_admin') {
+        // Admins see all messages involving admins
+        whereClause.OR = [
+          { receiverRole: { in: ['admin', 'super_admin', 'sub_admin'] } },
+          { senderId: user.id }
+        ]
+      } else {
+        whereClause.OR = [
+          { receiverId: user.id },
+          { senderId: user.id }
+        ]
+      }
     }
 
     if (status) {
@@ -195,7 +216,13 @@ export async function POST(request: NextRequest) {
         where: { email: admin.email }
       })
       if (!sender) {
-        return NextResponse.json({ error: 'Admin user not found in database' }, { status: 404 })
+        // If admin not in database, create a virtual admin sender
+        sender = {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name || 'Admin',
+          role: admin.role || 'admin'
+        } as any
       }
     } else {
       return NextResponse.json({ error: 'Sender not found' }, { status: 404 })
@@ -238,6 +265,37 @@ export async function POST(request: NextRequest) {
         attachments: attachments || null
       }
     })
+
+    // Send email notification if message is from customer to admin
+    if (sender.role === 'customer' && (receiver.role === 'admin' || receiver.role === 'super_admin' || receiver.role === 'sub_admin')) {
+      try {
+        // Send email to both admin emails
+        const emailData = generateNewMessageEmail({
+          senderName: sender.name || sender.email,
+          senderEmail: sender.email,
+          subject,
+          content,
+          attachmentCount: attachments?.length
+        })
+        
+        // Send to raphael@fixingmaritime.com
+        await sendEmail({
+          to: 'raphael@fixingmaritime.com',
+          subject: `New Customer Message: ${subject}`,
+          ...emailData
+        })
+        
+        // Send to admin@fixingmaritime.com
+        await sendEmail({
+          to: 'admin@fixingmaritime.com',
+          subject: `New Customer Message: ${subject}`,
+          ...emailData
+        })
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError)
+        // Continue even if email fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -296,7 +354,13 @@ export async function PATCH(request: NextRequest) {
         where: { email: admin.email }
       })
       if (!user) {
-        return NextResponse.json({ error: 'Admin user not found in database' }, { status: 404 })
+        // If admin not in database, create a virtual admin user
+        user = {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role || 'admin'
+        } as any
       }
     } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })

@@ -54,8 +54,19 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 })
       }
     } else if (admin) {
-      // Admin authentication - use admin info as current user
-      currentUser = { id: admin.id, email: admin.email, role: admin.role }
+      // Admin authentication - find admin user in database by email
+      currentUser = await prisma.user.findUnique({
+        where: { email: admin.email }
+      })
+      if (!currentUser) {
+        // If admin not in database, create a virtual admin user
+        currentUser = {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role || 'admin'
+        } as any
+      }
     } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -65,8 +76,8 @@ export async function GET(request: NextRequest) {
     // If admin, get all users. If customer, only get admins
     if (currentUser.role === 'admin' || currentUser.role === 'super_admin') {
       users = await prisma.user.findMany({
-        where: {
-          id: { not: currentUser.id } // Exclude current user
+        where: currentUser.id.startsWith('demo-') ? {} : {
+          id: { not: currentUser.id } // Exclude current user only if not demo
         },
         select: {
           id: true,

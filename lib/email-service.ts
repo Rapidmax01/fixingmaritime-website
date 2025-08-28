@@ -41,6 +41,77 @@ export async function sendEmail(data: EmailData): Promise<boolean> {
   }
 }
 
+export function generateNewMessageEmail(data: {
+  senderName: string
+  senderEmail: string
+  subject: string
+  content: string
+  attachmentCount?: number
+}) {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #0046A5; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .message-details { background: white; padding: 20px; margin-top: 20px; border-left: 4px solid #0046A5; }
+        .button { display: inline-block; padding: 10px 20px; background: #0046A5; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Customer Message</h1>
+        </div>
+        
+        <div class="content">
+            <p>You have received a new message from a customer:</p>
+            
+            <div class="message-details">
+                <p><strong>From:</strong> ${data.senderName} (${data.senderEmail})</p>
+                <p><strong>Subject:</strong> ${data.subject}</p>
+                ${data.attachmentCount ? `<p><strong>Attachments:</strong> ${data.attachmentCount} file(s)</p>` : ''}
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                <p><strong>Message:</strong></p>
+                <p>${data.content.replace(/\n/g, '<br>')}</p>
+            </div>
+            
+            <a href="https://www.fixingmaritime.com/admin/inbox" class="button">View Message in Admin Portal</a>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message from Fixing Maritime.</p>
+            <p>Please log in to the admin portal to reply to this message.</p>
+        </div>
+    </div>
+</body>
+</html>
+  `
+
+  const text = `
+New Customer Message
+
+From: ${data.senderName} (${data.senderEmail})
+Subject: ${data.subject}
+${data.attachmentCount ? `Attachments: ${data.attachmentCount} file(s)` : ''}
+
+Message:
+${data.content}
+
+---
+
+View and reply to this message at: https://www.fixingmaritime.com/admin/inbox
+
+This is an automated message from Fixing Maritime.
+  `
+
+  return { html, text }
+}
+
 export function generateQuoteResponseEmail(data: {
   customerName: string
   serviceName: string
