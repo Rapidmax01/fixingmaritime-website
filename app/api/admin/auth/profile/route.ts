@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
-// Simple Prisma client for this endpoint
-const prisma = process.env.DATABASE_URL ? new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-}) : null
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
 export const dynamic = 'force-dynamic'
 
