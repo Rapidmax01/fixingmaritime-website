@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,35 +8,30 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(uuid())
-  email            String   @unique
-  name             String?
-  password         String
-  company          String?
-  phone            String?  // Legacy field - kept for backward compatibility
-  
-  // Enhanced profile fields
-  primaryPhone     String?
-  cellPhone        String?
-  homePhone        String?
-  workPhone        String?
-  
-  // Address fields
-  address          String?  // Legacy field - kept for backward compatibility
-  homeAddress      String?
-  officeAddress    String?
-  city             String?
-  state            String?
-  country          String?
-  postalCode       String?
-  
-  emailVerified    Boolean  @default(false)
-  emailVerifyToken String?
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  name               String?
+  password           String
+  company            String?
+  phone              String?
+  address            String?
+  city               String?
+  country            String?
+  emailVerified      Boolean   @default(false)
+  emailVerifyToken   String?
   emailVerifyExpires DateTime?
-  role             String   @default("customer") // "customer", "sub_admin", "admin", or "super_admin"
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
+  role               String    @default("customer")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  cellPhone          String?
+  homePhone          String?
+  workPhone          String?
+  officeAddress      String?
+  state              String?
+  postalCode         String?
+  primaryPhone       String?
+  homeAddress        String?
+
   @@map("app_users")
 }
 
@@ -52,131 +44,107 @@ model Service {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@map("services")
 }
 
-
 model ContentSection {
   id        String   @id @default(uuid())
-  type      String   // "hero", "about", "services", "contact", "footer"
+  type      String   @unique
   name      String
   title     String
-  content   String   @db.Text
+  content   String
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@unique([type])
+
   @@map("content_sections")
 }
 
 model SeoSettings {
   id            String   @id @default(uuid())
   title         String
-  description   String   @db.Text
-  keywords      String   @db.Text
+  description   String
+  keywords      String
   ogTitle       String
-  ogDescription String   @db.Text
+  ogDescription String
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
   @@map("seo_settings")
 }
 
 model MediaFile {
-  id          String   @id @default(uuid())
-  name        String
-  type        String   // "image", "document", "video", "audio"
-  url         String
-  size        BigInt
-  mimeType    String?
-  width       Int?
-  height      Int?
-  alt         String?
-  uploadedAt  DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  url        String
+  size       BigInt
+  mimeType   String?
+  width      Int?
+  height     Int?
+  alt        String?
+  uploadedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   @@map("media_files")
 }
 
 model TruckRegistration {
-  id                String   @id @default(uuid())
-  
-  // Owner Information
-  ownerName         String
-  email             String
-  phone             String
-  address           String
-  city              String?
-  state             String?
-  zipCode           String?
-  
-  // Business Information
-  companyName       String
-  businessType      String   // "individual" or "company"
-  officeGarageAddress String
-  taxId             String?
-  yearsInBusiness   String
-  areYouOwner       Boolean  @default(true)
-  connectionToTrucks String?
-  positionInCompany String
-  
-  // Next of Kin Information
-  nextOfKinName     String
-  nextOfKinAddress  String
-  nextOfKinPhone    String
+  id                    String    @id @default(uuid())
+  ownerName             String
+  email                 String
+  phone                 String
+  address               String
+  city                  String?
+  state                 String?
+  zipCode               String?
+  companyName           String
+  businessType          String
+  taxId                 String?
+  yearsInBusiness       String
+  truckMake             String
+  truckModel            String
+  truckYear             Int
+  plateNumber           String    @unique
+  vinNumber             String?
+  truckType             String
+  capacity              String?
+  insuranceProvider     String
+  insuranceExpiry       DateTime
+  licenseExpiry         DateTime
+  serviceAreas          String[]
+  willingToRelocate     Boolean   @default(false)
+  experience            String
+  specializations       String[]
+  additionalNotes       String?
+  status                String    @default("pending")
+  reviewedBy            String?
+  reviewedAt            DateTime?
+  reviewNotes           String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  accountName           String
+  accountNumber         String
+  agreedToPrivacy       Boolean   @default(false)
+  agreedToTerms         Boolean   @default(false)
+  areYouOwner           Boolean   @default(true)
+  bankName              String
+  connectionToTrucks    String?
+  hackneyPermit         String
+  nationalIdCard        String
+  nextOfKinAddress      String
+  nextOfKinName         String
+  nextOfKinPhone        String
   nextOfKinRelationship String
-  
-  // Bank Account Details
-  bankName          String
-  accountNumber     String
-  accountName       String
-  
-  // Truck Information
-  truckMake         String
-  truckModel        String
-  truckYear         Int
-  plateNumber       String   @unique
-  vinNumber         String?
-  truckType         String
-  capacity          String?
-  
-  // Insurance & Documents
-  insuranceProvider String
-  insuranceExpiry   DateTime
-  licenseExpiry     DateTime
-  
-  // Document Uploads
-  nationalIdCard    String
-  utilityBill       String
-  vehicleLicense    String
-  proofOfOwnership  String
-  hackneyPermit     String
-  roadWorthiness    String
-  
-  // Service Areas & Preferences
-  serviceAreas      String[]
-  willingToRelocate Boolean  @default(false)
-  
-  // Experience & Specializations
-  experience        String
-  specializations   String[]
-  additionalNotes   String?  @db.Text
-  
-  // Agreement
-  agreedToTerms     Boolean  @default(false)
-  agreedToPrivacy   Boolean  @default(false)
-  
-  // Status & Metadata
-  status            String   @default("pending") // "pending", "approved", "rejected", "suspended"
-  reviewedBy        String?
-  reviewedAt        DateTime?
-  reviewNotes       String?  @db.Text
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  officeGarageAddress   String
+  positionInCompany     String
+  proofOfOwnership      String
+  roadWorthiness        String
+  utilityBill           String
+  vehicleLicense        String
+
   @@index([email])
   @@index([plateNumber])
   @@index([status])
@@ -184,86 +152,60 @@ model TruckRegistration {
 }
 
 model PartnerRegistration {
-  id                String   @id @default(uuid())
-  
-  // Company & Owner Information
-  companyName       String
-  ownerName         String
-  email             String   @unique
-  phoneNumber       String
-  homeAddress       String
+  id                     String   @id @default(uuid())
+  companyName            String
+  ownerName              String
+  email                  String   @unique
+  phoneNumber            String
+  homeAddress            String
   officeWarehouseAddress String
-  
-  // Bank Account Details
-  bankName          String
-  accountNumber     String
-  accountName       String
-  
-  // Next of Kin Information
-  nextOfKinName     String
-  nextOfKinRelationship String
-  nextOfKinAddress  String
-  nextOfKinPhone    String
-  
-  // Document Uploads (file names/URLs)
-  nationalIdCard    String
-  utilityBill       String
-  cacRegistration   String
-  otherDocuments    String?
-  
-  // Agreement
-  agreedToTerms     Boolean  @default(false)
-  agreedToPrivacy   Boolean  @default(false)
-  
-  // Status and timestamps
-  status            String   @default("pending") // "pending", "approved", "rejected", "under_review"
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  bankName               String
+  accountNumber          String
+  accountName            String
+  nextOfKinName          String
+  nextOfKinRelationship  String
+  nextOfKinAddress       String
+  nextOfKinPhone         String
+  nationalIdCard         String
+  utilityBill            String
+  cacRegistration        String
+  otherDocuments         String?
+  agreedToTerms          Boolean  @default(false)
+  agreedToPrivacy        Boolean  @default(false)
+  status                 String   @default("pending")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
   @@index([email])
   @@index([status])
   @@map("partner_registrations")
 }
 
 model TruckRequest {
-  id                 String   @id @default(uuid())
-  
-  // Customer Information
-  companyName        String
-  contactName        String
-  email              String
-  phoneNumber        String
-  
-  // Pickup Details
-  pickupAddress      String
-  pickupCity         String?
-  pickupDate         DateTime
-  
-  // Delivery Details
-  deliveryAddress    String
-  deliveryCity       String?
-  deliveryDate       DateTime
-  
-  // Cargo Details
-  cargoType          String
-  cargoWeight        String
-  cargoValue         String
+  id                  String   @id @default(uuid())
+  companyName         String
+  contactName         String
+  email               String
+  phoneNumber         String
+  pickupAddress       String
+  pickupCity          String?
+  pickupDate          DateTime
+  deliveryAddress     String
+  deliveryCity        String?
+  deliveryDate        DateTime
+  cargoType           String
+  cargoWeight         String
+  cargoValue          String
   specialInstructions String?
-  
-  // Service Options
-  serviceType        String   @default("standard")
-  urgency            String   @default("normal")
-  
-  // Status and tracking
-  status             String   @default("pending") // "pending", "quoted", "confirmed", "assigned", "in_transit", "delivered", "cancelled"
-  quote              Decimal? @db.Decimal(10, 2)
-  assignedDriver     String?
-  trackingNumber     String?
-  
-  // Timestamps
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  
+  serviceType         String   @default("standard")
+  urgency             String   @default("normal")
+  status              String   @default("pending")
+  quote               Decimal? @db.Decimal(10, 2)
+  assignedDriver      String?
+  trackingNumber      String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
   @@index([email])
   @@index([status])
   @@index([trackingNumber])
@@ -271,34 +213,26 @@ model TruckRequest {
 }
 
 model QuoteRequest {
-  id                  String   @id @default(uuid())
-  
-  // Customer Information
-  userId              String?  // Links to User.id if logged in, NULL for guest quotes
-  name                String
-  email               String
-  phone               String?
-  company             String?
-  
-  // Request Details
-  serviceId           String
-  serviceName         String   // Store service name for easy reference
-  projectDescription  String   @db.Text
-  timeline            String?
-  budget              String?
-  
-  // Status and Response
-  status              String   @default("pending") // "pending", "quoted", "accepted", "rejected", "completed"
-  adminResponse       String?  @db.Text
-  quotedAmount        Decimal? @db.Decimal(10, 2)
-  quotedCurrency      String   @default("USD")
-  respondedBy         String?  // Admin user ID who responded
-  respondedAt         DateTime?
-  
-  // Timestamps
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
+  id                 String    @id @default(uuid())
+  name               String
+  email              String
+  phone              String?
+  company            String?
+  serviceId          String
+  serviceName        String
+  projectDescription String
+  timeline           String?
+  budget             String?
+  status             String    @default("pending")
+  adminResponse      String?
+  quotedAmount       Decimal?  @db.Decimal(10, 2)
+  quotedCurrency     String    @default("USD")
+  respondedBy        String?
+  respondedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  userId             String?
+
   @@index([email])
   @@index([userId])
   @@index([serviceId])
@@ -308,34 +242,22 @@ model QuoteRequest {
 }
 
 model Notification {
-  id          String   @id @default(uuid())
-  
-  // Recipient
+  id             String    @id @default(uuid())
   recipientEmail String
   recipientName  String?
-  
-  // Notification Details
-  type        String   // "quote_response", "quote_accepted", "quote_rejected", etc.
-  title       String
-  message     String   @db.Text
-  
-  // Related Data
-  relatedId   String?  // QuoteRequest ID, Order ID, etc.
-  relatedType String?  // "quote_request", "order", etc.
-  
-  // Status
-  status      String   @default("unread") // "unread", "read", "archived"
-  emailSent   Boolean  @default(false)
-  emailSentAt DateTime?
-  
-  // Metadata
-  data        Json?    // Additional structured data
-  
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  readAt      DateTime?
-  
+  type           String
+  title          String
+  message        String
+  relatedId      String?
+  relatedType    String?
+  status         String    @default("unread")
+  emailSent      Boolean   @default(false)
+  emailSentAt    DateTime?
+  data           Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  readAt         DateTime?
+
   @@index([recipientEmail])
   @@index([type])
   @@index([status])
@@ -343,148 +265,31 @@ model Notification {
   @@map("notifications")
 }
 
-model Order {
-  id               String   @id @default(uuid())
-  orderNumber      String   @unique // e.g., "ORD-2024-000001"
-  trackingNumber   String   @unique // e.g., "TRK-FX-000001"
-  
-  // Customer Information
-  userId           String?  // Links to User.id if logged in
-  customerName     String
-  customerEmail    String
-  customerPhone    String
-  company          String?
-  
-  // Order Details
-  serviceId        String
-  serviceName      String
-  description      String   @db.Text
-  amount           Decimal  @db.Decimal(10, 2)
-  currency         String   @default("USD")
-  
-  // Quote Reference
-  quoteRequestId   String?  // Reference to original quote
-  
-  // Status & Payment
-  status           String   @default("pending") // "pending", "processing", "confirmed", "in_transit", "delivered", "cancelled"
-  paymentStatus    String   @default("unpaid") // "unpaid", "paid", "refunded"
-  paymentMethod    String?  // "card", "transfer", "cash"
-  paidAt           DateTime?
-  
-  // Shipping Details
-  pickupAddress    String?
-  pickupCity       String?
-  deliveryAddress  String?
-  deliveryCity     String?
-  
-  // Timestamps
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  deliveredAt      DateTime?
-  
-  // Relations
-  trackingHistory  TrackingEvent[]
-  
-  @@index([orderNumber])
-  @@index([trackingNumber])
-  @@index([userId])
-  @@index([customerEmail])
-  @@index([status])
-  @@map("orders")
-}
-
-model TrackingEvent {
-  id          String   @id @default(uuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id])
-  
-  status      String   // "order_placed", "payment_confirmed", "processing", "dispatched", "in_transit", "out_for_delivery", "delivered"
-  title       String
-  description String   @db.Text
-  location    String?
-  
-  // Additional Details
-  remarks     String?  @db.Text
-  updatedBy   String?  // Admin user ID
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([orderId])
-  @@index([createdAt])
-  @@map("tracking_events")
-}
-
-model ContactSubmission {
-  id          String   @id @default(uuid())
-  
-  // Contact Information
-  name        String
-  email       String
-  company     String?
-  phone       String?
-  
-  // Message Details
-  service     String?  // Service of interest
-  subject     String
-  message     String   @db.Text
-  
-  // Status
-  status      String   @default("unread") // "unread", "read", "replied", "archived"
-  
-  // Admin Response
-  adminResponse String?  @db.Text
-  respondedBy   String?  // Admin user ID
-  respondedAt   DateTime?
-  
-  // Metadata
-  ipAddress     String?
-  userAgent     String?
-  
-  // Timestamps
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  readAt        DateTime?
-  
-  @@index([email])
-  @@index([status])
-  @@index([createdAt])
-  @@map("contact_submissions")
-}
-
 model Message {
-  id            String   @id @default(uuid())
-  
-  // Participants
-  senderId      String   // User ID of sender
-  senderName    String   // Store name for quick display
-  senderEmail   String   // Store email for reference
-  senderRole    String   // "admin" or "customer"
-  
-  receiverId    String   // User ID of receiver
-  receiverName  String   // Store name for quick display
-  receiverEmail String   // Store email for reference
-  receiverRole  String   // "admin" or "customer"
-  
-  // Message Content
-  subject       String
-  content       String   @db.Text
-  
-  // Thread Management
-  threadId      String?  // For grouping related messages
-  parentId      String?  // For replies
-  
-  // Status
-  status        String   @default("unread") // "unread", "read", "archived"
-  isDeleted     Boolean  @default(false)
-  
-  // Timestamps
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  readAt        DateTime?
-  
+  id           String   @id @default(uuid())
+  senderId     String
+  senderName   String
+  senderEmail  String
+  senderRole   String   @default("customer")
+  receiverId   String
+  receiverName String
+  receiverEmail String
+  receiverRole String   @default("customer")
+  subject      String
+  content      String   @db.Text
+  threadId     String?
+  parentId     String?
+  status       String   @default("unread")
+  isDeleted    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  readAt       DateTime?
+  attachments  Json?
+
   @@index([senderId])
   @@index([receiverId])
   @@index([threadId])
+  @@index([parentId])
   @@index([status])
   @@index([createdAt])
   @@map("messages")

@@ -70,9 +70,14 @@ export async function GET(request: NextRequest) {
       }
       userRole = user.role || 'customer'
     } else if (admin) {
-      // Admin authentication - use admin info as user
-      user = { id: admin.id, email: admin.email }
-      userRole = admin.role || 'admin'
+      // Admin authentication - find admin user in database by email
+      user = await prisma.user.findUnique({
+        where: { email: admin.email }
+      })
+      if (!user) {
+        return NextResponse.json({ error: 'Admin user not found in database' }, { status: 404 })
+      }
+      userRole = user.role || 'admin'
     } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -167,7 +172,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { receiverId, subject, content, parentId } = body
+    const { receiverId, subject, content, parentId, attachments } = body
 
     if (!receiverId || !subject || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -185,8 +190,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Sender not found' }, { status: 404 })
       }
     } else if (admin) {
-      // Admin authentication - use admin info as sender
-      sender = { id: admin.id, email: admin.email, name: admin.name, role: admin.role }
+      // Admin authentication - find admin user in database by email
+      sender = await prisma.user.findUnique({
+        where: { email: admin.email }
+      })
+      if (!sender) {
+        return NextResponse.json({ error: 'Admin user not found in database' }, { status: 404 })
+      }
     } else {
       return NextResponse.json({ error: 'Sender not found' }, { status: 404 })
     }
@@ -224,7 +234,8 @@ export async function POST(request: NextRequest) {
         subject,
         content,
         parentId,
-        threadId
+        threadId,
+        attachments: attachments || null
       }
     })
 
@@ -280,8 +291,13 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 })
       }
     } else if (admin) {
-      // Admin authentication - use admin info as user
-      user = { id: admin.id, email: admin.email }
+      // Admin authentication - find admin user in database by email
+      user = await prisma.user.findUnique({
+        where: { email: admin.email }
+      })
+      if (!user) {
+        return NextResponse.json({ error: 'Admin user not found in database' }, { status: 404 })
+      }
     } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }

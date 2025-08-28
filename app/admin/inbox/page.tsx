@@ -18,7 +18,10 @@ import {
   Archive,
   MessageSquare,
   Users,
-  Shield
+  Shield,
+  Paperclip,
+  Upload,
+  File
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -39,6 +42,13 @@ interface Message {
   status: string
   createdAt: string
   readAt: string | null
+  attachments?: Array<{
+    id: string
+    name: string
+    size: number
+    type: string
+    url: string
+  }> | null
 }
 
 interface User {
@@ -63,12 +73,29 @@ export default function AdminInbox() {
   const [composeForm, setComposeForm] = useState({
     receiverId: '',
     subject: '',
-    content: ''
+    content: '',
+    attachments: [] as Array<{
+      id: string
+      name: string
+      size: number
+      type: string
+      url: string
+    }>
   })
 
   // Reply form state
   const [replyContent, setReplyContent] = useState('')
   const [showReply, setShowReply] = useState(false)
+  const [replyAttachments, setReplyAttachments] = useState<Array<{
+    id: string
+    name: string
+    size: number
+    type: string
+    url: string
+  }>>([])
+
+  // File upload state
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     // Add small delay to ensure admin auth is set up
@@ -107,6 +134,66 @@ export default function AdminInbox() {
     }
   }
 
+  const uploadFile = async (file: File) => {
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/messages/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        return data.attachment
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to upload file')
+        return null
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      toast.error('Failed to upload file')
+      return null
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, isReply = false) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const attachment = await uploadFile(file)
+    if (attachment) {
+      if (isReply) {
+        setReplyAttachments(prev => [...prev, attachment])
+      } else {
+        setComposeForm(prev => ({
+          ...prev,
+          attachments: [...prev.attachments, attachment]
+        }))
+      }
+      toast.success('File uploaded successfully')
+    }
+
+    // Reset file input
+    event.target.value = ''
+  }
+
+  const removeAttachment = (attachmentId: string, isReply = false) => {
+    if (isReply) {
+      setReplyAttachments(prev => prev.filter(att => att.id !== attachmentId))
+    } else {
+      setComposeForm(prev => ({
+        ...prev,
+        attachments: prev.attachments.filter(att => att.id !== attachmentId)
+      }))
+    }
+  }
+
   const sendMessage = async () => {
     if (!composeForm.receiverId || !composeForm.subject || !composeForm.content) {
       toast.error('Please fill all fields')
@@ -117,13 +204,16 @@ export default function AdminInbox() {
       const response = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(composeForm)
+        body: JSON.stringify({
+          ...composeForm,
+          attachments: composeForm.attachments.length > 0 ? composeForm.attachments : null
+        })
       })
 
       if (response.ok) {
         toast.success('Message sent successfully')
         setShowCompose(false)
-        setComposeForm({ receiverId: '', subject: '', content: '' })
+        setComposeForm({ receiverId: '', subject: '', content: '', attachments: [] })
         fetchMessages()
         refreshUnreadCount()
       } else {
@@ -146,13 +236,15 @@ export default function AdminInbox() {
           receiverId: selectedMessage.senderId,
           subject: `Re: ${selectedMessage.subject}`,
           content: replyContent,
-          parentId: selectedMessage.id
+          parentId: selectedMessage.id,
+          attachments: replyAttachments.length > 0 ? replyAttachments : null
         })
       })
 
       if (response.ok) {
         toast.success('Reply sent successfully')
         setReplyContent('')
+        setReplyAttachments([])
         setShowReply(false)
         fetchMessages()
         refreshUnreadCount()
@@ -303,8 +395,11 @@ export default function AdminInbox() {
                               ({activeTab === 'inbox' ? message.senderEmail : message.receiverEmail})
                             </span>
                           </div>
-                          <h3 className={`text-lg mb-1 ${message.status === 'unread' ? 'font-semibold' : ''}`}>
+                          <h3 className={`text-lg mb-1 flex items-center ${message.status === 'unread' ? 'font-semibold' : ''}`}>
                             {message.subject}
+                            {message.attachments && message.attachments.length > 0 && (
+                              <Paperclip className="w-4 h-4 ml-2 text-gray-400" />
+                            )}
                           </h3>
                           <p className="text-sm text-gray-600 line-clamp-2">
                             {message.content}
@@ -396,6 +491,69 @@ export default function AdminInbox() {
                       placeholder="Type your message here..."
                     />
                   </div>
+
+                  {/* Attachments */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Attachments
+                    </label>
+                    
+                    {/* File Upload */}
+                    <div className="mb-3">
+                      <input
+                        type="file"
+                        onChange={(e) => handleFileUpload(e, false)}
+                        className="hidden"
+                        id="compose-file-upload"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.jpg,.jpeg,.png,.gif,.webp"
+                        disabled={isUploading}
+                      />
+                      <label
+                        htmlFor="compose-file-upload"
+                        className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {isUploading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600 mr-2"></div>
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Paperclip className="w-4 h-4 mr-2" />
+                            Attach File
+                          </>
+                        )}
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Max 10MB. Supported: PDF, DOC, XLS, TXT, Images
+                      </p>
+                    </div>
+
+                    {/* Attachment List */}
+                    {composeForm.attachments.length > 0 && (
+                      <div className="space-y-2">
+                        {composeForm.attachments.map((attachment) => (
+                          <div key={attachment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex items-center">
+                              <File className="w-4 h-4 mr-2 text-gray-500" />
+                              <div>
+                                <p className="text-sm font-medium">{attachment.name}</p>
+                                <p className="text-xs text-gray-500">
+                                  {(attachment.size / 1024).toFixed(1)} KB
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeAttachment(attachment.id, false)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="flex justify-end space-x-3">
                     <button
@@ -466,6 +624,33 @@ export default function AdminInbox() {
                     <p className="whitespace-pre-wrap">{selectedMessage.content}</p>
                   </div>
 
+                  {/* Attachments Display */}
+                  {selectedMessage.attachments && selectedMessage.attachments.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Attachments</h4>
+                      <div className="space-y-2">
+                        {selectedMessage.attachments.map((attachment) => (
+                          <div key={attachment.id} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <File className="w-4 h-4 mr-2 text-gray-500" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{attachment.name}</p>
+                              <p className="text-xs text-gray-500">
+                                {(attachment.size / 1024).toFixed(1)} KB
+                              </p>
+                            </div>
+                            <a
+                              href={attachment.url}
+                              download={attachment.name}
+                              className="text-primary-600 hover:text-primary-700 text-sm"
+                            >
+                              Download
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {activeTab === 'inbox' && !showReply && (
                     <div className="mt-6">
                       <button
@@ -487,11 +672,68 @@ export default function AdminInbox() {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="Type your reply..."
                       />
+
+                      {/* Reply Attachments */}
+                      <div className="mt-4">
+                        <div className="mb-3">
+                          <input
+                            type="file"
+                            onChange={(e) => handleFileUpload(e, true)}
+                            className="hidden"
+                            id="reply-file-upload"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.jpg,.jpeg,.png,.gif,.webp"
+                            disabled={isUploading}
+                          />
+                          <label
+                            htmlFor="reply-file-upload"
+                            className={`inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {isUploading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary-600 mr-2"></div>
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Paperclip className="w-3 h-3 mr-2" />
+                                Attach File
+                              </>
+                            )}
+                          </label>
+                        </div>
+
+                        {/* Reply Attachment List */}
+                        {replyAttachments.length > 0 && (
+                          <div className="space-y-2 mb-4">
+                            {replyAttachments.map((attachment) => (
+                              <div key={attachment.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                <div className="flex items-center">
+                                  <File className="w-3 h-3 mr-2 text-gray-500" />
+                                  <div>
+                                    <p className="text-xs font-medium">{attachment.name}</p>
+                                    <p className="text-xs text-gray-500">
+                                      {(attachment.size / 1024).toFixed(1)} KB
+                                    </p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => removeAttachment(attachment.id, true)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="mt-4 flex justify-end space-x-3">
                         <button
                           onClick={() => {
                             setShowReply(false)
                             setReplyContent('')
+                            setReplyAttachments([])
                           }}
                           className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                         >

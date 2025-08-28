@@ -15,15 +15,37 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    if (!prisma) {
-      return NextResponse.json({ 
-        error: 'Database not available. Please check your database connection.' 
-      }, { status: 503 })
-    }
-
     const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!prisma) {
+      // Demo mode - return demo admin profile
+      return NextResponse.json({
+        user: {
+          id: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.name || 'Demo Admin',
+          company: 'Fixing Maritime',
+          role: currentUser.role,
+          phone: '+234-800-000-0000',
+          address: 'Demo Address',
+          city: 'Lagos',
+          country: 'Nigeria',
+          primaryPhone: '+234-800-000-0000',
+          cellPhone: null,
+          homePhone: null,
+          workPhone: null,
+          homeAddress: 'Demo Address',
+          officeAddress: null,
+          state: 'Lagos',
+          postalCode: '100001',
+          emailVerified: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      })
     }
 
     // Get user profile information with safe field selection
@@ -253,5 +275,20 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating profile:', error)
     return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
+  }
+}
+
+export async function HEAD(request: NextRequest) {
+  try {
+    const currentUser = await getAdminFromRequest(request)
+    if (!currentUser) {
+      return new NextResponse(null, { status: 401 })
+    }
+
+    return new NextResponse(null, { status: 200 })
+
+  } catch (error: any) {
+    console.error('Admin profile HEAD error:', error)
+    return new NextResponse(null, { status: 500 })
   }
 }
