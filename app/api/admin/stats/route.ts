@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
         }),
         
         // Total orders (if available)
-        prisma.order?.count().catch(() => 0) || Promise.resolve(0),
+        Promise.resolve(0),
         
         // Total truck requests
         prisma.truckRequest?.count().catch(() => 0) || Promise.resolve(0),
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
         prisma.partnerRegistration?.count().catch(() => 0) || Promise.resolve(0),
         
         // Total contact submissions
-        prisma.contactSubmission?.count().catch(() => 0) || Promise.resolve(0),
+        Promise.resolve(0),
         
         // Recent quote requests for activity feed
         prisma.quoteRequest.findMany({
