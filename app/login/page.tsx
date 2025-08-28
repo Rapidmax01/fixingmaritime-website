@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { Anchor, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
@@ -16,6 +16,7 @@ type FormData = {
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showResendEmail, setShowResendEmail] = useState('')
@@ -27,6 +28,38 @@ function LoginForm() {
     const callback = searchParams.get('callbackUrl')
     setCallbackUrl(callback)
   }, [searchParams])
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const redirectUrl = callbackUrl || '/dashboard'
+      router.push(redirectUrl)
+    }
+  }, [session, status, router, callbackUrl])
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] flex-1 items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render form if user is authenticated (will redirect)
+  if (status === 'authenticated') {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] flex-1 items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    )
+  }
   
   useEffect(() => {
     if (message === 'verification-sent') {
