@@ -7,7 +7,7 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 export async function POST(req: NextRequest) {
   try {
     // Check if user is authenticated as super admin
-    const currentAdmin = getAdminFromRequest(req)
+    const currentAdmin = await getAdminFromRequest(req)
     
     if (!currentAdmin || !canManageAdmins(currentAdmin)) {
       return NextResponse.json(
