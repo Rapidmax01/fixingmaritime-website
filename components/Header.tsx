@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, ShoppingCart, User, Anchor, Settings } from 'lucide-react'
+import { Menu, X, User, Anchor, Settings } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const navigation = [
@@ -60,13 +60,6 @@ export default function Header() {
               >
                 <User className="h-5 w-5 mr-1" />
                 Dashboard
-              </Link>
-              <Link
-                href="/cart"
-                className="flex items-center text-sm font-semibold leading-6 text-gray-900 hover:text-primary-600"
-              >
-                <ShoppingCart className="h-5 w-5 mr-1" />
-                Cart
               </Link>
               <button
                 onClick={() => signOut()}
@@ -135,13 +128,6 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Dashboard
-                    </Link>
-                    <Link
-                      href="/cart"
-                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Cart
                     </Link>
                     <button
                       onClick={() => {

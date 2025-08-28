@@ -8,15 +8,6 @@ import AuthLink from './AuthLink'
 
 const services = [
   {
-    name: 'Documentation',
-    description: 'Complete documentation services for all your maritime needs. From bills of lading to customs paperwork.',
-    icon: FileText,
-    href: '/services/documentation',
-    color: 'from-blue-500 to-cyan-500',
-    bgImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    features: ['Bills of Lading', 'Customs Papers', 'Digital Processing'],
-  },
-  {
     name: 'Truck Services',
     description: 'Reliable ground transportation for cargo delivery to and from ports with real-time tracking.',
     icon: Truck,
@@ -62,13 +53,13 @@ const services = [
     features: ['Climate Control', 'Inventory Management', 'Pick & Pack'],
   },
   {
-    name: 'Custom Clearing',
-    description: 'Expert customs clearance services ensuring smooth import/export operations.',
+    name: 'Custom Clearance Agent',
+    description: 'Complete documentation and customs clearance services for all your maritime needs. From bills of lading to customs paperwork, ensuring smooth import/export operations.',
     icon: FileCheck,
     href: '/services/custom-clearing',
     color: 'from-rose-500 to-pink-500',
     bgImage: '/custom-clearing.jpg',
-    features: ['Import/Export', 'Compliance', 'Duty Optimization'],
+    features: ['Bills of Lading', 'Customs Papers', 'Digital Processing', 'Import/Export', 'Compliance', 'Duty Optimization'],
   },
 ]
 
