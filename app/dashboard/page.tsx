@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useMessageNotifications } from '@/hooks/useMessageNotifications'
 import { Package, Clock, CheckCircle, XCircle, Plus, Eye, TrendingUp, DollarSign, Ship, Truck, Bell, Mail, MessageSquare, Link2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import QuoteClaimModal from '@/components/QuoteClaimModal'
@@ -52,6 +53,7 @@ const getStatusIcon = (status: string) => {
 export default function Dashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { unreadCount: messageUnreadCount } = useMessageNotifications()
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [showNotifications, setShowNotifications] = useState(false)
@@ -395,11 +397,16 @@ export default function Dashboard() {
               <span className="font-medium text-gray-900">View Invoices</span>
             </Link>
             <Link
-              href="/support"
-              className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              href="/dashboard/inbox"
+              className="relative flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
-              <Package className="h-5 w-5 text-primary-600 mr-2" />
-              <span className="font-medium text-gray-900">Support</span>
+              <Mail className="h-5 w-5 text-primary-600 mr-2" />
+              <span className="font-medium text-gray-900">Messages</span>
+              {messageUnreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full animate-pulse">
+                  {messageUnreadCount}
+                </span>
+              )}
             </Link>
             <button
               onClick={() => setShowClaimModal(true)}

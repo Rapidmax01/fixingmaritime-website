@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings, User, Bell, Search, Truck, FileText } from 'lucide-react'
+import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings, User, Bell, Search, Truck, FileText, Mail } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DatabaseStatus from './DatabaseStatus'
+import { useMessageNotifications } from '@/hooks/useMessageNotifications'
 
 interface AdminUser {
   id: string
@@ -20,6 +21,7 @@ interface AdminHeaderProps {
 
 const adminNavigation = [
   { name: 'Dashboard', href: '/admin', icon: Shield, description: 'Main overview' },
+  { name: 'Inbox', href: '/admin/inbox', icon: Mail, description: 'Customer messages' },
   { name: 'Users', href: '/admin/users', icon: Users, description: 'User management' },
   { name: 'Orders', href: '/admin/orders', icon: Package, description: 'Order tracking' },
   { name: 'Services', href: '/admin/services', icon: Ship, description: 'Service config' },
@@ -35,6 +37,7 @@ const registrationNavigation = [
 ]
 
 export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
+  const { unreadCount } = useMessageNotifications()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
@@ -187,6 +190,11 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
                   >
                     <Icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
                     {item.name}
+                    {item.name === 'Inbox' && unreadCount > 0 && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white animate-pulse">
+                        {unreadCount}
+                      </span>
+                    )}
                     <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
                   </Link>
                 </motion.div>
@@ -308,8 +316,15 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
                         <div className="p-2 bg-slate-700/50 rounded-lg mr-3 group-hover:bg-blue-500/20 transition-colors">
                           <Icon className="h-5 w-5 group-hover:scale-110 transition-transform" />
                         </div>
-                        <div>
-                          <div>{item.name}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span>{item.name}</span>
+                            {item.name === 'Inbox' && unreadCount > 0 && (
+                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white">
+                                {unreadCount}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-slate-500">{item.description}</div>
                         </div>
                       </Link>
