@@ -22,13 +22,22 @@ export async function GET(request: NextRequest) {
 
     if (!prisma) {
       // Return mock users in demo mode
+      const mockUsers = session?.user?.email 
+        ? [
+            // Customer sees only admins
+            { id: 'demo-admin', name: 'Admin Support', email: 'admin@fixingmaritime.com', role: 'admin' }
+          ]
+        : [
+            // Admin sees all users
+            { id: 'demo-customer-1', name: 'John Doe', email: 'john@example.com', role: 'customer' },
+            { id: 'demo-customer-2', name: 'Jane Smith', email: 'jane@example.com', role: 'customer' },
+            { id: 'demo-customer-3', name: 'Bob Wilson', email: 'bob@company.com', role: 'customer' }
+          ]
+      
       return NextResponse.json({ 
         success: true, 
-        users: [
-          { id: '1', name: 'John Doe', email: 'john@example.com', role: 'customer' },
-          { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'customer' },
-          { id: '3', name: 'Admin User', email: 'admin@fixingmaritime.com', role: 'admin' }
-        ],
+        users: mockUsers,
+        userRole: admin ? admin.role : 'customer',
         demoMode: true 
       })
     }

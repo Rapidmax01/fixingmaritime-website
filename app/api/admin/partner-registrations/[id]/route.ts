@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
   try {
     // Check admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     if (!admin) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -74,7 +74,7 @@ export async function GET(
 ) {
   try {
     // Check admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     if (!admin) {
       return NextResponse.json(
         { error: 'Unauthorized' },

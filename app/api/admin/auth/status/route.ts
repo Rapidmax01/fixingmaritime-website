@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     )
 
     // Try to get current admin user
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
 
     return NextResponse.json({
       status: 'success',

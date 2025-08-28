@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is authenticated and has admin privileges
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser || currentUser.role !== 'super_admin') {
       return NextResponse.json({ 
         error: 'Super admin privileges required' 

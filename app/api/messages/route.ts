@@ -21,9 +21,32 @@ export async function GET(request: NextRequest) {
     }
 
     if (!prisma) {
+      // In demo mode, return mock messages
+      const mockMessages = [
+        {
+          id: '1',
+          senderId: 'demo-customer',
+          senderName: 'John Doe',
+          senderEmail: 'john@example.com',
+          senderRole: 'customer',
+          receiverId: 'demo-admin',
+          receiverName: 'Admin Support',
+          receiverEmail: 'admin@fixingmaritime.com',
+          receiverRole: 'admin',
+          subject: 'Welcome to the messaging system',
+          content: 'This is a demo message to show how the messaging system works.',
+          threadId: null,
+          parentId: null,
+          status: 'unread',
+          createdAt: new Date().toISOString(),
+          readAt: null
+        }
+      ]
+      
       return NextResponse.json({ 
         success: true, 
-        messages: [],
+        messages: mockMessages,
+        unreadCount: 1,
         demoMode: true 
       })
     }
@@ -129,7 +152,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
+      // In demo mode, simulate successful message sending
+      const body = await request.json()
+      return NextResponse.json({ 
+        success: true, 
+        message: {
+          id: 'demo-msg-' + Date.now(),
+          subject: body.subject,
+          content: body.content,
+          createdAt: new Date().toISOString()
+        },
+        demoMode: true 
+      })
     }
 
     const body = await request.json()
@@ -219,7 +253,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (!prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 })
+      // In demo mode, simulate successful message status update
+      return NextResponse.json({ 
+        success: true, 
+        updated: true,
+        demoMode: true 
+      })
     }
 
     const body = await request.json()

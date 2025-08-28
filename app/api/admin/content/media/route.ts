@@ -7,7 +7,7 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 // GET - Fetch all media files
 export async function GET(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 // POST - Upload new media file
 export async function POST(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
 // DELETE - Delete multiple media files
 export async function DELETE(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(

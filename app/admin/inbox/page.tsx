@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { toast } from 'react-hot-toast'
 import { useMessageNotifications } from '@/hooks/useMessageNotifications'
 import { 
@@ -16,7 +17,8 @@ import {
   Check,
   Archive,
   MessageSquare,
-  Users
+  Users,
+  Shield
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -187,11 +189,22 @@ export default function AdminInbox() {
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Inbox</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Communicate with your customers directly
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Inbox</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Communicate with your customers directly
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/admin"
+              className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

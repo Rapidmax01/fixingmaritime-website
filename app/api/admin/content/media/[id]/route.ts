@@ -10,7 +10,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(

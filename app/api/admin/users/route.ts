@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser || !canCreateUsers(currentUser)) {
       return NextResponse.json({ error: 'Unauthorized to create users' }, { status: 403 })
     }

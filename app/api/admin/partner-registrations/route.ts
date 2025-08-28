@@ -5,7 +5,7 @@ import { getAdminFromRequest } from '@/lib/admin-auth'
 export async function GET(request: NextRequest) {
   try {
     // Check admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     if (!admin) {
       return NextResponse.json(
         { error: 'Unauthorized' },

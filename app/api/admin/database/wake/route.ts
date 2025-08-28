@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     // Only allow super_admin to wake database
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser || currentUser.role !== 'super_admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

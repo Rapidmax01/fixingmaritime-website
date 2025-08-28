@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser || !canApproveUsers(currentUser)) {
       return NextResponse.json({ error: 'Unauthorized to manage user status' }, { status: 403 })
     }

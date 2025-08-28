@@ -7,7 +7,7 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 // GET - Fetch all content sections
 export async function GET(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 // POST - Create or update content section
 export async function POST(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(

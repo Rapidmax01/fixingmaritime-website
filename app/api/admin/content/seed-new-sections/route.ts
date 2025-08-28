@@ -6,7 +6,7 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
 export async function POST(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin || admin.role !== 'super_admin') {
       return NextResponse.json(

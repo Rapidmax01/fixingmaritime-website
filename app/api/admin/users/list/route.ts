@@ -9,7 +9,7 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 export async function GET(request: NextRequest) {
   try {
     // Check if user is authenticated as admin
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(

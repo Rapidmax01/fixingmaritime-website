@@ -99,4 +99,7 @@ dist
 
 # Temporary folders
 tmp/
-temp/
+temp/*.jpg
+*.png
+*.jpeg
+*:Zone.Identifier

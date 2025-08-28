@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -71,7 +71,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -178,7 +178,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

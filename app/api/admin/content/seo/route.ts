@@ -7,7 +7,7 @@ const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 // GET - Fetch current SEO settings
 export async function GET(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 // POST - Save SEO settings
 export async function POST(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = await getAdminFromRequest(request)
     
     if (!admin) {
       return NextResponse.json(

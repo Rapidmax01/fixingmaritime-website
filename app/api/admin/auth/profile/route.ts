@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -115,7 +115,7 @@ export async function PUT(request: NextRequest) {
       }, { status: 503 })
     }
 
-    const currentUser = getAdminFromRequest(request)
+    const currentUser = await getAdminFromRequest(request)
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
