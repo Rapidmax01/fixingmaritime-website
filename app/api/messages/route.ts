@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -9,9 +10,13 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // Try NextAuth session first (for customers)
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    // Try admin authentication (for admins)
+    const admin = session?.user?.email ? null : await getAdminFromRequest(request)
+    
+    if (!session?.user?.email && !admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -28,16 +33,26 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') // 'unread', 'read', 'archived'
     const countOnly = searchParams.get('count') === 'true'
     
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!user) {
+    // Get user from database (handle both customer sessions and admin auth)
+    let user
+    let userRole = 'customer'
+    
+    if (session?.user?.email) {
+      // Customer authentication
+      user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      })
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+      userRole = user.role || 'customer'
+    } else if (admin) {
+      // Admin authentication - use admin info as user
+      user = { id: admin.id, email: admin.email }
+      userRole = admin.role || 'admin'
+    } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
-
-    const userRole = user.role || 'customer'
     
     // Build query based on type and user role
     let whereClause: any = {
@@ -103,9 +118,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Try NextAuth session first (for customers)
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    // Try admin authentication (for admins)
+    const admin = session?.user?.email ? null : await getAdminFromRequest(request)
+    
+    if (!session?.user?.email && !admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -120,12 +139,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Get sender user
-    const sender = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!sender) {
+    // Get sender user (handle both customer sessions and admin auth)
+    let sender
+    
+    if (session?.user?.email) {
+      // Customer authentication
+      sender = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      })
+      if (!sender) {
+        return NextResponse.json({ error: 'Sender not found' }, { status: 404 })
+      }
+    } else if (admin) {
+      // Admin authentication - use admin info as sender
+      sender = { id: admin.id, email: admin.email, name: admin.name, role: admin.role }
+    } else {
       return NextResponse.json({ error: 'Sender not found' }, { status: 404 })
     }
 
@@ -180,9 +208,13 @@ export async function POST(request: NextRequest) {
 // Mark message as read
 export async function PATCH(request: NextRequest) {
   try {
+    // Try NextAuth session first (for customers)
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    // Try admin authentication (for admins)
+    const admin = session?.user?.email ? null : await getAdminFromRequest(request)
+    
+    if (!session?.user?.email && !admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -197,12 +229,21 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Message ID required' }, { status: 400 })
     }
 
-    // Get user
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!user) {
+    // Get user (handle both customer sessions and admin auth)
+    let user
+    
+    if (session?.user?.email) {
+      // Customer authentication
+      user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      })
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+    } else if (admin) {
+      // Admin authentication - use admin info as user
+      user = { id: admin.id, email: admin.email }
+    } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 

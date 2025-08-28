@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
 
@@ -9,9 +10,13 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // Try NextAuth session first (for customers)
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    // Try admin authentication (for admins)
+    const admin = session?.user?.email ? null : await getAdminFromRequest(request)
+    
+    if (!session?.user?.email && !admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -28,12 +33,21 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Get current user
-    const currentUser = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!currentUser) {
+    // Get current user (handle both customer sessions and admin auth)
+    let currentUser
+    
+    if (session?.user?.email) {
+      // Customer authentication
+      currentUser = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      })
+      if (!currentUser) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+    } else if (admin) {
+      // Admin authentication - use admin info as current user
+      currentUser = { id: admin.id, email: admin.email, role: admin.role }
+    } else {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 

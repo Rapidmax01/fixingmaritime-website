@@ -69,8 +69,12 @@ export default function AdminInbox() {
   const [showReply, setShowReply] = useState(false)
 
   useEffect(() => {
-    fetchMessages()
-    fetchUsers()
+    // Add small delay to ensure admin auth is set up
+    const timer = setTimeout(() => {
+      fetchMessages()
+      fetchUsers()
+    }, 100)
+    return () => clearTimeout(timer)
   }, [activeTab])
 
   const fetchMessages = async () => {

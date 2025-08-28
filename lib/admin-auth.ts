@@ -82,9 +82,18 @@ export function canDeleteUser(currentUser: AdminUser | null, targetUserRole: str
   return false
 }
 
-export function getAdminFromRequest(request: NextRequest): AdminUser | null {
+export async function getAdminFromRequest(request: NextRequest): Promise<AdminUser | null> {
   const token = request.cookies.get('admin-token')?.value
   if (!token) {
+    // In demo mode, return demo admin when no token exists
+    if (process.env.NODE_ENV === 'development' || !process.env.DATABASE_URL) {
+      return {
+        id: 'demo-admin',
+        email: 'admin@fixingmaritime.com',
+        name: 'Demo Admin',
+        role: 'super_admin'
+      }
+    }
     return null
   }
 
