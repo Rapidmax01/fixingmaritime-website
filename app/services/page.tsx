@@ -10,22 +10,6 @@ import { useContent } from '@/contexts/ContentContext'
 
 const services = [
   {
-    id: 'documentation',
-    name: 'Documentation Services',
-    description: 'Complete documentation solutions for all your maritime needs',
-    longDescription: 'Our documentation services handle all aspects of maritime paperwork, from bills of lading to customs declarations. We ensure compliance with international regulations and expedite the documentation process.',
-    icon: FileText,
-    features: [
-      'Bill of Lading preparation',
-      'Customs documentation',
-      'Certificate of Origin',
-      'Commercial invoices',
-      'Packing lists',
-      'Insurance documentation',
-    ],
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
     id: 'truck-services',
     name: 'Truck Services',
     description: 'Reliable ground transportation for cargo delivery',
@@ -107,11 +91,17 @@ const services = [
   },
   {
     id: 'custom-clearing',
-    name: 'Custom Clearing',
-    description: 'Expert customs clearance services',
-    longDescription: 'Navigate complex customs regulations with our experienced team. We ensure smooth clearance and compliance with all import/export requirements.',
+    name: 'Custom Clearance Agent',
+    description: 'Complete documentation and customs clearance services',
+    longDescription: 'Our custom clearance agent services handle all aspects of maritime paperwork and customs regulations. From bills of lading to customs declarations, we ensure compliance with international regulations, expedite the documentation process, and navigate complex customs requirements with our experienced team.',
     icon: FileCheck,
     features: [
+      'Bill of Lading preparation',
+      'Customs documentation',
+      'Certificate of Origin',
+      'Commercial invoices',
+      'Packing lists',
+      'Insurance documentation',
       'Import/export clearance',
       'Tariff classification',
       'Duty optimization',
