@@ -70,23 +70,42 @@ export async function POST(req: NextRequest) {
     // Parse user agent
     const { device, browser, os } = parseUserAgent(userAgent)
 
-    // Log page visit (database model not implemented yet)
-    console.log('Page visit tracked:', { 
-      sessionId, 
-      page, 
-      pathname, 
-      device, 
-      browser, 
-      os, 
-      duration,
-      userAgent: userAgent?.substring(0, 50) + '...'
-    })
+    // Create page visit record in database
+    try {
+      const pageVisit = await prisma.pageVisit.create({
+        data: {
+          sessionId,
+          userId,
+          page,
+          pathname,
+          referrer: referrer || null,
+          userAgent: userAgent || null,
+          ip: ip.split(',')[0].trim(), // Get first IP if multiple
+          device,
+          browser,
+          os,
+          duration: duration || null
+        }
+      })
 
-    return NextResponse.json({
-      success: true,
-      visitId: `visit_${Date.now()}`,
-      message: 'Visit logged to console'
-    })
+      return NextResponse.json({
+        success: true,
+        visitId: pageVisit.id,
+        message: 'Visit tracked successfully'
+      })
+    } catch (dbError: any) {
+      // Fallback to console logging if database fails
+      console.log('Page visit tracked (DB error):', { 
+        sessionId, page, pathname, device, browser, os, duration,
+        error: dbError.message
+      })
+      
+      return NextResponse.json({
+        success: true,
+        visitId: `visit_${Date.now()}`,
+        message: 'Visit logged (DB error)'
+      })
+    }
 
   } catch (error) {
     console.error('Error tracking page visit:', error)

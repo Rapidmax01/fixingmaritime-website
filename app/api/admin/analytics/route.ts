@@ -156,8 +156,8 @@ export async function GET(req: NextRequest) {
     // Get recent activities
     const recentActivities = await getRecentActivities()
 
-    // Get page visit analytics (will use demo data until PageVisit model is deployed)
-    const pageVisitStats = getDemoPageVisitStats()
+    // Get page visit analytics
+    const pageVisitStats = await getPageVisitStats(startDate, now)
 
     const conversionRate = quoteRequests > 0 ? ((acceptedQuotes / quoteRequests) * 100).toFixed(1) : '0'
     
@@ -248,6 +248,126 @@ async function getMonthlyData(startDate: Date, endDate: Date) {
   } catch (error) {
     console.error('Error getting monthly data:', error)
     return []
+  }
+}
+
+async function getPageVisitStats(startDate: Date, endDate: Date) {
+  if (!prisma) {
+    return getDemoPageVisitStats()
+  }
+
+  try {
+    // Get total visits
+    const totalVisits = await prisma.pageVisit.count({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      }
+    })
+
+    // Get unique visitors (unique session IDs)
+    const uniqueVisitors = await prisma.pageVisit.groupBy({
+      by: ['sessionId'],
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      _count: true
+    })
+
+    // Get average duration (where duration is not null)
+    const avgDurationResult = await prisma.pageVisit.aggregate({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        },
+        duration: {
+          not: null
+        }
+      },
+      _avg: {
+        duration: true
+      }
+    })
+
+    // Get top pages
+    const topPages = await prisma.pageVisit.groupBy({
+      by: ['page'],
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      _count: {
+        id: true
+      },
+      _avg: {
+        duration: true
+      },
+      orderBy: {
+        _count: {
+          id: 'desc'
+        }
+      },
+      take: 10
+    })
+
+    // Get device breakdown
+    const deviceBreakdown = await prisma.pageVisit.groupBy({
+      by: ['device'],
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      _count: {
+        id: true
+      }
+    })
+
+    // Get browser breakdown
+    const browserBreakdown = await prisma.pageVisit.groupBy({
+      by: ['browser'],
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      _count: {
+        id: true
+      }
+    })
+
+    return {
+      totalVisits,
+      uniqueVisitors: uniqueVisitors.length,
+      avgDuration: Math.round(avgDurationResult._avg.duration || 0),
+      topPages: topPages.map(page => ({
+        page: page.page,
+        visits: page._count.id,
+        avgDuration: Math.round(page._avg.duration || 0)
+      })),
+      deviceBreakdown: deviceBreakdown.reduce((acc: Record<string, number>, item) => {
+        acc[item.device || 'Unknown'] = item._count.id
+        return acc
+      }, {}),
+      browserBreakdown: browserBreakdown.reduce((acc: Record<string, number>, item) => {
+        acc[item.browser || 'Unknown'] = item._count.id
+        return acc
+      }, {}),
+      dailyVisits: [] // Will implement if needed
+    }
+  } catch (error: any) {
+    console.error('Error getting page visit stats:', error)
+    return getDemoPageVisitStats()
   }
 }
 
