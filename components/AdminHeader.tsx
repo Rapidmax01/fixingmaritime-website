@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings, User, Bell, Search, Truck, FileText, Mail } from 'lucide-react'
+import { Menu, X, Shield, LogOut, Crown, Users, Package, Ship, BarChart3, Settings, User, Bell, Search, Truck, FileText, Mail, DollarSign } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DatabaseStatus from './DatabaseStatus'
 import { useMessageNotifications } from '@/hooks/useMessageNotifications'
+import { useRegistrationCounts } from '@/hooks/useRegistrationCounts'
 
 interface AdminUser {
   id: string
@@ -24,23 +25,46 @@ const adminNavigation = [
   { name: 'Inbox', href: '/admin/inbox', icon: Mail, description: 'Customer messages' },
   { name: 'Users', href: '/admin/users', icon: Users, description: 'User management' },
   { name: 'Orders', href: '/admin/orders', icon: Package, description: 'Order tracking' },
+  { name: 'Quotes', href: '/admin/quotes', icon: DollarSign, description: 'Quote management' },
+  { name: 'Invoices', href: '/admin/invoices', icon: FileText, description: 'Invoice management' },
   { name: 'Services', href: '/admin/services', icon: Ship, description: 'Service config' },
-  { name: 'Content', href: '/admin/content', icon: FileText, description: 'Website content' },
+  { name: 'Content', href: '/admin/content', icon: Settings, description: 'Website content' },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'Reports & insights' },
-  { name: 'Settings', href: '/admin/settings', icon: Settings, description: 'System settings' },
 ]
 
-const registrationNavigation = [
-  { name: 'Truck Requests', href: '/admin/truck-requests', icon: Truck, description: 'Service requests', badge: '12' },
-  { name: 'Truck Registrations', href: '/admin/truck-registrations', icon: Users, description: 'Owner applications', badge: '5' },
-  { name: 'Partner Registrations', href: '/admin/partner-registrations', icon: Package, description: 'Agent applications', badge: '3' },
-]
+// Registration navigation will be built dynamically based on real counts
 
 export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
   const { unreadCount } = useMessageNotifications()
+  const { truckRequests, truckRegistrations, partnerRegistrations, loading: countsLoading } = useRegistrationCounts()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
+
+  // Build registration navigation with real counts
+  const registrationNavigation = [
+    { 
+      name: 'Truck Requests', 
+      href: '/admin/truck-requests', 
+      icon: Truck, 
+      description: 'Service requests', 
+      badge: countsLoading ? '...' : truckRequests > 0 ? truckRequests.toString() : undefined 
+    },
+    { 
+      name: 'Truck Registrations', 
+      href: '/admin/truck-registrations', 
+      icon: Users, 
+      description: 'Owner applications', 
+      badge: countsLoading ? '...' : truckRegistrations > 0 ? truckRegistrations.toString() : undefined 
+    },
+    { 
+      name: 'Partner Registrations', 
+      href: '/admin/partner-registrations', 
+      icon: Package, 
+      description: 'Agent applications', 
+      badge: countsLoading ? '...' : partnerRegistrations > 0 ? partnerRegistrations.toString() : undefined 
+    },
+  ]
 
   const notifications = [
     { id: 1, title: 'New truck registration', message: 'John Doe submitted application', time: '2 min ago', unread: true },
@@ -178,65 +202,68 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
         </div>
 
         {/* Bottom Row - Navigation */}
-        <div className="hidden lg:flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-          <div className="flex items-center space-x-1">
-            {adminNavigation.map((item) => {
-              const Icon = item.icon
-              return (
-                <motion.div key={item.name} whileHover={{ y: -2 }}>
-                  <Link
-                    href={item.href}
-                    className="group relative flex items-center px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-200"
-                  >
-                    <Icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                    {item.name}
-                    {item.name === 'Inbox' && unreadCount > 0 && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white animate-pulse">
-                        {unreadCount}
-                      </span>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-                  </Link>
-                </motion.div>
-              )
-            })}
-          </div>
-          
-          <div className="flex items-center space-x-1">
-            <div className="text-xs text-slate-400 mr-3">Registration Management</div>
-            {registrationNavigation.map((item) => {
-              const Icon = item.icon
-              return (
-                <motion.div key={item.name} whileHover={{ y: -2 }}>
-                  <Link
-                    href={item.href}
-                    className="group relative flex items-center px-3 py-2 text-sm font-medium text-slate-600 hover:text-green-600 rounded-lg hover:bg-green-50 transition-all duration-200"
-                  >
-                    <Icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                    {item.name}
-                    {item.badge && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white animate-pulse">
-                        {item.badge}
-                      </span>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-green-400 to-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-                  </Link>
-                </motion.div>
-              )
-            })}
+        <div className="hidden lg:block mt-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            {/* Left side - Main Navigation */}
+            <div className="flex items-center space-x-2">
+              {adminNavigation.slice(0, 7).map((item) => {
+                const Icon = item.icon
+                return (
+                  <motion.div key={item.name} whileHover={{ y: -2 }}>
+                    <Link
+                      href={item.href}
+                      className="group relative flex items-center px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-200"
+                    >
+                      <Icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                      {item.name}
+                      {item.name === 'Inbox' && unreadCount > 0 && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white animate-pulse">
+                          {unreadCount}
+                        </span>
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </div>
             
-            {admin.role === 'super_admin' && (
-              <motion.div whileHover={{ y: -2 }}>
-                <Link
-                  href="/admin/admins"
-                  className="group relative flex items-center px-3 py-2 text-sm font-medium text-yellow-600 hover:text-yellow-700 rounded-lg hover:bg-yellow-50 transition-all duration-200"
-                >
-                  <Crown className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                  Super Admin
-                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-yellow-400 to-orange-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-                </Link>
-              </motion.div>
-            )}
+            {/* Right side - Registration Management */}
+            <div className="flex items-center space-x-1">
+              {registrationNavigation.map((item) => {
+                const Icon = item.icon
+                return (
+                  <motion.div key={item.name} whileHover={{ y: -2 }}>
+                    <Link
+                      href={item.href}
+                      className="group relative flex items-center px-3 py-2 text-sm font-medium text-slate-600 hover:text-green-600 rounded-lg hover:bg-green-50 transition-all duration-200"
+                    >
+                      <Icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                      {item.name}
+                      {item.badge && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white animate-pulse">
+                          {item.badge}
+                        </span>
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-green-400 to-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+
+              {admin.role === 'super_admin' && (
+                <motion.div whileHover={{ y: -2 }}>
+                  <Link
+                    href="/admin/admins"
+                    className="group relative flex items-center px-3 py-2 text-sm font-medium text-yellow-600 hover:text-yellow-700 rounded-lg hover:bg-yellow-50 transition-all duration-200"
+                  >
+                    <Crown className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                    Admins
+                    <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-yellow-400 to-orange-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                  </Link>
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
       </div>

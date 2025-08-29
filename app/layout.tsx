@@ -4,6 +4,7 @@ import './globals.css'
 import { Providers } from './providers'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import { Toaster } from 'react-hot-toast'
+import PageTracker from '@/components/PageTracker'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -37,6 +38,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
+          <PageTracker />
           <div className="min-h-screen flex flex-col">
             <ConditionalLayout>
               {children}

@@ -20,7 +20,8 @@ import {
   Package,
   Filter,
   Search,
-  RefreshCw
+  RefreshCw,
+  FileText
 } from 'lucide-react'
 import AdminHeader from '@/components/AdminHeader'
 
@@ -188,6 +189,33 @@ export default function AdminQuotes() {
       responseForm.adminResponse,
       responseForm.quotedAmount ? parseFloat(responseForm.quotedAmount) : undefined
     )
+  }
+
+  const handleGenerateInvoice = async (quote: QuoteRequest) => {
+    try {
+      const response = await fetch('/api/admin/invoices/generate-from-quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quoteId: quote.id,
+          adminId: admin?.id
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast.success(`Invoice ${data.invoice.invoiceNumber} generated successfully`)
+        fetchQuotes() // Refresh quotes to update UI
+      } else {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to generate invoice')
+      }
+    } catch (error) {
+      console.error('Error generating invoice:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to generate invoice')
+    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -409,6 +437,15 @@ export default function AdminQuotes() {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
+                          {quote.status === 'accepted' && (
+                            <button
+                              onClick={() => handleGenerateInvoice(quote)}
+                              className="text-purple-600 hover:text-purple-900 transition-colors"
+                              title="Generate Invoice"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </motion.tr>
@@ -521,6 +558,14 @@ export default function AdminQuotes() {
                       >
                         Close
                       </button>
+                      {selectedQuote.status === 'accepted' && (
+                        <button
+                          onClick={() => handleGenerateInvoice(selectedQuote)}
+                          className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors"
+                        >
+                          Generate Invoice
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setResponseForm({

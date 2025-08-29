@@ -294,3 +294,62 @@ model Message {
   @@index([createdAt])
   @@map("messages")
 }
+
+model Invoice {
+  id              String   @id @default(uuid())
+  invoiceNumber   String   @unique
+  customerId      String
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  customerAddress String?
+  serviceId       String?
+  serviceName     String
+  description     String   @db.Text
+  amount          Decimal  @db.Decimal(10,2)
+  tax             Decimal  @db.Decimal(10,2) @default(0)
+  total           Decimal  @db.Decimal(10,2)
+  currency        String   @default("NGN")
+  status          String   @default("pending") // pending, paid, overdue, cancelled
+  dueDate         DateTime
+  paidAt          DateTime?
+  paymentMethod   String?
+  paymentRef      String?
+  notes           String?
+  items           Json?    // Array of invoice line items
+  createdBy       String   // Admin who generated the invoice
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([customerId])
+  @@index([customerEmail])
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([createdAt])
+  @@map("invoices")
+}
+
+model PageVisit {
+  id            String   @id @default(uuid())
+  sessionId     String
+  userId        String?
+  page          String
+  pathname      String
+  referrer      String?
+  userAgent     String?
+  ip            String?
+  country       String?
+  city          String?
+  device        String?
+  browser       String?
+  os            String?
+  duration      Int?     // Time spent on page in seconds
+  createdAt     DateTime @default(now())
+  
+  @@index([sessionId])
+  @@index([userId])
+  @@index([page])
+  @@index([pathname])
+  @@index([createdAt])
+  @@map("page_visits")
+}
