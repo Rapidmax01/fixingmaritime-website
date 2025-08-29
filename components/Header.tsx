@@ -26,8 +26,12 @@ export default function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5 flex items-center">
-            <Anchor className="h-8 w-8 text-primary-600" />
-            <span className="ml-2 text-xl font-bold text-gray-900">Fixing Maritime</span>
+            <img 
+              src="/logo.png" 
+              alt="Fixing Maritime" 
+              className="h-12 w-12 object-contain"
+            />
+            <span className="ml-3 text-xl font-bold text-gray-900">Fixing Maritime</span>
           </Link>
         </div>
         <div className="flex lg:hidden">
@@ -93,8 +97,12 @@ export default function Header() {
         <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center">
-              <Anchor className="h-8 w-8 text-primary-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Fixing Maritime</span>
+              <img 
+                src="/logo.png" 
+                alt="Fixing Maritime" 
+                className="h-10 w-10 object-contain"
+              />
+              <span className="ml-3 text-xl font-bold text-gray-900">Fixing Maritime</span>
             </Link>
             <button
               type="button"

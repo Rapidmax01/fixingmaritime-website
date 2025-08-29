@@ -83,11 +83,15 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
         <div className="flex items-center justify-between">
           <Link href="/admin" className="flex items-center group">
             <motion.div
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="relative p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-md"
+              whileHover={{ scale: 1.05 }}
+              className="relative p-2 bg-white rounded-xl shadow-md border"
             >
-              <Shield className="h-5 w-5 text-white" />
-              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <img 
+                src="/logo.png" 
+                alt="Fixing Maritime" 
+                className="h-8 w-8 object-contain"
+              />
+              <div className="absolute inset-0 bg-blue-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </motion.div>
             <div className="ml-3">
               <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -289,10 +293,14 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
               <div className="flex items-center justify-between mb-8">
                 <Link href="/admin" className="flex items-center group" onClick={() => setMobileMenuOpen(false)}>
                   <motion.div
-                    whileHover={{ scale: 1.05, rotate: 5 }}
-                    className="relative p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    className="relative p-2 bg-white rounded-xl shadow-lg border"
                   >
-                    <Shield className="h-6 w-6 text-white" />
+                    <img 
+                      src="/logo.png" 
+                      alt="Fixing Maritime" 
+                      className="h-8 w-8 object-contain"
+                    />
                   </motion.div>
                   <div className="ml-3">
                     <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">

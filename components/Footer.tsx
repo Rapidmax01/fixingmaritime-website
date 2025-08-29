@@ -106,7 +106,7 @@ export default function Footer() {
             </div>
           </div>
           <p className="mt-8 text-xs leading-5 text-gray-400">
-            &copy; 2024 Fixing Maritime. All rights reserved.
+            &copy; 2024 MOGBASKI. All rights reserved.
           </p>
         </div>
       </div>
