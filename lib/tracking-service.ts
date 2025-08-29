@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/database'
 
 /**
  * Generate a unique order number in format: ORD-YYYY-NNNNNN

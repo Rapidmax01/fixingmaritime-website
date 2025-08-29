@@ -74,7 +74,7 @@ export default function PartnerWithUsPage() {
                 <div className="relative h-48 overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                    style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80)' }}
+                    style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80)' }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-green-800/80" />
                   

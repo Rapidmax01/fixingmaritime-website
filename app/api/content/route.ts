@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'

@@ -1,4 +1,4 @@
-import { prisma } from './database'
+import prisma from './database'
 
 export async function wakeDatabase(): Promise<boolean> {
   console.log('🔄 Attempting to wake database...')

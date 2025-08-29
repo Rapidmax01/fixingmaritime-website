@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 // This endpoint creates the first admin user
 // Only works if no admin exists in the system

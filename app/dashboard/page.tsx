@@ -307,7 +307,7 @@ export default function Dashboard() {
                 className="inline-flex items-center px-6 py-3 bg-primary-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
               >
                 <Truck className="w-4 h-4 mr-2" />
-                Request a Truck
+                Request for Truck(s)
               </motion.button>
             </Link>
           </div>

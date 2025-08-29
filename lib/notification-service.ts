@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client'
 import { sendEmail, generateQuoteResponseEmail } from './email-service'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 interface CreateNotificationData {
   recipientEmail: string

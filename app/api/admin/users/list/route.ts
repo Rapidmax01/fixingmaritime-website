@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 export async function GET(request: NextRequest) {
   try {

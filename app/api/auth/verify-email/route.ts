@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { getVerificationToken, markEmailAsVerified, deleteVerificationToken } from '@/lib/temp-email-store'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 export async function POST(req: NextRequest) {
   try {

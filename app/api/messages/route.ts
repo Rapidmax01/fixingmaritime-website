@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 import { sendEmail, generateNewMessageEmail } from '@/lib/email-service'
-
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 export const dynamic = 'force-dynamic'
 

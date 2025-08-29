@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
 import { sendEmail, generateVerificationEmail } from '@/lib/email'
 import { storeVerificationToken } from '@/lib/temp-email-store'
 
-const prisma = process.env.DATABASE_URL ? new PrismaClient() : null
+import prisma from '@/lib/database'
 
 export async function POST(req: NextRequest) {
   try {

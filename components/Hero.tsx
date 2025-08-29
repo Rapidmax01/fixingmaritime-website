@@ -196,7 +196,7 @@ export default function Hero() {
                 Your trusted partner for comprehensive maritime solutions.
               </p>
               <p className="mt-4 text-lg leading-8 text-gray-300">
-                To book for a truck to load and deliver your container or cargo, safe and sound tap the request a truck button below.
+                To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
                 <motion.button
@@ -205,7 +205,7 @@ export default function Hero() {
                   whileTap={{ scale: 0.95 }}
                   className="rounded-md bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-all duration-200"
                 >
-                  Request a Truck
+                  Request for Truck(s)
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
                 </motion.button>
                 <Link

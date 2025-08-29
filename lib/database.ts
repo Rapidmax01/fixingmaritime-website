@@ -6,7 +6,7 @@ declare global {
 
 const createPrismaClient = () => {
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     datasources: {
       db: {
         url: process.env.DATABASE_URL,
@@ -96,14 +96,23 @@ const initializePrisma = async (): Promise<PrismaClient | null> => {
   }
 }
 
-// Export the initialized client
-export const prisma = process.env.DATABASE_URL ? new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-}) : null
+// Get or create the shared Prisma client
+const getSharedPrismaClient = () => {
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️ DATABASE_URL not found. Database operations will be unavailable.')
+    return null
+  }
+
+  if (!global.prisma) {
+    console.log('🔄 Creating shared Prisma client...')
+    global.prisma = createPrismaClient()
+  }
+
+  return global.prisma
+}
+
+// Export the shared client
+const prisma = getSharedPrismaClient()
 
 // Graceful shutdown
 if (process.env.NODE_ENV !== 'test') {

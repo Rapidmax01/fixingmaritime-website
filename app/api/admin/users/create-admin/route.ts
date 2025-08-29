@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
 import { getAdminFromRequest } from '@/lib/admin-auth'
-
-const prisma = process.env.DATABASE_URL ? new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-}) : null
+import prisma from '@/lib/database'
 
 export async function POST(request: NextRequest) {
   try {

@@ -121,8 +121,8 @@ export default function Contact() {
                   <Phone className="h-6 w-6 text-primary-600 mt-1" />
                   <div className="ml-4">
                     <h3 className="text-lg font-medium text-gray-900">Phone</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-sm text-gray-500">Mon-Fri 8AM-6PM EST</p>
+                    <a href="https://wa.me/2349073989943" className="text-green-600 hover:text-green-700 font-medium">+2349073989943</a>
+                    <p className="text-sm text-gray-500">WhatsApp Available 24/7</p>
                   </div>
                 </div>
 
@@ -140,9 +140,7 @@ export default function Contact() {
                   <div className="ml-4">
                     <h3 className="text-lg font-medium text-gray-900">Office</h3>
                     <p className="text-gray-600">
-                      123 Port Street<br />
-                      Maritime City, MC 12345<br />
-                      United States
+                      Africa Office: 1st floor suit 4 plaza beside st. Joseph Catholic church Kirikiri Industrial area, Lagos, Nigeria
                     </p>
                   </div>
                 </div>
@@ -166,7 +164,7 @@ export default function Contact() {
                 <p className="mt-2 text-red-800">
                   For urgent shipment issues or emergencies, call our 24/7 hotline:
                 </p>
-                <p className="mt-1 text-xl font-bold text-red-900">+1 (555) 911-SHIP</p>
+                <a href="https://wa.me/2349073989943" className="mt-1 text-xl font-bold text-red-900 hover:text-red-700">+2349073989943</a>
               </div>
             </motion.div>
           </div>
@@ -365,8 +363,8 @@ export default function Contact() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">What if I need emergency support?</h3>
                 <p className="mt-2 text-gray-600">
-                  Our emergency hotline is available 24/7 for urgent shipment issues. Call +1 (555) 911-SHIP 
-                  for immediate assistance.
+                  Our emergency hotline is available 24/7 for urgent shipment issues. Contact +2349073989943 
+                  via WhatsApp for immediate assistance.
                 </p>
               </div>
             </div>

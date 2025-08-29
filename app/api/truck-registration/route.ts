@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { sendTruckRegistrationNotifications } from '@/lib/email-service'
+import prisma from '@/lib/database'
 
 export const dynamic = 'force-dynamic'
-
-const prisma = process.env.DATABASE_URL ? new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-}) : null
 
 export async function POST(request: NextRequest) {
   try {

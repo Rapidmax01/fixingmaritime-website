@@ -199,7 +199,7 @@ export default function RequestTruckPage() {
             <Truck className="h-8 w-8 text-primary-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
-            Request a Truck
+            Request for Truck(s)
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Need reliable transportation for your cargo? Fill out this form and we'll provide you with a customized quote and truck availability within 2 hours.

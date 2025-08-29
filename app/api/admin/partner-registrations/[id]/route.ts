@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/database'
+import prisma from '@/lib/database'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function PATCH(

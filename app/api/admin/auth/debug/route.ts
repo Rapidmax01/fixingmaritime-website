@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/database'
 
 export async function GET(request: NextRequest) {
   const diagnostics = {
@@ -20,9 +20,8 @@ export async function GET(request: NextRequest) {
   }
 
   // Try to connect to database
-  if (process.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL && prisma) {
     try {
-      const prisma = new PrismaClient()
       // Try a simple query
       await prisma.$queryRaw`SELECT 1`
       diagnostics.prisma.available = true

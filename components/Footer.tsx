@@ -98,11 +98,11 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-300">+1 (555) 123-4567</span>
+              <a href="https://wa.me/2349073989943" className="text-sm text-green-400 hover:text-green-300">+2349073989943</a>
             </div>
             <div className="flex items-center space-x-3">
               <MapPin className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-300">123 Port Street, Maritime City, MC 12345</span>
+              <span className="text-sm text-gray-300">Africa Office: 1st floor suit 4 plaza beside st. Joseph Catholic church Kirikiri Industrial area, Lagos, Nigeria</span>
             </div>
           </div>
           <p className="mt-8 text-xs leading-5 text-gray-400">
