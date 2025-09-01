@@ -54,12 +54,12 @@ const services = [
   },
   {
     name: 'Custom Clearance Agent',
-    description: 'Complete documentation and customs clearance services for all your maritime needs. From bills of lading to customs paperwork, ensuring smooth import/export operations.',
+    description: 'Complete documentation and customs clearance services for all your maritime needs.',
     icon: FileCheck,
     href: '/services/custom-clearing',
     color: 'from-rose-500 to-pink-500',
-    bgImage: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    features: ['Bills of Lading', 'Customs Papers', 'Digital Processing', 'Import/Export', 'Compliance', 'Duty Optimization'],
+    bgImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    features: ['Bills of Lading', 'Customs Papers', 'Digital Processing'],
   },
 ]
 
@@ -128,7 +128,7 @@ export default function Services() {
                   {/* Background Image */}
                   <div className="relative h-48 overflow-hidden">
                     <div 
-                      className={`absolute inset-0 bg-cover ${service.name === 'Custom Clearance Agent' ? 'bg-top' : 'bg-center'} transition-transform duration-700 group-hover:scale-110`}
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                       style={{ backgroundImage: `url(${service.bgImage})` }}
                     />
                     <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-80 group-hover:opacity-70 transition-opacity duration-300`} />
