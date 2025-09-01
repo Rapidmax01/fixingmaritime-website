@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
         sections: {
           hero: {
             title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Your trusted partner for comprehensive maritime solutions.'
+            content: 'Your trusted partner for comprehensive maritime solutions.',
+            subtext: 'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
           },
           about: {
             title: 'Leading Maritime Service Provider',
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
           id: section.id,
           title: section.title,
           content: section.content,
+          subtext: section.subtext,
           name: section.name
         }
       })
@@ -81,7 +83,8 @@ export async function GET(request: NextRequest) {
         sections: {
           hero: {
             title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Your trusted partner for comprehensive maritime solutions.'
+            content: 'Your trusted partner for comprehensive maritime solutions.',
+            subtext: 'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
           },
           about: {
             title: 'Leading Maritime Service Provider',

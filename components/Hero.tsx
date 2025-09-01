@@ -195,8 +195,12 @@ export default function Hero() {
               <p className="mt-6 text-lg leading-8 text-gray-300">
                 Your trusted partner for comprehensive maritime solutions.
               </p>
-              <p className="mt-4 text-lg leading-8 text-gray-300">
-                To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.
+              <p className="mt-4 text-base leading-7 text-gray-300">
+                {loading ? (
+                  'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
+                ) : (
+                  content?.sections?.hero?.subtext || 'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
+                )}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
                 <motion.button

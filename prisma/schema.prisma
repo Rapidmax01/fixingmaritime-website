@@ -54,6 +54,7 @@ model ContentSection {
   name      String
   title     String
   content   String
+  subtext   String?  @db.Text
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

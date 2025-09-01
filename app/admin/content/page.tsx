@@ -45,6 +45,7 @@ interface ContentSection {
   name: string
   title: string
   content: string
+  subtext?: string
   type: 'hero' | 'about' | 'services' | 'contact' | 'footer' | 'story' | 'mission' | 'values' | 'leadership'
   isEditing?: boolean
 }
@@ -77,6 +78,7 @@ const mockContentSections: ContentSection[] = [
     name: 'Hero Section',
     title: 'Professional Maritime Solutions',
     content: 'Your trusted partner for comprehensive maritime services including documentation, freight forwarding, warehousing, and custom clearing.',
+    subtext: 'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.',
     type: 'hero'
   },
   {
@@ -240,6 +242,7 @@ export default function AdminContent() {
             name: section.name,
             title: section.title,
             content: section.content,
+            subtext: section.subtext,
             type: section.type
           }))
           setContentSections(formattedSections)
@@ -359,7 +362,7 @@ export default function AdminContent() {
     )
   }
 
-  const updateContent = (sectionId: string, field: 'title' | 'content', value: string) => {
+  const updateContent = (sectionId: string, field: 'title' | 'content' | 'subtext', value: string) => {
     setContentSections(sections =>
       sections.map(section =>
         section.id === sectionId
@@ -383,7 +386,8 @@ export default function AdminContent() {
           type: section.type,
           name: section.name,
           title: section.title,
-          content: section.content
+          content: section.content,
+          subtext: section.subtext
         })
       })
 
@@ -794,6 +798,20 @@ export default function AdminContent() {
                           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                         />
                       </div>
+                      {section.type === 'hero' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Subtext (Call to Action Text)
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={section.subtext || ''}
+                            onChange={(e) => updateContent(section.id, 'subtext', e.target.value)}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            placeholder="e.g., To book for a truck to load and deliver your container..."
+                          />
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -805,6 +823,12 @@ export default function AdminContent() {
                         <h4 className="font-medium text-gray-900 mb-1">Content</h4>
                         <p className="text-gray-700 leading-relaxed">{section.content}</p>
                       </div>
+                      {section.type === 'hero' && section.subtext && (
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-1">Subtext (Call to Action)</h4>
+                          <p className="text-gray-700 leading-relaxed">{section.subtext}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { id, type, name, title, content } = body
+    const { id, type, name, title, content, subtext } = body
 
     if (!type || !name || !title || !content) {
       return NextResponse.json(
@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
           name,
           title,
           content,
+          subtext,
           updatedAt: new Date()
         }
       })
@@ -103,13 +104,15 @@ export async function POST(request: NextRequest) {
           name,
           title,
           content,
+          subtext,
           updatedAt: new Date()
         },
         create: {
           type,
           name,
           title,
-          content
+          content,
+          subtext
         }
       })
     }
@@ -122,7 +125,11 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Save content section error:', error)
     return NextResponse.json(
-      { message: 'Failed to save content section' },
+      { 
+        message: 'Failed to save content section',
+        error: error.message,
+        details: error.toString()
+      },
       { status: 500 }
     )
   }
