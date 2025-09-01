@@ -6,6 +6,7 @@ interface ContentSection {
   id?: string
   title: string
   content: string
+  subtext?: string
   name?: string
 }
 
@@ -79,7 +80,8 @@ export const ContentProvider: React.FC<ContentProviderProps> = ({ children }) =>
         sections: {
           hero: {
             title: 'Your Gateway to Global Maritime Solutions',
-            content: 'Professional maritime services with real-time tracking and comprehensive logistics support.'
+            content: 'Professional maritime services with real-time tracking and comprehensive logistics support.',
+            subtext: 'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
           },
           about: {
             title: 'Leading Maritime Service Provider',
