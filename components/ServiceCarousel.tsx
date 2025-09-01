@@ -304,7 +304,7 @@ export default function ServiceCarousel() {
               {/* Carousel Content */}
               <div className="relative overflow-hidden rounded-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-                  <AnimatePresence mode="wait">
+                  <AnimatePresence>
                     {[0, 1, 2].map((offset) => {
                       const serviceIndex = (currentIndex + offset) % services.length
                       const service = services[serviceIndex]
