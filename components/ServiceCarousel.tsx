@@ -162,10 +162,18 @@ export default function ServiceCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Mount effect for hydration
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Auto-advance functionality
   useEffect(() => {
+    if (!isMounted) return
+
     if (isPlaying && !isPaused) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length)
@@ -180,10 +188,12 @@ export default function ServiceCarousel() {
         clearInterval(intervalRef.current)
       }
     }
-  }, [isPlaying, isPaused])
+  }, [isPlaying, isPaused, isMounted])
 
   // Keyboard navigation
   useEffect(() => {
+    if (!isMounted) return
+
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
         goToPrevious()
@@ -197,7 +207,7 @@ export default function ServiceCarousel() {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [])
+  }, [isMounted])
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length)
@@ -225,7 +235,7 @@ export default function ServiceCarousel() {
 
   // Calculate visible services (show 3 cards on desktop, 1 on mobile)
   const getVisibleServices = () => {
-    if (typeof window === 'undefined') return services.slice(0, 3)
+    if (!isMounted || typeof window === 'undefined') return services.slice(0, 3)
     const visibleCount = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1
     const services_copy = [...services, ...services] // Duplicate for seamless loop
     return Array.from({ length: visibleCount }, (_, i) => {
@@ -282,35 +292,44 @@ export default function ServiceCarousel() {
           role="region"
           aria-label="Services carousel"
         >
-          {/* Carousel Content */}
-          <div className="relative overflow-hidden rounded-2xl">
+          {!isMounted ? (
+            // Static fallback during hydration
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-              <AnimatePresence mode="wait">
-                {[0, 1, 2].map((offset) => {
-                  const serviceIndex = (currentIndex + offset) % services.length
-                  const service = services[serviceIndex]
-                  return (
-                    <motion.div
-                      key={`${serviceIndex}-${currentIndex}`}
-                      initial={{ opacity: 0, x: 300 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -300 }}
-                      transition={{ duration: 0.5, delay: offset * 0.1 }}
-                      className={offset >= 1 ? 'hidden md:block' : offset >= 2 ? 'hidden lg:block' : ''}
-                    >
-                      <ServiceCard 
-                        service={service} 
-                        isActive={offset === 0}
-                      />
-                    </motion.div>
-                  )
-                })}
-              </AnimatePresence>
+              {services.slice(0, 3).map((service, index) => (
+                <ServiceCard key={service.name} service={service} isActive={index === 0} />
+              ))}
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Carousel Content */}
+              <div className="relative overflow-hidden rounded-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                  <AnimatePresence mode="wait">
+                    {[0, 1, 2].map((offset) => {
+                      const serviceIndex = (currentIndex + offset) % services.length
+                      const service = services[serviceIndex]
+                      return (
+                        <motion.div
+                          key={`${serviceIndex}-${currentIndex}`}
+                          initial={{ opacity: 0, x: 300 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -300 }}
+                          transition={{ duration: 0.5, delay: offset * 0.1 }}
+                          className={offset >= 1 ? 'hidden md:block' : offset >= 2 ? 'hidden lg:block' : ''}
+                        >
+                          <ServiceCard 
+                            service={service} 
+                            isActive={offset === 0}
+                          />
+                        </motion.div>
+                      )
+                    })}
+                  </AnimatePresence>
+                </div>
+              </div>
 
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-center mt-8 space-x-6">
+              {/* Navigation Controls */}
+              <div className="flex items-center justify-center mt-8 space-x-6">
             {/* Previous Button */}
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -382,10 +401,12 @@ export default function ServiceCarousel() {
             <span className="font-semibold text-primary-600">{currentIndex + 1}</span> of {services.length} services
           </div>
 
-          {/* Keyboard Instructions */}
-          <div className="text-center mt-2 text-xs text-gray-400">
-            Use arrow keys to navigate • Spacebar to play/pause
-          </div>
+              {/* Keyboard Instructions */}
+              <div className="text-center mt-2 text-xs text-gray-400">
+                Use arrow keys to navigate • Spacebar to play/pause
+              </div>
+            </>
+          )}
         </div>
         
         {/* Fleet Registration CTA remains the same */}
