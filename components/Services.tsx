@@ -58,7 +58,7 @@ const services = [
     icon: FileCheck,
     href: '/services/custom-clearing',
     color: 'from-rose-500 to-pink-500',
-    bgImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    bgImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     features: ['Bills of Lading', 'Customs Papers', 'Digital Processing', 'Import/Export', 'Compliance', 'Duty Optimization'],
   },
 ]
