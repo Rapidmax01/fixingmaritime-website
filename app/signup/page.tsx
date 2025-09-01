@@ -23,13 +23,15 @@ function SignUpForm() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     const callback = searchParams.get('callbackUrl')
     setCallbackUrl(callback)
   }, [searchParams])
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
   const {
     register,
@@ -90,12 +92,20 @@ function SignUpForm() {
     <div className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center items-center">
-          <Anchor className="h-10 w-10 text-primary-600" />
+          {isMounted ? (
+            <img 
+              src="/logo.png" 
+              alt="Fixing Maritime" 
+              className="h-10 w-10 object-contain"
+            />
+          ) : (
+            <Anchor className="h-10 w-10 text-primary-600" />
+          )}
         </Link>
         <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Create your account
         </h2>
-        {callbackUrl?.includes('request-truck') && (
+        {isMounted && callbackUrl?.includes('request-truck') && (
           <div className="mt-4 p-3 bg-primary-50 border border-primary-200 rounded-md">
             <p className="text-center text-sm text-primary-700">
               🚛 Sign up to request truck services and manage all your logistics from your dashboard

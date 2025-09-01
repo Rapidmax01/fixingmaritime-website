@@ -21,21 +21,23 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showResendEmail, setShowResendEmail] = useState('')
   const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
   
-  const message = searchParams.get('message')
-  
+  // Handle hydration
   useEffect(() => {
+    setIsMounted(true)
     const callback = searchParams.get('callbackUrl')
     setCallbackUrl(callback)
   }, [searchParams])
 
-  // Redirect if already logged in
+  // Redirect if already logged in - only after hydration
   useEffect(() => {
+    if (!isMounted) return
     if (status === 'authenticated' && session?.user) {
       const redirectUrl = callbackUrl || '/dashboard'
       router.push(redirectUrl)
     }
-  }, [session, status, router, callbackUrl])
+  }, [session, status, router, callbackUrl, isMounted])
 
   // Show loading while checking authentication
   if (status === 'loading') {
@@ -62,10 +64,12 @@ function LoginForm() {
   }
   
   useEffect(() => {
+    if (!isMounted) return
+    const message = searchParams.get('message')
     if (message === 'verification-sent') {
       toast.success('Verification email sent! Please check your inbox.')
     }
-  }, [message])
+  }, [searchParams, isMounted])
 
   const resendVerification = async (email: string) => {
     try {
@@ -138,7 +142,15 @@ function LoginForm() {
     <div className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Link href="/" className="flex justify-center items-center">
-          <Anchor className="h-10 w-10 text-primary-600" />
+          {isMounted ? (
+            <img 
+              src="/logo.png" 
+              alt="Fixing Maritime" 
+              className="h-10 w-10 object-contain"
+            />
+          ) : (
+            <Anchor className="h-10 w-10 text-primary-600" />
+          )}
         </Link>
         <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Sign in to your account
@@ -155,7 +167,7 @@ function LoginForm() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        {message === 'verification-sent' && (
+        {isMounted && searchParams.get('message') === 'verification-sent' && (
           <div className="mb-6 rounded-md bg-green-50 p-4">
             <div className="flex">
               <div className="flex-shrink-0">
