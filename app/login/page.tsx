@@ -139,73 +139,6 @@ function LoginForm() {
     )
   }
 
-  const resendVerification = async (email: string) => {
-    try {
-      const response = await fetch('/api/auth/resend-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        toast.success('Verification email sent! Please check your inbox.')
-        setShowResendEmail('')
-      } else {
-        toast.error(data.message || 'Failed to send verification email')
-      }
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.')
-    }
-  }
-  
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>()
-
-  const onSubmit = async (data: FormData) => {
-    try {
-      setIsLoading(true)
-
-      // First check if the user exists and is verified
-      const checkResponse = await fetch('/api/auth/check-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email }),
-      })
-
-      if (checkResponse.ok) {
-        const checkData = await checkResponse.json()
-        if (!checkData.emailVerified) {
-          toast.error('Please verify your email address before logging in.')
-          setShowResendEmail(data.email)
-          return
-        }
-      }
-
-      const result = await signIn('credentials', {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      })
-
-      if (result?.error) {
-        toast.error('Invalid email or password')
-      } else {
-        toast.success('Welcome back!')
-        const redirectUrl = callbackUrl || '/dashboard'
-        router.push(redirectUrl)
-      }
-    } catch (error) {
-      toast.error('Something went wrong')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -226,7 +159,7 @@ function LoginForm() {
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
           <Link 
-            href={callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup"} 
+            href={isMounted && callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup"} 
             className="font-semibold text-primary-600 hover:text-primary-500"
           >
             create a new account

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - Demo Mode</title>
+    <script>
+        async function loginAsAdmin() {
+            try {
+                const response = await fetch('http://localhost:3001/api/admin/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@fixingmaritime.com',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('Login successful!', data);
+                    document.getElementById('status').innerHTML = 'Login successful! Token saved. <a href="http://localhost:3001/admin/content">Go to Admin Content</a>';
+                    
+                    // Set the cookie
+                    document.cookie = `admin-token=${data.token}; path=/; max-age=86400`;
+                } else {
+                    console.error('Login failed:', data);
+                    document.getElementById('status').textContent = 'Login failed: ' + data.message;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Admin Login - Demo Mode</h1>
+    <button onclick="loginAsAdmin()">Login as Admin (Demo)</button>
+    <p id="status"></p>
+    
+    <hr>
+    <p>Or visit directly: <a href="http://localhost:3001/admin">Admin Dashboard</a></p>
+    <p>Demo credentials:</p>
+    <ul>
+        <li>Email: admin@fixingmaritime.com</li>
+        <li>Password: admin123</li>
+    </ul>
+</body>
+</html>
