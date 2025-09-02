@@ -1,126 +1,294 @@
-# Fixing Maritime - Professional Maritime Services Website
+# Fixing Maritime - Enterprise Maritime Services Platform
 
-A modern, full-featured website for Fixing Maritime, offering comprehensive maritime logistics solutions including documentation, freight forwarding, warehousing, and custom clearing services.
+<div align="center">
+  <img src="/public/logo.png" alt="Fixing Maritime Logo" width="120" height="120">
+  
+  [![Next.js](https://img.shields.io/badge/Next.js-14.2.5-black?logo=next.js)](https://nextjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+  [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
+  
+  🌐 **Live:** [www.fixingmaritime.com](https://www.fixingmaritime.com)
+</div>
+
+## 📋 Table of Contents
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [API Documentation](#-api-documentation)
+- [Deployment](#-deployment)
+- [Security](#-security)
+- [Recent Updates](#-recent-updates)
+- [Contributing](#-contributing)
+
+## 🌟 Overview
+
+Fixing Maritime is a comprehensive enterprise platform for maritime logistics services, offering end-to-end solutions including truck services, customs clearance, freight forwarding, warehousing, and more. Built with modern web technologies, it features a powerful admin CMS, real-time messaging, invoice generation, and analytics.
+
+**Business Registration:** MOGBASKI (NO. 3420894)
 
 ## 🚀 Features
 
-### Public Website
-- **Modern Landing Page** with dynamic content management
-- **7 Core Maritime Services**: Documentation, Truck Services, Tug Boat & Barge, Procurement, Freight Forwarding, Warehousing, and Custom Clearing
-- **Interactive Service Pages** with detailed information
-- **About Page** with company story, mission, values, and leadership
-- **Contact Page** with inquiry form
-- **Order Tracking** system for customers
-- **User Authentication** with email verification
-- **Shopping Cart** and checkout functionality
-- **Responsive Design** optimized for all devices
+### Customer Portal
+- **🚛 Service Ordering**: Request trucks, tug boats, freight forwarding, and more
+- **📊 Dashboard**: Track orders, invoices, and service history
+- **💬 Real-time Messaging**: Direct communication with admin team
+- **📄 Invoice Management**: View and download invoices
+- **🔍 Order Tracking**: Real-time status updates
+- **👤 User Profiles**: Manage account and preferences
+- **📱 Mobile Responsive**: Optimized for all devices
 
-### Admin Dashboard (/admin)
-- **Content Management System (CMS)**
-  - Edit all website content sections
-  - 9 editable sections: Hero, About, Services, Contact, Footer, Our Story, Mission Statement, Our Values, and Leadership Team
-  - Real-time content updates
-- **User Management** 
-  - View and manage registered users
-  - Assign/remove admin privileges
-- **Order Management** with status tracking
-- **Media Management** for images and files
-- **SEO Settings** management
-- **Messaging System** 
-  - Real-time customer-admin communication
-  - File attachment support (10MB max)
-  - Email notifications to admin emails
-  - All admins see all customer messages
-  - Unread message notifications
-- **Analytics Dashboard** (coming soon)
+### Service Offerings
+- **Truck Services**: GPS-tracked ground transportation
+- **Tug Boat & Barge**: Marine transportation services
+- **Procurement**: Export goods sourcing
+- **Freight Forwarding**: Global shipping solutions
+- **Warehousing**: Climate-controlled storage
+- **Custom Clearance**: Documentation and customs services
+
+### Admin Dashboard
+- **📝 Content Management System (CMS)**
+  - 9 editable content sections
+  - Real-time updates without code changes
+  - Media library management
+  - SEO optimization tools
+  
+- **👥 User Management**
+  - Customer and partner management
+  - Role-based access control
+  - Admin privilege assignment
+  - Activity monitoring
+  
+- **📈 Analytics Dashboard**
+  - Real-time metrics and KPIs
+  - User registration trends
+  - Service usage statistics
+  - Revenue tracking
+  
+- **💼 Business Operations**
+  - Order management and tracking
+  - Quote generation and management
+  - Invoice creation and tracking
+  - Partner/truck registration processing
+  
+- **💬 Communication Center**
+  - Unified messaging inbox
+  - File attachment support (10MB)
+  - Email notifications
+  - Message threading
 
 ### Technical Features
-- **Next.js 14** with App Router
-- **TypeScript** for type safety
-- **Tailwind CSS** for styling
-- **Framer Motion** for animations
-- **Prisma ORM** with PostgreSQL
-- **Supabase** for database and storage
-- **NextAuth.js** for authentication
-- **React Hook Form** for form handling
-- **React Hot Toast** for notifications
-- **Responsive & Mobile-First** design
+- **🔐 Dual Authentication**: NextAuth for customers, JWT for admins
+- **📧 Email Verification**: Secure user registration
+- **🎨 Dynamic UI**: Framer Motion animations
+- **🎯 SEO Optimized**: Meta tags and structured data
+- **⚡ Performance**: Optimized loading and caching
+- **🌐 Internationalization Ready**: Expandable to multiple languages
 
-## 🛠 Installation
+## 🛠 Tech Stack
+
+### Frontend
+- **Framework**: Next.js 14.2.5 (App Router)
+- **Language**: TypeScript 5.0
+- **Styling**: Tailwind CSS 3.4
+- **Animations**: Framer Motion
+- **Forms**: React Hook Form
+- **Icons**: Lucide React
+
+### Backend
+- **Runtime**: Node.js 18+
+- **API**: Next.js API Routes
+- **ORM**: Prisma 5.17
+- **Database**: PostgreSQL (Google Cloud SQL)
+- **Storage**: Supabase
+- **Authentication**: NextAuth.js + Custom JWT
+
+### Infrastructure
+- **Hosting**: Vercel
+- **Database**: Google Cloud SQL (35.192.22.45)
+- **Storage**: Supabase Storage
+- **Email**: Gmail SMTP
+- **DNS**: Configured for fixingmaritime.com
+
+## 🏁 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-- PostgreSQL database (via Supabase)
+```bash
+Node.js 18.0 or higher
+npm or yarn
+PostgreSQL database
+Gmail account for SMTP
+```
 
-### Local Development Setup
+### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Rapidmax01/fixingmaritime-website.git
-   cd fixingmaritime-website
-   ```
+```bash
+git clone https://github.com/Rapidmax01/fixingmaritime-website.git
+cd fixingmaritime-website
+```
 
 2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. **Set up environment variables**
-   
-   Create a `.env.local` file in the root directory:
-   ```env
-   # Database
-   DATABASE_URL="your-postgresql-connection-string"
-   
-   # Authentication
-   NEXTAUTH_SECRET="your-secret-key"
-   NEXTAUTH_URL="http://localhost:3001"
-   
-   # Supabase
-   NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
-   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
-   SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
-   
-   # Email (required for messaging notifications)
-   GMAIL_USER="your-email@gmail.com"
-   GMAIL_APP_PASSWORD="your-app-password"
-   ```
+3. **Environment Setup**
 
-4. **Set up the database**
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
+Create `.env.local` in the root directory:
+```env
+# Database
+DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require"
 
-5. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+# Authentication
+NEXTAUTH_SECRET="your-nextauth-secret-key"
+NEXTAUTH_URL="http://localhost:3001"
 
-6. **Access the application**
-   - Website: http://localhost:3001
-   - Admin: http://localhost:3001/admin
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 
-### Demo Admin Credentials (Development Only)
-- Email: `admin@fixingmaritime.com`
-- Password: `admin123`
+# Email Configuration
+GMAIL_USER="your-email@gmail.com"
+GMAIL_APP_PASSWORD="your-app-specific-password"
+
+# Admin Configuration
+ADMIN_SECRET_KEY="fixingmaritime2024admin"
+```
+
+4. **Database Setup**
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Push schema to database
+npx prisma db push
+
+# Seed initial data (optional)
+npm run seed
+```
+
+5. **Run Development Server**
+```bash
+npm run dev
+```
+
+Access the application:
+- 🌐 Website: http://localhost:3001
+- 🔧 Admin: http://localhost:3001/admin
+
+### Demo Credentials (Development)
+- **Email**: admin@fixingmaritime.com
+- **Password**: admin123
 
 ## 📁 Project Structure
 
 ```
 fixingmaritime-website/
-├── app/                    # Next.js app directory
-│   ├── admin/             # Admin dashboard pages
-│   ├── api/               # API routes
-│   ├── (auth)/            # Authentication pages
-│   └── ...                # Other pages
-├── components/            # React components
-├── contexts/              # React contexts
-├── lib/                   # Utility functions
-├── prisma/                # Database schema
-├── public/                # Static assets
-└── scripts/               # Utility scripts
+├── app/                      # Next.js App Router
+│   ├── (auth)/              # Authentication pages
+│   ├── admin/               # Admin dashboard
+│   ├── api/                 # API routes
+│   └── [pages]/             # Public pages
+├── components/              # Reusable React components
+│   ├── admin/              # Admin-specific components
+│   └── [shared]/           # Shared components
+├── contexts/               # React Context providers
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utility functions
+│   ├── auth.ts            # Authentication utilities
+│   ├── database.ts        # Database connection
+│   └── email.ts           # Email service
+├── prisma/                 # Database schema
+│   └── schema.prisma      # Prisma schema file
+├── public/                 # Static assets
+├── scripts/                # Utility scripts
+└── types/                  # TypeScript definitions
+```
+
+## 📡 API Documentation
+
+### Authentication Endpoints
+
+#### Customer Authentication (NextAuth)
+- `GET /api/auth/signin` - Sign in page
+- `POST /api/auth/signin` - Process login
+- `GET /api/auth/signout` - Sign out
+- `POST /api/auth/signup` - Register new user
+- `POST /api/auth/verify-email` - Verify email address
+
+#### Admin Authentication (JWT)
+- `POST /api/admin/auth/login` - Admin login
+- `GET /api/admin/auth/profile` - Get profile
+- `PUT /api/admin/auth/profile` - Update profile
+- `POST /api/admin/auth/change-password` - Change password
+- `POST /api/admin/auth/logout` - Logout
+
+### Content Management
+```typescript
+// Get all content sections
+GET /api/content
+
+// Update content section (Admin)
+PUT /api/admin/content/sections
+Body: {
+  type: string,
+  title: string,
+  content: string,
+  subtext?: string
+}
+
+// Upload media (Admin)
+POST /api/admin/content/media
+Form-data: file (max 50MB)
+```
+
+### Service Management
+```typescript
+// Public endpoints
+GET /api/services - List all active services
+GET /api/services/:id - Get service details
+
+// Admin endpoints
+GET /api/admin/services - List all services
+POST /api/admin/services - Create service
+PUT /api/admin/services/:id - Update service
+DELETE /api/admin/services/:id - Delete service
+```
+
+### Messaging System
+```typescript
+// Get messages
+GET /api/messages?type=inbox&status=unread
+
+// Send message
+POST /api/messages
+Body: {
+  receiverId: string,
+  subject: string,
+  content: string,
+  attachments?: string[]
+}
+
+// Upload attachment
+POST /api/messages/upload
+Form-data: file (max 10MB)
+```
+
+### Order Management
+```typescript
+// Customer endpoints
+GET /api/orders - List user orders
+GET /api/orders/:id - Get order details
+POST /api/quote-requests - Request quote
+
+// Admin endpoints
+GET /api/admin/orders - List all orders
+PUT /api/admin/orders/:id - Update order
+POST /api/admin/invoices/generate-from-quote - Generate invoice
 ```
 
 ## 🚀 Deployment
@@ -128,183 +296,110 @@ fixingmaritime-website/
 ### Vercel Deployment
 
 1. **Push to GitHub**
-   ```bash
-   git push origin main
-   ```
-
-2. **Import to Vercel**
-   - Go to [Vercel](https://vercel.com)
-   - Import your GitHub repository
-   - Configure environment variables
-
-3. **Environment Variables Required**
-   See `ENVIRONMENT_SETUP.md` for complete list of required environment variables.
-
-### Production Database Setup
-
-1. **Run migrations**
-   ```bash
-   npx prisma migrate deploy
-   ```
-
-2. **Seed initial content**
-   - Login to admin panel
-   - Navigate to `/api/admin/content/migrate` (POST)
-   - Or use the migration button in admin panel
-
-## 📡 API Routes
-
-### Messaging System
-- `GET /api/messages` - Fetch messages (inbox/sent)
-  - Query params: `type` (inbox/sent/all), `status` (read/unread), `count` (true for count only)
-- `POST /api/messages` - Send new message
-  - Body: `{ receiverId, subject, content, parentId?, attachments? }`
-- `PATCH /api/messages` - Mark message as read
-  - Body: `{ messageId, status }`
-- `POST /api/messages/upload` - Upload file attachment
-  - Form data with file (max 10MB)
-
-### Admin Authentication
-- `POST /api/admin/auth/login` - Admin login
-  - Body: `{ email, password }`
-- `GET /api/admin/auth/profile` - Get admin profile
-- `PUT /api/admin/auth/profile` - Update admin profile
-- `POST /api/admin/auth/logout` - Admin logout
-- `POST /api/admin/create-first-admin` - Create initial admin
-  - Body: `{ email, secretKey }`
-
-### User Management
-- `GET /api/users` - Get users list
-  - Customers see only admins, admins see all users
-
-### Content Management
-- `GET /api/content` - Get all content sections (public)
-- `GET /api/admin/content` - Admin content management
-- `PUT /api/admin/content` - Update content section
-- `POST /api/admin/content/migrate` - Migrate/seed initial content
-- `GET /api/admin/content/media` - Get media files
-- `POST /api/admin/content/media` - Upload media
-
-### Services
-- `GET /api/services` - Get all services (public)
-- `GET /api/admin/services` - Admin service management
-- `POST /api/admin/services` - Create service
-- `PUT /api/admin/services/[id]` - Update service
-- `DELETE /api/admin/services/[id]` - Delete service
-
-### Other APIs
-- `POST /api/contact` - Submit contact form
-- `GET /api/quote-requests` - Get quote requests
-- `POST /api/quote-requests` - Submit quote request
-- `GET /api/notifications` - Get notifications
-- `PATCH /api/notifications` - Update notification status
-
-## 🗄️ Database Configuration
-
-### Production Database (Google Cloud)
-The production database is hosted on Google Cloud Platform:
-- Host: 35.192.22.45
-- Port: 5432
-- Database: maritime
-- SSL: Required
-
-### Database Schema
-Key tables include:
-- `app_users` - User accounts and authentication
-- `messages` - Messaging system with attachments
-- `content_sections` - CMS content (9 sections)
-- `services` - Service offerings
-- `media_files` - Uploaded media/attachments
-- `quote_requests` - Customer quote requests
-- `notifications` - System notifications
-- `truck_registrations` - Truck registration data
-- `partner_registrations` - Partner applications
-- `truck_requests` - Truck service requests
-
-## 🔧 Admin Features Guide
-
-### Content Management
-1. Login to `/admin`
-2. Navigate to "Content Management"
-3. Edit any of the 9 content sections:
-   - **Hero Section** - Homepage banner
-   - **About Us** - About page intro
-   - **Services Overview** - Services description
-   - **Contact Information** - Contact details
-   - **Footer Content** - Footer text
-   - **Our Story** - Company history
-   - **Mission Statement** - Company mission
-   - **Our Values** - Core values
-   - **Leadership Team** - Team introduction
-
-### User Management
-1. Navigate to "User Management"
-2. View all registered users
-3. Make users admin or remove admin privileges
-4. First admin must be created via API endpoint
-
-### Creating First Admin
 ```bash
-curl -X POST http://localhost:3001/api/admin/create-first-admin \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@example.com",
-    "secretKey": "fixingmaritime2024admin"
-  }'
+git add .
+git commit -m "Ready for deployment"
+git push origin main
 ```
 
-## 📦 Available Scripts
+2. **Deploy to Vercel**
+- Import repository to Vercel
+- Add environment variables
+- Deploy
 
-- `npm run dev` - Start development server on port 3001
-- `npm run build` - Create production build
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run prisma:generate` - Generate Prisma client
-- `npm run prisma:push` - Push schema to database
-- `npm run prisma:migrate` - Run database migrations
+### Production Environment Variables
+See `ENVIRONMENT_SETUP.md` for complete production configuration.
+
+### Database Migration
+```bash
+# Production migration
+npx prisma migrate deploy
+
+# Seed production data
+NODE_ENV=production npm run seed
+```
 
 ## 🔒 Security
 
-- Environment variables are not committed to git
-- Admin routes are protected with authentication
-- Email verification required for users
-- Secure session management with JWT
-- Input validation and sanitization
-- HTTPS enforced in production
+### Security Features
+- 🔐 Environment variables for sensitive data
+- 🛡️ CSRF protection with NextAuth
+- 🔑 Secure password hashing (bcrypt)
+- 📧 Email verification for new accounts
+- 🚪 Role-based access control (RBAC)
+- 🔍 Input validation and sanitization
+- 🌐 HTTPS enforced in production
+- 📊 Rate limiting on API endpoints
 
-## 🌐 Live Website
+### Security Best Practices
+1. Never commit `.env.local` file
+2. Rotate JWT secrets regularly
+3. Use strong database passwords
+4. Enable 2FA for admin accounts
+5. Regular security audits
+6. Keep dependencies updated
 
-Visit [https://www.fixingmaritime.com](https://www.fixingmaritime.com)
+## 📅 Recent Updates
 
-## 📧 Contact
+### September 2024
+- ✅ Fixed login page duplicate function definitions
+- ✅ Resolved React hydration errors
+- ✅ Fixed Custom Clearance Agent card display issue
+- ✅ Improved service carousel UX
 
-For support or inquiries:
-- Email: info@fixingmaritime.com
-- Phone: +1 (555) 123-4567
+### August 2024
+- ✅ Implemented invoice generation system
+- ✅ Added real-time analytics dashboard
+- ✅ Enhanced messaging system with file attachments
+- ✅ Deployed to Google Cloud SQL
+- ✅ Added hero banner CMS integration
 
-## 🚀 Recent Updates
+### Features Completed
+- 🎯 Full CMS with 9 editable sections
+- 💬 Real-time messaging with notifications
+- 📊 Analytics with page visit tracking
+- 🧾 Invoice generation from quotes
+- 🎨 Service carousel with auto-advance
+- 📱 Mobile-responsive design
+- 🔐 Dual authentication system
 
-### August 2024 - Messaging System Enhancement
-- **File Attachments**: Added support for file uploads in messages (PDF, DOC, XLS, TXT, Images)
-- **Admin Visibility**: All admin users now see ALL customer messages in their inbox
-- **Email Notifications**: Customer messages automatically email raphael@fixingmaritime.com and admin@fixingmaritime.com
-- **Virtual Admin Support**: System works even when admin users aren't in database
-- **Real-time Notifications**: Badge shows unread message count
+## 🤝 Contributing
 
-### Database Fixes
-- Fixed connection pooling issues preventing login
-- Added fallbacks for missing database models
-- Improved error handling for demo mode
+This is a proprietary project for MOGBASKI/Fixing Maritime. For internal contributors:
+
+1. Create a feature branch
+2. Make your changes
+3. Test thoroughly
+4. Submit a pull request
+
+### Coding Standards
+- Use TypeScript for all new code
+- Follow the existing code style
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation
+
+## 📞 Support
+
+For technical support or inquiries:
+- **Email**: admin@fixingmaritime.com
+- **Phone**: +2349073989943
+- **WhatsApp**: [+2349073989943](https://wa.me/2349073989943)
 
 ## 👥 Team
 
 - **CEO & Founder**: Raphael Ugochukwu U.
 - **Head of Technology**: Maximus U.
+- **Development**: Rapidmax01
 
-## 📝 License
+## 📄 License
 
-This project is private and proprietary to Fixing Maritime.
+This project is proprietary software owned by MOGBASKI (Business Registration NO. 3420894). All rights reserved.
 
 ---
 
-Built with ❤️ by Fixing Maritime Team | Powered by Next.js & Vercel
+<div align="center">
+  Built with ❤️ by the Fixing Maritime Team
+  <br>
+  Powered by Next.js, Vercel, and Google Cloud
+</div>
