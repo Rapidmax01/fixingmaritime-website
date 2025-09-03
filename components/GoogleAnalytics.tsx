@@ -2,6 +2,17 @@ import Script from 'next/script'
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
+// Extend Window interface to include gtag
+declare global {
+  interface Window {
+    gtag: (
+      command: 'config' | 'event',
+      targetId: string,
+      config?: Record<string, any>
+    ) => void
+  }
+}
+
 export default function GoogleAnalytics() {
   if (!GA_MEASUREMENT_ID) return null
 
