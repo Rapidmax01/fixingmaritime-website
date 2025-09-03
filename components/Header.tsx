@@ -8,8 +8,18 @@ import { useRouter } from 'next/navigation'
 
 const navigation = [
   { name: 'Home', href: '/' },
-  { name: 'Services', href: '/services' },
+  { 
+    name: 'Services', 
+    href: '/services',
+    submenu: [
+      { name: 'Maritime Logistics', href: '/maritime-logistics' },
+      { name: 'Custom Clearing', href: '/custom-clearing' },
+      { name: 'Tug & Barge', href: '/tug-barge-services' },
+      { name: 'All Services', href: '/services' },
+    ]
+  },
   { name: 'About', href: '/about' },
+  { name: 'FAQ', href: '/maritime-faq' },
   { name: 'Track Order', href: '/track' },
   { name: 'Contact', href: '/contact' },
 ]

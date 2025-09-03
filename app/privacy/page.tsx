@@ -1,5 +1,15 @@
 import { Anchor } from 'lucide-react'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy - Fixing Maritime',
+  description: 'Learn how Fixing Maritime collects, uses, and protects your personal information. Our commitment to data privacy and security for maritime services in Nigeria.',
+  keywords: 'privacy policy, data protection, maritime privacy, personal information, GDPR compliance Nigeria',
+  alternates: {
+    canonical: '/privacy',
+  },
+}
 
 export default function PrivacyPolicy() {
   return (

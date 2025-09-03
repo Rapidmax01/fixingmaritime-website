@@ -187,19 +187,19 @@ export default function Hero() {
             >
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
                 {loading ? (
-                  'Your Gateway to Global Maritime Solutions'
+                  'Maritime Logistics & Custom Clearing Services Nigeria'
                 ) : (
-                  content?.sections?.hero?.title || 'Your Gateway to Global Maritime Solutions'
+                  content?.sections?.hero?.title || 'Maritime Logistics & Custom Clearing Services Nigeria'
                 )}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-300">
-                Your trusted partner for comprehensive maritime solutions.
+                Expert custom clearing, car clearing, tug & barge services, and complete maritime solutions. Your trusted shipping and logistics partner in Nigeria.
               </p>
               <p className="mt-4 text-base leading-7 text-gray-300">
                 {loading ? (
-                  'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
+                  'Professional maritime services including freight forwarding, custom clearing, warehousing, and truck services. Book your shipment or request our services below.'
                 ) : (
-                  content?.sections?.hero?.subtext || 'To book for a truck to load and deliver your container or cargo, safe and sound tap the request for truck(s) button below.'
+                  content?.sections?.hero?.subtext || 'Professional maritime services including freight forwarding, custom clearing, warehousing, and truck services. Book your shipment or request our services below.'
                 )}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
@@ -213,17 +213,44 @@ export default function Hero() {
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
                 </motion.button>
                 <Link
-                  href="/partner-with-us"
+                  href="/custom-clearing"
                   className="rounded-md bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-200 hover:scale-105"
                 >
-                  Partner with Us
+                  Custom Clearing
                   <ArrowRight className="inline-block ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   href="/services"
                   className="text-sm font-semibold leading-6 text-white hover:text-primary-400 transition-colors"
                 >
-                  Explore Services <span aria-hidden="true">→</span>
+                  All Services <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+              {/* Quick Service Links */}
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  href="/maritime-logistics"
+                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
+                >
+                  Maritime Logistics
+                </Link>
+                <Link
+                  href="/tug-barge-services"
+                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
+                >
+                  Tug & Barge
+                </Link>
+                <Link
+                  href="/custom-clearing"
+                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
+                >
+                  Car Clearing
+                </Link>
+                <Link
+                  href="/services"
+                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
+                >
+                  Shipping Services
                 </Link>
               </div>
             </motion.div>

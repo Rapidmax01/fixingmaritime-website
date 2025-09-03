@@ -1,5 +1,15 @@
 import { Anchor } from 'lucide-react'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service - Fixing Maritime',
+  description: 'Read the terms and conditions for using Fixing Maritime services including freight forwarding, custom clearing, warehousing, and marine transportation in Nigeria.',
+  keywords: 'terms of service, maritime terms, shipping conditions, freight terms Nigeria, custom clearing terms',
+  alternates: {
+    canonical: '/terms',
+  },
+}
 
 export default function TermsOfService() {
   return (
