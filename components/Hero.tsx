@@ -226,33 +226,6 @@ export default function Hero() {
                   All Services <span aria-hidden="true">→</span>
                 </Link>
               </div>
-              {/* Quick Service Links */}
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/maritime-logistics"
-                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
-                >
-                  Maritime Logistics
-                </Link>
-                <Link
-                  href="/tug-barge-services"
-                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
-                >
-                  Tug & Barge
-                </Link>
-                <Link
-                  href="/custom-clearing"
-                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
-                >
-                  Car Clearing
-                </Link>
-                <Link
-                  href="/services"
-                  className="inline-flex items-center px-4 py-2 border border-white/30 rounded-md text-sm text-white hover:bg-white/10 transition-all"
-                >
-                  Shipping Services
-                </Link>
-              </div>
             </motion.div>
 
 
