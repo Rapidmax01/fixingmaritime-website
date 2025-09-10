@@ -27,9 +27,9 @@ export default function Footer() {
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
+      <div className="mx-auto max-w-7xl px-6 pb-6 pt-12 sm:pt-16 lg:px-8 lg:pt-20">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div>
               <span className="text-xl font-bold text-white">
                 {loading ? 'Fixing Maritime' : (content?.sections?.footer?.title || 'Fixing Maritime')}
@@ -61,10 +61,10 @@ export default function Footer() {
               </a>
             </div>
           </div>
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+          <div className="mt-12 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div>
               <h3 className="text-sm font-semibold leading-6 text-white">Company</h3>
-              <ul role="list" className="mt-6 space-y-4">
+              <ul role="list" className="mt-4 space-y-3">
                 {navigation.company.map((item) => (
                   <li key={item.name}>
                     <Link href={item.href} className="text-sm leading-6 text-gray-300 hover:text-white">
@@ -76,7 +76,7 @@ export default function Footer() {
             </div>
             <div>
               <h3 className="text-sm font-semibold leading-6 text-white">Support</h3>
-              <ul role="list" className="mt-6 space-y-4">
+              <ul role="list" className="mt-4 space-y-3">
                 {navigation.support.map((item) => (
                   <li key={item.name}>
                     <Link href={item.href} className="text-sm leading-6 text-gray-300 hover:text-white">
@@ -89,8 +89,8 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="mt-12 border-t border-white/10 pt-6 sm:mt-16 lg:mt-20">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-gray-400" />
               <span className="text-sm text-gray-300">info@fixingmaritime.com</span>
@@ -104,7 +104,7 @@ export default function Footer() {
               <span className="text-sm text-gray-300">Africa Office: 1st floor suit 4 plaza beside st. Joseph Catholic church Kirikiri Industrial area, Lagos, Nigeria</span>
             </div>
           </div>
-          <p className="mt-8 text-xs leading-5 text-gray-400">
+          <p className="mt-6 text-xs leading-5 text-gray-400">
             &copy; 2024 MOGBASKI. All rights reserved.
           </p>
         </div>
