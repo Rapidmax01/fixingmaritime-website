@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Anchor, Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
 import { useContent } from '@/contexts/ContentContext'
 
 const navigation = {
@@ -30,9 +30,8 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">
-            <div className="flex items-center">
-              <Anchor className="h-8 w-8 text-primary-400" />
-              <span className="ml-2 text-xl font-bold text-white">
+            <div>
+              <span className="text-xl font-bold text-white">
                 {loading ? 'Fixing Maritime' : (content?.sections?.footer?.title || 'Fixing Maritime')}
               </span>
             </div>
