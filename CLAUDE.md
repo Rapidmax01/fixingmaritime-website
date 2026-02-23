@@ -32,6 +32,7 @@ ps aux | grep "npm\|node" | grep -v grep
 
 ## Admin Credentials
 ### Local Development (Demo Mode)
+- Demo login only works when `NODE_ENV=development` AND database is unavailable
 - Email: `admin@fixingmaritime.com`
 - Password: `admin123`
 
@@ -45,13 +46,40 @@ ps aux | grep "npm\|node" | grep -v grep
 - **Framework**: Next.js 14.2.5 (App Router)
 - **Language**: TypeScript (strict mode)
 - **Database**: Prisma 5.22 + Google Cloud PostgreSQL
-- **Auth**: NextAuth 4.24 (customers) + Custom JWT (admins)
+- **Auth**: NextAuth 4.24 (customers, Google OAuth) + Custom JWT (admins)
 - **UI**: Tailwind CSS, Headless UI, Framer Motion, Lucide icons, Heroicons
 - **State**: React Query (TanStack), Zustand, ContentContext
-- **Email**: Nodemailer (Gmail SMTP), Resend
+- **Email**: Brevo HTTP API (transactional emails)
 - **Payments**: Stripe (partially integrated, currently disabled)
 - **Analytics**: Google Analytics (GA4)
+- **DNS/Email Routing**: Cloudflare (MX -> Cloudflare Email Routing -> fixmaritime@gmail.com)
 - **Deployment**: Vercel
+
+---
+
+## Email System
+- **Provider**: Brevo HTTP API (`https://api.brevo.com/v3/smtp/email`)
+- **Sender**: `Fixing Maritime <admin@fixingmaritime.com>` (verified in Brevo with DKIM + DMARC)
+- **Admin notifications**: Sent to `fixmaritime@gmail.com`
+- **Incoming email**: All `*@fixingmaritime.com` routed via Cloudflare catch-all to `fixmaritime@gmail.com`
+- **Public-facing emails**: Display `info@fixingmaritime.com`, `support@fixingmaritime.com` etc. (all route to fixmaritime@gmail.com)
+- **Free tier**: 300 emails/day
+
+### DNS Records (Cloudflare)
+- **MX**: route1/2/3.mx.cloudflare.net (Cloudflare Email Routing)
+- **SPF**: `v=spf1 include:_spf.mx.cloudflare.net -all`
+- **DMARC**: `v=DMARC1; p=none; rua=mailto:admin@fixingmaritime.com`
+- **A record**: `76.76.21.21` (Vercel)
+- **CNAME www**: Vercel DNS
+
+---
+
+## Google OAuth
+- **Client ID**: `111903154251-g4e39rv729m1bb83p2bu70ba2iqe5iud.apps.googleusercontent.com`
+- **Redirect URIs**: `https://www.fixingmaritime.com/api/auth/callback/google`, `http://localhost:3001/api/auth/callback/google`
+- **Flow**: signIn callback in `lib/auth.ts` creates/links users in DB, sets `emailVerified: true`
+- **Password field**: Optional (`String?`) in schema to support OAuth users without passwords
+- **Google button**: Present on both `/login` and `/signup` pages
 
 ---
 
@@ -82,8 +110,8 @@ ps aux | grep "npm\|node" | grep -v grep
 ### Customer Portal (Protected)
 | Route | Description |
 |-------|-------------|
-| `/login` | Customer login |
-| `/signup` | Customer registration |
+| `/login` | Customer login (credentials + Google OAuth) |
+| `/signup` | Customer registration (credentials + Google OAuth) |
 | `/verify-email` | Email verification |
 | `/forgot-password` | Password reset |
 | `/dashboard` | Customer dashboard |
@@ -116,7 +144,6 @@ ps aux | grep "npm\|node" | grep -v grep
 | `/admin/truck-requests` | Truck service requests |
 | `/admin/settings` | System settings |
 | `/admin/profile` | Admin profile management |
-| `/admin/debug-users` | Debug user info |
 
 ---
 
@@ -127,10 +154,10 @@ ps aux | grep "npm\|node" | grep -v grep
 - `POST /api/auth/verify-email` - Email verification
 - `POST /api/auth/check-verification` - Check verification status
 - `POST /api/auth/resend-verification` - Resend verification
-- `GET|POST /api/auth/[...nextauth]` - NextAuth handlers
+- `GET|POST /api/auth/[...nextauth]` - NextAuth handlers (credentials + Google OAuth)
 
 ### Admin Auth
-- `POST /api/admin/auth/login` - Admin login
+- `POST /api/admin/auth/login` - Admin login (demo mode: dev only + no DB)
 - `POST /api/admin/auth/logout` - Admin logout
 - `GET /api/admin/auth/me` - Current admin info
 - `GET /api/admin/auth/status` - Auth status
@@ -140,9 +167,6 @@ ps aux | grep "npm\|node" | grep -v grep
 ### Content Management
 - `GET /api/content` - Public content (force-dynamic)
 - `GET|POST /api/admin/content/sections` - Content sections CRUD
-- `POST /api/admin/content/migrate` - Content migration
-- `POST /api/admin/content/seed` - Seed initial content
-- `POST /api/admin/content/seed-new-sections` - Seed new sections
 - `POST /api/admin/content/seo` - SEO settings
 - `GET|POST /api/admin/content/media` - Media management
 - `DELETE /api/admin/content/media/[id]` - Delete media
@@ -197,10 +221,9 @@ ps aux | grep "npm\|node" | grep -v grep
 
 ### Other
 - `GET|POST /api/notifications` - Notifications
-- `GET /api/admin/stats` - Dashboard stats
+- `GET /api/admin/stats` - Dashboard stats (requires admin auth)
 - `GET /api/admin/analytics` - Analytics data
-- `POST /api/admin/database/wake` - Wake DB connection
-- `POST /api/admin/create-first-admin` - Initialize first admin
+- `POST /api/admin/create-first-admin` - Initialize first admin (requires ADMIN_CREATION_SECRET env var)
 - `POST /api/create-payment-intent` - Stripe (currently disabled, returns "coming_soon")
 - `GET /api/dashboard/stats` - Customer dashboard stats
 
@@ -210,7 +233,7 @@ ps aux | grep "npm\|node" | grep -v grep
 
 | Model | Table | Description |
 |-------|-------|-------------|
-| `User` | `app_users` | Users with email, password, role, company, phone, address, emailVerified |
+| `User` | `app_users` | Users with email, password (optional for OAuth), role, company, phone, emailVerified |
 | `Service` | `services` | Services with slug, name, description, features (JSON), active status |
 | `ContentSection` | `content_sections` | 9 CMS sections (hero, about, services, contact, footer, story, mission, values, leadership) |
 | `SeoSettings` | `seo_settings` | SEO metadata (title, description, keywords, OG tags) |
@@ -223,7 +246,6 @@ ps aux | grep "npm\|node" | grep -v grep
 | `PartnerRegistration` | `partner_registrations` | Partner apps with company info, banking, documentation, status |
 | `TruckRequest` | `truck_requests` | Truck service requests with pickup/delivery, cargo, urgency, tracking |
 | `PageVisit` | `page_visits` | Analytics - page views with session, device, browser, location |
-| `Order` | (via API) | Order management with tracking |
 
 ---
 
@@ -256,15 +278,14 @@ ps aux | grep "npm\|node" | grep -v grep
 
 ## Utility Libraries (`/lib/`)
 - `admin-auth.ts` - Admin JWT authentication
-- `auth.ts` - NextAuth config with Prisma adapter
+- `auth.ts` - NextAuth config with Google OAuth signIn callback (no PrismaAdapter)
 - `database.ts` - Prisma client singleton
 - `database-wake.ts` - Database connection wake-up
-- `email-service.ts` - Gmail SMTP email service (28KB, full-featured)
-- `email.ts` - Generic email utilities
+- `email-service.ts` - Brevo HTTP API email service (notifications, contact forms, quotes)
+- `email.ts` - Brevo HTTP API for auth emails (verification, password reset)
 - `invoice-service.ts` - Invoice generation
 - `notification-service.ts` - Notification handling
 - `seo-utils.ts` - SEO helpers
-- `supabase.ts` - Supabase client (legacy)
 - `temp-email-store.ts` - Temporary email storage
 - `tracking-service.ts` - Order/package tracking
 
@@ -274,15 +295,15 @@ ps aux | grep "npm\|node" | grep -v grep
 
 **Customer Auth (NextAuth.js):**
 - Credentials provider (email/password)
-- Google OAuth (optional)
-- JWT session strategy
-- PrismaAdapter for database
+- Google OAuth (auto-creates users, sets emailVerified=true)
+- JWT session strategy (no PrismaAdapter - custom signIn callback handles DB)
 - Protected routes: `/dashboard`, `/orders`, `/account`
 
 **Admin Auth (Custom JWT):**
 - Custom JWT token generation via `/api/admin/auth/login`
-- Demo mode fallback when no DB
-- Separate admin middleware
+- Demo mode: only in development + when DB unavailable
+- No hardcoded fallback secrets
+- All admin API endpoints require `admin-token` cookie
 
 ---
 
@@ -290,16 +311,24 @@ ps aux | grep "npm\|node" | grep -v grep
 
 ### Required (Production)
 - `DATABASE_URL` - Google Cloud PostgreSQL connection string
-- `NEXTAUTH_SECRET` - JWT secret
-- `GMAIL_USER` - info@fixingmaritime.com
-- `GMAIL_APP_PASSWORD` - Gmail app-specific password
+- `NEXTAUTH_SECRET` - JWT secret (no fallback - must be set)
+- `BREVO_API_KEY` - Brevo transactional email API key
+- `BREVO_SENDER_EMAIL` - Verified sender (admin@fixingmaritime.com)
+
+### Required (Google OAuth)
+- `GOOGLE_CLIENT_ID` - Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
 
 ### Optional
-- `NEXTAUTH_URL` - Auth callback URL
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
+- `NEXTAUTH_URL` - Auth callback URL (defaults to https://www.fixingmaritime.com)
+- `ADMIN_CREATION_SECRET` - Required to use `/api/admin/create-first-admin`
 - `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` / `STRIPE_WEBHOOK_SECRET` - Stripe payments
 - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` - Google Search Console
-- `NEXT_PUBLIC_YANDEX_VERIFICATION` - Yandex verification
+
+### Deprecated (removed)
+- ~~`GMAIL_USER`~~ - Replaced by BREVO_API_KEY
+- ~~`GMAIL_APP_PASSWORD`~~ - Replaced by BREVO_API_KEY
+- ~~Supabase env vars~~ - Migrated to Google Cloud PostgreSQL
 
 ---
 
@@ -327,7 +356,7 @@ ps aux | grep "npm\|node" | grep -v grep
 - Bidirectional customer-admin messaging
 - File attachments (PDF, DOC, XLS, TXT, images, 10MB max)
 - Shared admin inbox - all admins see all messages
-- Email notifications to raphael@fixingmaritime.com and admin@fixingmaritime.com
+- Email notifications via Brevo to fixmaritime@gmail.com
 - Thread support with parent message tracking
 - Unread message count with polling
 
@@ -351,6 +380,16 @@ ps aux | grep "npm\|node" | grep -v grep
 - Admin analytics dashboard
 - Google Analytics integration
 
+### Google OAuth ✅
+- Sign in and sign up with Google
+- Auto user creation with emailVerified=true
+- Works on both login and signup pages
+
+### Email System ✅
+- Brevo HTTP API (replaced Gmail SMTP)
+- Verified sender: admin@fixingmaritime.com
+- Cloudflare Email Routing catch-all -> fixmaritime@gmail.com
+
 ### Payments (Partial)
 - Stripe integration exists but is disabled
 - `/api/create-payment-intent` returns "coming_soon"
@@ -358,13 +397,20 @@ ps aux | grep "npm\|node" | grep -v grep
 
 ---
 
+## Security Notes
+- Demo admin credentials restricted to development mode + no database only
+- No hardcoded fallback secrets (NEXTAUTH_SECRET, ADMIN_CREATION_SECRET required)
+- Admin stats endpoint requires authentication
+- Admin creation endpoint requires ADMIN_CREATION_SECRET env var
+- Password field is optional in schema (supports OAuth users)
+
 ## Deployment
 - **Platform**: Vercel
-- **Reference deployment**: `Cn86BhJ3Q`
 - **Database**: Google Cloud PostgreSQL (`35.192.22.45:5432/maritime`)
-- **Email**: Gmail SMTP (info@fixingmaritime.com)
+- **Email**: Brevo HTTP API (admin@fixingmaritime.com)
+- **DNS**: Cloudflare (fixingmaritime.com)
 - Set env vars in Vercel dashboard
-- Always test admin login and messaging after deployment
+- Always test admin login, Google OAuth, and email after deployment
 
 ## Utility Scripts (`/scripts/`)
 - `create-admin-user.js` - Create admin user
@@ -372,14 +418,6 @@ ps aux | grep "npm\|node" | grep -v grep
 - `seed-content.js` - Seed content sections
 - `fix-database-schema.js` - Fix schema issues
 - `import-to-gcloud-sql.js` - Import to Google Cloud SQL
-- `export-supabase-data.js` - Export from Supabase (legacy)
-
-## Documentation Files
-- `ENVIRONMENT_SETUP.md` - Environment configuration
-- `ADMIN_SETUP.md` - Admin setup guide
-- `EMAIL_SETUP.md` - Email configuration
-- `GCLOUD_MIGRATION_GUIDE.md` - Google Cloud migration
-- `SEO_OPTIMIZATION.md` - SEO details
 
 ## Team
 - **CEO & Founder**: Raphael Ugochukwu U.
@@ -387,7 +425,8 @@ ps aux | grep "npm\|node" | grep -v grep
 
 ## Testing Checklist
 - [ ] Local server starts on port 3001
-- [ ] Admin login works (demo and production)
+- [ ] Admin login works (production credentials)
+- [ ] Google OAuth sign-in and sign-up works
 - [ ] Content changes in admin reflect on site
 - [ ] All 9 content sections visible in admin
 - [ ] Database connection working
@@ -397,7 +436,10 @@ ps aux | grep "npm\|node" | grep -v grep
 - [ ] Registrations: truck, partner, truck requests
 - [ ] Analytics: page tracking working
 - [ ] Quote requests: submit, claim, respond
+- [ ] Email delivery via Brevo working
 
 ---
-*Last updated: February 22, 2026*
+*Last updated: February 23, 2026*
 *Database: Google Cloud PostgreSQL (35.192.22.45)*
+*Email: Brevo API (admin@fixingmaritime.com)*
+*DNS: Cloudflare (fixingmaritime.com)*
