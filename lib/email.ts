@@ -10,7 +10,7 @@ interface EmailData {
 export async function sendEmail(data: EmailData): Promise<boolean> {
   if (!process.env.BREVO_API_KEY) {
     console.log('Email Demo Mode - Would send:')
-    console.log('From: noreply@fixingmaritime.com')
+    console.log('From: admin@fixingmaritime.com')
     console.log('To:', data.to)
     console.log('Subject:', data.subject)
     console.log('Preview:', data.text.substring(0, 100) + '...')
@@ -18,7 +18,7 @@ export async function sendEmail(data: EmailData): Promise<boolean> {
   }
 
   try {
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@fixingmaritime.com'
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'admin@fixingmaritime.com'
 
     const response = await fetch(BREVO_API_URL, {
       method: 'POST',

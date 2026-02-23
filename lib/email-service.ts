@@ -14,7 +14,7 @@ export async function sendEmail(data: EmailData): Promise<boolean> {
       return true
     }
 
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@fixingmaritime.com'
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'admin@fixingmaritime.com'
 
     const response = await fetch(BREVO_API_URL, {
       method: 'POST',
