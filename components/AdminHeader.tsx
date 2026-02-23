@@ -87,7 +87,7 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
               className="relative p-2 bg-white rounded-xl shadow-md border"
             >
               <img 
-                src="/logo.png" 
+                src="/logo.jpg" 
                 alt="Fixing Maritime" 
                 className="h-8 w-8 object-contain"
               />
@@ -297,7 +297,7 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
                     className="relative p-2 bg-white rounded-xl shadow-lg border"
                   >
                     <img 
-                      src="/logo.png" 
+                      src="/logo.jpg" 
                       alt="Fixing Maritime" 
                       className="h-8 w-8 object-contain"
                     />

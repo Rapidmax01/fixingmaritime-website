@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
       select: { id: true, password: true, email: true, role: true }
     })
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    if (!user || !user.password) {
+      return NextResponse.json({ error: 'User not found or no password set' }, { status: 404 })
     }
 
     // Verify current password

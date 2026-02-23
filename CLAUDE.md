@@ -1,17 +1,28 @@
 # Claude Memory File - Fixing Maritime Website
 
 ## Project Overview
-Full-featured maritime services website with admin CMS, built with Next.js 14, TypeScript, Prisma, and Supabase.
+Full-featured maritime services website with admin CMS, built with Next.js 14.2.5, TypeScript, Prisma 5, and Google Cloud PostgreSQL. Includes customer portal, admin dashboard, messaging system, invoice management, and Stripe payment integration (partial).
 
 ## Quick Start Commands
 ```bash
 # Start development server
-npm run dev
-# Server runs on: http://localhost:3001
+npm run dev                    # Runs on http://localhost:3001
 
 # Database commands
-npx prisma generate
-npx prisma db push
+npm run db:generate            # Generate Prisma client
+npm run db:push                # Push schema to database
+npm run db:studio              # Open Prisma Studio GUI
+npm run db:migrate             # Run migrations
+
+# Build & lint
+npm run build                  # Production build
+npm run lint                   # ESLint check
+
+# Database reset (if needed)
+npx prisma db push --force-reset
+
+# Check if server is running
+ps aux | grep "npm\|node" | grep -v grep
 ```
 
 ## Important URLs
@@ -28,131 +39,365 @@ npx prisma db push
 - Email: `admin@fixingmaritime.com`
 - Password: `Penroof211@`
 
-## Key Technical Details
+---
+
+## Tech Stack
+- **Framework**: Next.js 14.2.5 (App Router)
+- **Language**: TypeScript (strict mode)
+- **Database**: Prisma 5.22 + Google Cloud PostgreSQL
+- **Auth**: NextAuth 4.24 (customers) + Custom JWT (admins)
+- **UI**: Tailwind CSS, Headless UI, Framer Motion, Lucide icons, Heroicons
+- **State**: React Query (TanStack), Zustand, ContentContext
+- **Email**: Nodemailer (Gmail SMTP), Resend
+- **Payments**: Stripe (partially integrated, currently disabled)
+- **Analytics**: Google Analytics (GA4)
+- **Deployment**: Vercel
+
+---
+
+## Project Structure
+
+### Public Pages (`/app/`)
+| Route | Description |
+|-------|-------------|
+| `/` | Home page (Hero, ServiceCarousel, Features, Stats, Testimonials, CTA) |
+| `/about` | About Us |
+| `/services` | Services listing |
+| `/services/[id]` | Individual service detail |
+| `/contact` | Contact form |
+| `/faq` | General FAQ |
+| `/maritime-faq` | Maritime-specific FAQ |
+| `/maritime-logistics` | Maritime logistics info |
+| `/custom-clearing` | Custom clearing services |
+| `/tug-barge-services` | Tug boat & barge services |
+| `/partner-with-us` | Partner opportunities |
+| `/partners` | Partners listing |
+| `/careers` | Career opportunities |
+| `/press` | Press releases |
+| `/support` | Help center |
+| `/privacy` | Privacy policy |
+| `/terms` | Terms of service |
+| `/track` | Order/shipment tracking |
+
+### Customer Portal (Protected)
+| Route | Description |
+|-------|-------------|
+| `/login` | Customer login |
+| `/signup` | Customer registration |
+| `/verify-email` | Email verification |
+| `/forgot-password` | Password reset |
+| `/dashboard` | Customer dashboard |
+| `/orders` | Order management |
+| `/invoices` | Invoice viewing |
+| `/cart` | Shopping cart |
+| `/checkout` | Stripe checkout |
+| `/request-truck` | Request truck services |
+| `/register-truck` | Truck driver registration |
+| `/partner-registration` | Business partner registration |
+
+### Admin Pages (`/app/admin/`)
+| Route | Description |
+|-------|-------------|
+| `/admin` | Admin dashboard |
+| `/admin/login` | Admin login |
+| `/admin/content` | CMS - 9 editable sections |
+| `/admin/services` | Services CRUD management |
+| `/admin/inbox` | Customer messaging with file attachments |
+| `/admin/quotes` | Quote request management |
+| `/admin/invoices` | Invoice management & generation |
+| `/admin/orders` | Order management |
+| `/admin/analytics` | Website analytics & metrics |
+| `/admin/users` | User management |
+| `/admin/users/create-admin` | Create admin accounts |
+| `/admin/admins` | Admin users list |
+| `/admin/contacts` | Contact form submissions |
+| `/admin/truck-registrations` | Truck driver approvals |
+| `/admin/partner-registrations` | Partner application approvals |
+| `/admin/truck-requests` | Truck service requests |
+| `/admin/settings` | System settings |
+| `/admin/profile` | Admin profile management |
+| `/admin/debug-users` | Debug user info |
+
+---
+
+## API Routes (`/app/api/`)
+
+### Authentication
+- `POST /api/auth/signup` - User registration
+- `POST /api/auth/verify-email` - Email verification
+- `POST /api/auth/check-verification` - Check verification status
+- `POST /api/auth/resend-verification` - Resend verification
+- `GET|POST /api/auth/[...nextauth]` - NextAuth handlers
+
+### Admin Auth
+- `POST /api/admin/auth/login` - Admin login
+- `POST /api/admin/auth/logout` - Admin logout
+- `GET /api/admin/auth/me` - Current admin info
+- `GET /api/admin/auth/status` - Auth status
+- `POST /api/admin/auth/change-password` - Change password
+- `GET|POST /api/admin/auth/profile` - Profile management
+
+### Content Management
+- `GET /api/content` - Public content (force-dynamic)
+- `GET|POST /api/admin/content/sections` - Content sections CRUD
+- `POST /api/admin/content/migrate` - Content migration
+- `POST /api/admin/content/seed` - Seed initial content
+- `POST /api/admin/content/seed-new-sections` - Seed new sections
+- `POST /api/admin/content/seo` - SEO settings
+- `GET|POST /api/admin/content/media` - Media management
+- `DELETE /api/admin/content/media/[id]` - Delete media
+
+### Services
+- `GET /api/services` - List services (public)
+- `GET|POST|DELETE /api/admin/services` - Admin CRUD
+- `GET|PUT|DELETE /api/admin/services/[id]` - Individual service
+- `POST /api/admin/services/seed` - Seed services
+
+### User Management
+- `GET /api/users` - Public user info
+- `GET|POST|DELETE /api/admin/users` - User CRUD
+- `GET|PUT|DELETE /api/admin/users/[id]` - Individual user
+- `PATCH /api/admin/users/[id]/status` - Update status
+- `POST /api/admin/users/create-admin` - Create admin
+- `POST /api/admin/users/make-admin` / `remove-admin` - Toggle admin role
+
+### Messaging
+- `GET|POST /api/messages` - Customer-admin messaging
+- `POST /api/messages/upload` - File attachment uploads
+
+### Contact
+- `GET|POST /api/contact` - Contact form
+- `GET|PUT|DELETE /api/contact/[id]` - Individual contact
+
+### Quote Requests
+- `GET|POST /api/quote-requests` - Quote submissions
+- `GET|PUT|DELETE /api/admin/quote-requests/[id]` - Admin management
+- `POST /api/quote-requests/claim` - Claim quote
+
+### Invoices
+- `GET|POST /api/invoices` - Invoice listing
+- `GET|POST|DELETE /api/admin/invoices` - Admin CRUD
+- `GET|PUT|DELETE /api/admin/invoices/[id]` - Individual invoice
+- `POST /api/admin/invoices/generate-from-quote` - Generate from quote
+
+### Orders & Tracking
+- `GET|POST /api/orders` - Orders
+- `GET|PUT|DELETE /api/orders/[id]` - Individual order
+- `GET /api/orders/[id]/tracking` - Tracking info
+- `POST /api/track` - Track shipment
+- `POST /api/track-visit` - Track page visits
+
+### Registrations
+- `POST /api/truck-registration` - Truck driver registration
+- `GET|POST|DELETE /api/admin/truck-registrations` - Admin management
+- `POST /api/truck-request` - Customer truck request
+- `GET|POST|DELETE /api/admin/truck-requests` - Admin management
+- `POST /api/partner-registration` - Partner registration
+- `GET|POST|DELETE /api/admin/partner-registrations` - Admin management
+
+### Other
+- `GET|POST /api/notifications` - Notifications
+- `GET /api/admin/stats` - Dashboard stats
+- `GET /api/admin/analytics` - Analytics data
+- `POST /api/admin/database/wake` - Wake DB connection
+- `POST /api/admin/create-first-admin` - Initialize first admin
+- `POST /api/create-payment-intent` - Stripe (currently disabled, returns "coming_soon")
+- `GET /api/dashboard/stats` - Customer dashboard stats
+
+---
+
+## Database Schema (14 Models)
+
+| Model | Table | Description |
+|-------|-------|-------------|
+| `User` | `app_users` | Users with email, password, role, company, phone, address, emailVerified |
+| `Service` | `services` | Services with slug, name, description, features (JSON), active status |
+| `ContentSection` | `content_sections` | 9 CMS sections (hero, about, services, contact, footer, story, mission, values, leadership) |
+| `SeoSettings` | `seo_settings` | SEO metadata (title, description, keywords, OG tags) |
+| `MediaFile` | `media_files` | Uploaded files with name, type, url, size, dimensions |
+| `Message` | `messages` | Messaging with sender/receiver info, subject, content, attachments (JSON), threadId |
+| `Invoice` | `invoices` | Invoices with invoiceNumber, customer info, items (JSON), amount, tax, status |
+| `QuoteRequest` | `quote_requests` | Quotes with service, description, timeline, budget, status, quotedAmount |
+| `Notification` | `notifications` | System notifications with type, message, status, email tracking |
+| `TruckRegistration` | `truck_registrations` | Driver apps with truck details, insurance, license, specializations, status |
+| `PartnerRegistration` | `partner_registrations` | Partner apps with company info, banking, documentation, status |
+| `TruckRequest` | `truck_requests` | Truck service requests with pickup/delivery, cargo, urgency, tracking |
+| `PageVisit` | `page_visits` | Analytics - page views with session, device, browser, location |
+| `Order` | (via API) | Order management with tracking |
+
+---
+
+## Components (`/components/`)
+- `AdminHeader.tsx` - Admin dashboard header/navigation
+- `Header.tsx` - Main site header/navigation
+- `Footer.tsx` - Site footer
+- `Hero.tsx` - Hero banner with rotating maritime backgrounds
+- `ServiceCarousel.tsx` - Animated service carousel
+- `Services.tsx` - Services display grid
+- `Features.tsx` - Features showcase section
+- `Stats.tsx` - Statistics counters
+- `Testimonials.tsx` - Customer testimonials
+- `CTA.tsx` - Call-to-action section
+- `ConditionalLayout.tsx` - Layout wrapper (shows header/footer conditionally)
+- `AuthLink.tsx` - Auth-aware navigation links
+- `DatabaseStatus.tsx` - Database connection status indicator
+- `DynamicHead.tsx` - Dynamic meta tag management
+- `GoogleAnalytics.tsx` - GA4 integration
+- `PageTracker.tsx` - Page visit tracking
+- `QuoteClaimModal.tsx` - Quote claiming modal
+- `StructuredData.tsx` - JSON-LD structured data for SEO
+
+## Contexts (`/contexts/`)
+- `ContentContext.tsx` - Global content state for 9 CMS sections + SEO settings, with fallback content
+
+## Hooks (`/hooks/`)
+- `useMessageNotifications.ts` - Real-time message notification polling
+- `useRegistrationCounts.ts` - Registration count tracking
+
+## Utility Libraries (`/lib/`)
+- `admin-auth.ts` - Admin JWT authentication
+- `auth.ts` - NextAuth config with Prisma adapter
+- `database.ts` - Prisma client singleton
+- `database-wake.ts` - Database connection wake-up
+- `email-service.ts` - Gmail SMTP email service (28KB, full-featured)
+- `email.ts` - Generic email utilities
+- `invoice-service.ts` - Invoice generation
+- `notification-service.ts` - Notification handling
+- `seo-utils.ts` - SEO helpers
+- `supabase.ts` - Supabase client (legacy)
+- `temp-email-store.ts` - Temporary email storage
+- `tracking-service.ts` - Order/package tracking
+
+---
+
+## Authentication System (Dual)
+
+**Customer Auth (NextAuth.js):**
+- Credentials provider (email/password)
+- Google OAuth (optional)
+- JWT session strategy
+- PrismaAdapter for database
+- Protected routes: `/dashboard`, `/orders`, `/account`
+
+**Admin Auth (Custom JWT):**
+- Custom JWT token generation via `/api/admin/auth/login`
+- Demo mode fallback when no DB
+- Separate admin middleware
+
+---
+
+## Environment Variables
+
+### Required (Production)
+- `DATABASE_URL` - Google Cloud PostgreSQL connection string
+- `NEXTAUTH_SECRET` - JWT secret
+- `GMAIL_USER` - info@fixingmaritime.com
+- `GMAIL_APP_PASSWORD` - Gmail app-specific password
+
+### Optional
+- `NEXTAUTH_URL` - Auth callback URL
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
+- `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` / `STRIPE_WEBHOOK_SECRET` - Stripe payments
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` - Google Search Console
+- `NEXT_PUBLIC_YANDEX_VERIFICATION` - Yandex verification
+
+---
+
+## Middleware (`middleware.ts`)
+- NextAuth-based route protection
+- Protected: `/dashboard`, `/orders`, `/account`
+- Public: `/`, `/login`, `/signup`, `/about`, `/services`, `/contact`, `/track`
+- All `/api/` routes allowed
+
+## Config Files
+- `next.config.js` - Image optimization (Unsplash, fixingmaritime.com), security headers, compression
+- `tailwind.config.ts` - Custom sky blue/navy palette, gradient utilities
+- `tsconfig.json` - Strict mode, `@/*` path alias
+- `postcss.config.js` - Tailwind + Autoprefixer
+
+---
+
+## Key Systems Status
+
+### Content Management ✅
+- 9 editable sections via `/admin/content`
+- Dynamic rendering from database with fallback content
 
 ### Messaging System ✅
-- **Customer-Admin Communication**: Real-time messaging between customers and admins
-- **File Attachments**: Support for PDF, DOC, XLS, TXT, and image uploads (10MB max)
-- **Admin Visibility**: ALL admin users see ALL customer messages in shared inbox
-- **Email Notifications**: Customer messages automatically notify raphael@fixingmaritime.com and admin@fixingmaritime.com
-- **Database**: Messages stored in `messages` table with JSON attachments field
-- **API Endpoints**: `/api/messages`, `/api/messages/upload`, `/api/users`
+- Bidirectional customer-admin messaging
+- File attachments (PDF, DOC, XLS, TXT, images, 10MB max)
+- Shared admin inbox - all admins see all messages
+- Email notifications to raphael@fixingmaritime.com and admin@fixingmaritime.com
+- Thread support with parent message tracking
+- Unread message count with polling
 
-### Content Management System
-- **9 Editable Sections**: Hero, About, Services, Contact, Footer, Our Story, Mission Statement, Our Values, Leadership Team
-- All content is stored in database and dynamically rendered
-- Admin can edit all sections from `/admin/content`
+### Services Management ✅
+- Full CRUD via `/admin/services`
+- Service detail pages at `/services/[id]`
+- Seed functionality for initial data
 
-### Critical Files
-- `/app/api/content/route.ts` - Public content API (has `export const dynamic = 'force-dynamic'`)
-- `/app/admin/content/page.tsx` - Admin content management interface
-- `/app/admin/inbox/page.tsx` - Admin messaging interface with file attachments
-- `/app/api/messages/route.ts` - Messaging API with email notifications
-- `/app/api/messages/upload/route.ts` - File upload API for attachments
-- `/contexts/ContentContext.tsx` - Content state management
-- `/lib/email-service.ts` - Email notifications for messages
-- `prisma/schema.prisma` - Database schema
+### Invoice System ✅
+- Invoice generation from quotes
+- Customer invoice viewing
+- Admin CRUD management
 
-### Environment Setup
-- `.env.local` is gitignored for security
-- See `ENVIRONMENT_SETUP.md` for Vercel environment variables
-- Local development falls back to demo mode if no database connection
-- **Production Database**: Google Cloud PostgreSQL at `35.192.22.45:5432/maritime`
-- **Email Service**: Gmail SMTP for message notifications (GMAIL_USER, GMAIL_APP_PASSWORD required)
+### Registration Systems ✅
+- Truck driver registration & admin approval
+- Partner registration & admin approval
+- Truck service requests with tracking
 
-### Recent Issues Resolved
-1. **Static Generation Problem**: Fixed by adding `export const dynamic = 'force-dynamic'` to content API
-2. **Database Connection Issues**: Resolved Supabase RLS permissions and formatting
-3. **Environment Variables**: Removed .env.local from git tracking for security
-4. **Missing Content Sections**: Added 4 new sections (Story, Mission, Values, Leadership) to database
-5. **Messaging System Issues**: Fixed admin authentication and database lookup errors
-6. **Email Notifications**: Added automatic email alerts for new customer messages
-7. **File Attachments**: Implemented complete attachment system with upload and download
+### Analytics ✅
+- Page visit tracking (`page_visits` table)
+- Admin analytics dashboard
+- Google Analytics integration
 
-## Database Schema Key Tables
-- `content_sections` - Website content (9 sections)
-- `app_users` - User accounts and admin roles
-- `messages` - Customer-admin messaging with attachments (JSON field)
-- `media_files` - File uploads and message attachments
-- `services` - Service offerings management
-- `quote_requests` - Customer quote submissions
-- `notifications` - System notifications
-- `truck_registrations` - Truck driver registrations
-- `partner_registrations` - Business partner applications
-- `truck_requests` - Customer truck service requests
+### Payments (Partial)
+- Stripe integration exists but is disabled
+- `/api/create-payment-intent` returns "coming_soon"
+- Cart and checkout UI are built
 
-## Deployment Notes
-- Deployed on Vercel
-- Working deployment ID: `Cn86BhJ3Q` (reference point)
+---
+
+## Deployment
+- **Platform**: Vercel
+- **Reference deployment**: `Cn86BhJ3Q`
 - **Database**: Google Cloud PostgreSQL (`35.192.22.45:5432/maritime`)
-- Environment variables must be set in Vercel dashboard:
-  - `DATABASE_URL` - Google Cloud connection string
-  - `GMAIL_USER` & `GMAIL_APP_PASSWORD` - For message email notifications
-  - `NEXTAUTH_SECRET` - JWT secret for authentication
+- **Email**: Gmail SMTP (info@fixingmaritime.com)
+- Set env vars in Vercel dashboard
 - Always test admin login and messaging after deployment
 
-## Testing Checklist
-- [ ] Local server starts on port 3001
-- [ ] Admin login works (both demo and production credentials)
-- [ ] Content changes in admin reflect on main site
-- [ ] All 9 content sections visible in admin panel
-- [ ] Database connection working
-- [ ] **Messaging System**:
-  - [ ] Customer can send messages from dashboard inbox
-  - [ ] Messages appear in ALL admin inboxes 
-  - [ ] File attachments upload and download properly
-  - [ ] Email notifications sent to raphael@fixingmaritime.com and admin@fixingmaritime.com
-  - [ ] Admin can reply to customer messages
-  - [ ] Unread message count shows correctly
+## Utility Scripts (`/scripts/`)
+- `create-admin-user.js` - Create admin user
+- `make-admin.js` - Convert user to admin
+- `seed-content.js` - Seed content sections
+- `fix-database-schema.js` - Fix schema issues
+- `import-to-gcloud-sql.js` - Import to Google Cloud SQL
+- `export-supabase-data.js` - Export from Supabase (legacy)
 
-## Common Commands
-```bash
-# Check if server is running
-ps aux | grep "npm\|node" | grep -v grep
-
-# Database reset (if needed)
-npx prisma db push --force-reset
-
-# Build for production
-npm run build
-```
+## Documentation Files
+- `ENVIRONMENT_SETUP.md` - Environment configuration
+- `ADMIN_SETUP.md` - Admin setup guide
+- `EMAIL_SETUP.md` - Email configuration
+- `GCLOUD_MIGRATION_GUIDE.md` - Google Cloud migration
+- `SEO_OPTIMIZATION.md` - SEO details
 
 ## Team
 - **CEO & Founder**: Raphael Ugochukwu U.
 - **Head of Technology**: Maximus U.
 
-## Recent Accomplishments ✅
-- **Services Management System**: Fully implemented with database connectivity
-- **Admin Services Page**: `/admin/services` - Complete CRUD operations 
-- **Service API Routes**: Full REST API for services management
-- **Database Integration**: Prisma + Google Cloud PostgreSQL with proper error handling
-- **Service Status Toggle**: Working activate/deactivate functionality
-- **Seed Functionality**: Auto-populate database with initial services
-- **Add Service Modal**: Complete form with validation and dynamic features
-- **Edit Service Modal**: Pre-populated form for service updates
-- **Delete Service Modal**: Confirmation dialog with database deletion
-- **View Service Modal**: Detailed service information display
-- **All Buttons Active**: Add, Edit, Delete, View actions fully functional
-
-## Messaging System Accomplishments ✅
-- **Complete Messaging Infrastructure**: Customer-admin bidirectional messaging
-- **File Attachment System**: Upload/download with 10MB limit, multiple file types
-- **Shared Admin Inbox**: All admins see all customer messages
-- **Email Integration**: Auto-notifications to raphael@fixingmaritime.com and admin@fixingmaritime.com
-- **Real-time Notifications**: Unread message count with polling updates
-- **Thread Support**: Reply functionality with parent message tracking
-- **Database Schema**: Full `messages` table with attachments JSON field
-- **Admin Authentication**: Dual auth system (NextAuth + JWT) with demo fallbacks
-
-## Next Steps / TODO
-- Service ordering capability for customers
-- Individual service detail pages
-- Analytics dashboard implementation
-- Performance optimizations
+## Testing Checklist
+- [ ] Local server starts on port 3001
+- [ ] Admin login works (demo and production)
+- [ ] Content changes in admin reflect on site
+- [ ] All 9 content sections visible in admin
+- [ ] Database connection working
+- [ ] Messaging: send, receive, attachments, email notifications
+- [ ] Services: add, edit, delete, view, toggle status
+- [ ] Invoices: create, view, generate from quote
+- [ ] Registrations: truck, partner, truck requests
+- [ ] Analytics: page tracking working
+- [ ] Quote requests: submit, claim, respond
 
 ---
-*Last updated: August 28, 2025*
-*Local server status: Running on port 3001*
-*Services system: Fully functional ✅*
-*Messaging system: Fully functional ✅*
+*Last updated: February 22, 2026*
 *Database: Google Cloud PostgreSQL (35.192.22.45)*

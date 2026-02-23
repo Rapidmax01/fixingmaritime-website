@@ -2,12 +2,10 @@ import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import bcrypt from 'bcryptjs'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
 
 import prisma from '@/lib/database'
 
 export const authOptions: NextAuthOptions = {
-  ...(prisma && { adapter: PrismaAdapter(prisma) }),
   providers: [
     // Only add OAuth providers if credentials are available
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
@@ -35,11 +33,6 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // Check if email is verified (disabled for demo)
-        // if (!(user as any).emailVerified) {
-        //   throw new Error('Please verify your email before logging in')
-        // }
-
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
@@ -66,6 +59,42 @@ export const authOptions: NextAuthOptions = {
     error: '/login',
   },
   callbacks: {
+    async signIn({ user, account }) {
+      // For Google OAuth, create or update the user in our database
+      if (account?.provider === 'google' && prisma) {
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! }
+          })
+
+          if (existingUser) {
+            // User exists - update emailVerified if not already set
+            if (!existingUser.emailVerified) {
+              await prisma.user.update({
+                where: { email: user.email! },
+                data: { emailVerified: true }
+              })
+            }
+            // Set the user id to our database id for JWT
+            user.id = existingUser.id
+          } else {
+            // Create new user from Google profile
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name || '',
+                emailVerified: true,
+              }
+            })
+            user.id = newUser.id
+          }
+        } catch (error) {
+          console.error('Error handling Google sign-in:', error)
+          return false
+        }
+      }
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
