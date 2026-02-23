@@ -1,17 +1,18 @@
 import nodemailer from 'nodemailer'
 
-// Create reusable transporter object using Gmail SMTP
+// Create reusable transporter object using Brevo SMTP
 const createTransporter = () => {
-  // Check if Gmail credentials are configured
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_SMTP_KEY) {
     return null
   }
 
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
     auth: {
-      user: process.env.GMAIL_USER, // info@fixingmaritime.com
-      pass: process.env.GMAIL_APP_PASSWORD // App-specific password
+      user: process.env.BREVO_SMTP_USER,
+      pass: process.env.BREVO_SMTP_KEY,
     }
   })
 }
@@ -28,8 +29,8 @@ export async function sendEmail(data: EmailData): Promise<boolean> {
   
   // If no transporter (credentials not configured), log to console (demo mode)
   if (!transporter) {
-    console.log('📧 Email Demo Mode - Would send:')
-    console.log('From: info@fixingmaritime.com')
+    console.log('Email Demo Mode - Would send:')
+    console.log('From: noreply@fixingmaritime.com')
     console.log('To:', data.to)
     console.log('Subject:', data.subject)
     console.log('Preview:', data.text.substring(0, 100) + '...')
@@ -37,16 +38,16 @@ export async function sendEmail(data: EmailData): Promise<boolean> {
   }
   
   try {
-    // Send email using Gmail SMTP
+    // Send email using Brevo SMTP
     const result = await transporter.sendMail({
-      from: '"Fixing Maritime" <info@fixingmaritime.com>',
+      from: `"Fixing Maritime" <${process.env.BREVO_SENDER_EMAIL || 'noreply@fixingmaritime.com'}>`,
       to: data.to,
       subject: data.subject,
       html: data.html,
       text: data.text,
     })
     
-    console.log('✅ Email sent successfully via Gmail:', result.messageId)
+    console.log('Email sent successfully via Brevo:', result.messageId)
     return true
   } catch (error) {
     console.error('❌ Failed to send email:', error)

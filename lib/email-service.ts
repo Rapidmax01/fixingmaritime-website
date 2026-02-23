@@ -7,26 +7,26 @@ interface EmailData {
   text?: string
 }
 
-// Configure Gmail service using existing environment variables
+// Configure Brevo SMTP service
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: 'smtp-relay.brevo.com',
   port: 587,
-  secure: false, // true for 465, false for other ports
+  secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_KEY,
   },
 })
 
 export async function sendEmail(data: EmailData): Promise<boolean> {
   try {
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_SMTP_KEY) {
       console.log('Email service not configured - email would be sent:', data.subject)
       return true // Return true in development to avoid blocking
     }
 
     await transporter.sendMail({
-      from: `"Fixing Maritime" <${process.env.GMAIL_USER}>`,
+      from: `"Fixing Maritime" <${process.env.BREVO_SENDER_EMAIL || 'noreply@fixingmaritime.com'}>`,
       to: data.to,
       subject: data.subject,
       text: data.text,
@@ -337,7 +337,7 @@ export async function sendContactFormNotifications(contactData: {
   message: string
   submissionId: string
 }): Promise<boolean> {
-  const adminEmails = ['info@fixingmaritime.com', 'raphael@fixingmaritime.com', 'admin@fixingmaritime.com']
+  const adminEmails = ['fixmaritime@gmail.com']
   const emailContent = generateContactFormEmail(contactData)
   
   try {
@@ -375,7 +375,7 @@ export async function sendQuoteFormNotifications(quoteData: {
   budget?: string
   quoteId: string
 }): Promise<boolean> {
-  const adminEmails = ['info@fixingmaritime.com', 'raphael@fixingmaritime.com', 'admin@fixingmaritime.com']
+  const adminEmails = ['fixmaritime@gmail.com']
   
   const emailSubject = `New Quote Request: ${quoteData.serviceName} - Fixing Maritime`
   
@@ -747,7 +747,7 @@ export async function sendTruckRegistrationNotifications(registrationData: {
   plateNumber: string
   registrationId: string
 }): Promise<boolean> {
-  const adminEmails = ['info@fixingmaritime.com', 'raphael@fixingmaritime.com', 'admin@fixingmaritime.com']
+  const adminEmails = ['fixmaritime@gmail.com']
   
   try {
     // Send notification to admin team
