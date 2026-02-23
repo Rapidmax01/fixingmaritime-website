@@ -121,8 +121,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Demo mode fallback (when database is unavailable or query failed)
-    if (email === 'admin@fixingmaritime.com' && password === 'admin123') {
+    // Demo mode fallback (only when database is truly unavailable in development)
+    if (process.env.NODE_ENV === 'development' && !prisma && email === 'admin@fixingmaritime.com' && password === 'admin123') {
       const demoUser = {
         id: 'demo-admin',
         email: 'admin@fixingmaritime.com',
@@ -137,16 +137,13 @@ export async function POST(req: NextRequest) {
       )
 
       const response = NextResponse.json(
-        {
-          message: 'Login successful (Demo Mode)',
-          user: demoUser
-        },
+        { message: 'Login successful (Demo Mode)', user: demoUser },
         { status: 200 }
       )
 
       response.cookies.set('admin-token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
         sameSite: 'lax',
         maxAge: 8 * 60 * 60,
       })
@@ -154,13 +151,8 @@ export async function POST(req: NextRequest) {
       return response
     }
 
-    // Neither real credentials nor demo credentials worked
     return NextResponse.json(
-      { 
-        message: prisma 
-          ? 'Invalid credentials' 
-          : 'Database unavailable. Use demo credentials: admin@fixingmaritime.com / admin123' 
-      },
+      { message: 'Invalid credentials' },
       { status: 401 }
     )
 

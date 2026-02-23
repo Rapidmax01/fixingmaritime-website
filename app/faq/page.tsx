@@ -85,7 +85,7 @@ export default function FAQ() {
         },
         {
           question: 'How can I contact customer support?',
-          answer: 'You can reach us through our contact form, email at info@fixingmaritime.com, or phone at +1 (555) 123-4567. Our support team is available Monday-Friday 8AM-6PM EST.'
+          answer: 'You can reach us through our contact form, email at info@fixingmaritime.com, or call us at +2349073989943. Our support team is available Monday-Friday 8AM-6PM WAT.'
         },
         {
           question: 'What happens if my shipment is delayed?',

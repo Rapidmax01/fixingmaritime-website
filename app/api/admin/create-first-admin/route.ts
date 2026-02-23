@@ -8,8 +8,13 @@ export async function POST(req: NextRequest) {
   try {
     const { email, secretKey } = await req.json()
 
-    // Simple security check - you should change this secret key
-    const ADMIN_CREATION_SECRET = process.env.ADMIN_CREATION_SECRET || 'fixingmaritime2024admin'
+    const ADMIN_CREATION_SECRET = process.env.ADMIN_CREATION_SECRET
+    if (!ADMIN_CREATION_SECRET) {
+      return NextResponse.json(
+        { message: 'Admin creation not configured' },
+        { status: 503 }
+      )
+    }
     
     if (secretKey !== ADMIN_CREATION_SECRET) {
       return NextResponse.json(

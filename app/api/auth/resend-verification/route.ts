@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     // })
 
     // Generate verification URL
-    const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/verify-email?token=${emailVerifyToken}`
+    const verificationUrl = `${process.env.NEXTAUTH_URL || 'https://www.fixingmaritime.com'}/verify-email?token=${emailVerifyToken}`
 
     // Generate email content
     const emailContent = generateVerificationEmail(user.name || email, verificationUrl)

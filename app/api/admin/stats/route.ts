@@ -11,8 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database not available' }, { status: 503 })
     }
 
-    // Admin authentication check removed for demo purposes
-    // In production, you would want to verify admin access here
+    // Verify admin access
+    const adminToken = request.cookies.get('admin-token')?.value
+    if (!adminToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     // Get current date ranges
     const now = new Date()

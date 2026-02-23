@@ -42,7 +42,8 @@ const CheckoutForm = ({ isGuest }: CheckoutFormProps) => {
     if (isGuest) {
       const guestOrder = sessionStorage.getItem('guestOrder')
       if (guestOrder) {
-        const order = JSON.parse(guestOrder)
+        let order: any
+        try { order = JSON.parse(guestOrder) } catch { return }
         setCartItems([{
           id: '1',
           serviceName: order.serviceName,

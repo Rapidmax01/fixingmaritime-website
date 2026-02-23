@@ -14,7 +14,7 @@ const navigation = {
   support: [
     { name: 'Contact', href: '/contact' },
     { name: 'Track Order', href: '/track' },
-    { name: 'FAQ', href: '/faq' },
+    { name: 'FAQ', href: '/maritime-faq' },
     { name: 'Terms', href: '/terms' },
     { name: 'Privacy', href: '/privacy' },
   ],
@@ -93,7 +93,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-300">info@fixingmaritime.com</span>
+              <a href="mailto:info@fixingmaritime.com" className="text-sm text-gray-300 hover:text-white">info@fixingmaritime.com</a>
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-gray-400" />
@@ -105,7 +105,7 @@ export default function Footer() {
             </div>
           </div>
           <p className="mt-6 text-xs leading-5 text-gray-400">
-            &copy; 2024 MOGBASKI. All rights reserved.
+            &copy; {new Date().getFullYear()} Fixing Maritime. All rights reserved.
           </p>
         </div>
       </div>
