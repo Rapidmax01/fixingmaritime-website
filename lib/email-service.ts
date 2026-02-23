@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer'
-
 interface EmailData {
   to: string
   subject: string
@@ -7,31 +5,38 @@ interface EmailData {
   text?: string
 }
 
-// Configure Brevo SMTP service
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_KEY,
-  },
-})
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
 
 export async function sendEmail(data: EmailData): Promise<boolean> {
   try {
-    if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_SMTP_KEY) {
+    if (!process.env.BREVO_API_KEY) {
       console.log('Email service not configured - email would be sent:', data.subject)
-      return true // Return true in development to avoid blocking
+      return true
     }
 
-    await transporter.sendMail({
-      from: `"Fixing Maritime" <${process.env.BREVO_SENDER_EMAIL || 'noreply@fixingmaritime.com'}>`,
-      to: data.to,
-      subject: data.subject,
-      text: data.text,
-      html: data.html,
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@fixingmaritime.com'
+
+    const response = await fetch(BREVO_API_URL, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'Fixing Maritime', email: senderEmail },
+        to: [{ email: data.to }],
+        subject: data.subject,
+        htmlContent: data.html,
+        textContent: data.text || '',
+      }),
     })
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('Brevo API error:', error)
+      return false
+    }
 
     console.log('Email sent successfully to:', data.to)
     return true
